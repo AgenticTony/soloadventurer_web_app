@@ -3,11 +3,11 @@ name: IaC Deploy
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [ "main", "develop", "feature/iac-setup" ]
     paths: [ "infra/**" ]
 
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main", "develop", "feature/iac-setup" ]
     tags: [ "v*", "release-*" ]
     paths: [ "infra/**" ]
 
