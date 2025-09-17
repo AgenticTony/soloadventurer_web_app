@@ -1,0 +1,59 @@
+name: IaC Deploy
+
+on:
+  pull_request:
+    branches: ["main", "develop"]
+    paths: ["infra/**", "lambda/**", ".github/workflows/iac-deploy.yml"]
+  push:
+    branches: ["main", "develop"]
+    tags: ["v*", "release-*"]
+    paths: ["infra/**", "lambda/**", ".github/workflows/iac-deploy.yml"]
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # needed for OIDC
+      contents: read
+      pull-requests: write
+    env:
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }} # pass region to Terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS creds via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_IAC_ROLE_ARN }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: infra/terraform
+        run: terraform init -upgrade
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: infra/terraform
+        run: |
+          terraform plan -out=tfplan
+          terraform show -no-color tfplan > plan.txt
+
+      - name: Comment Plan (PRs only)
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: terraform-plan
+          message: |
+            #### Terraform plan
+            ```
+            ${{ steps.plan.outputs.stdout }}
+            ```
+
+      - name: Terraform Apply (push only)
+        if: github.event_name == 'push'
+        working-directory: infra/terraform
+        run: terraform apply -auto-approve tfplan

@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* SoloAdventurer Light Theme */
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%; /* ink-900 */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    
+    --primary: 174 42% 40%; /* brand-500 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 84% 5%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --accent: 33 90% 50%; /* sun-500 */
+    --accent-foreground: 222 84% 5%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 174 42% 40%; /* brand-500 */
+    
+    --radius: 1.5rem; /* 2xl radius */
+    
+    /* Brand Colors */
+    --brand-50: 187 100% 96%;
+    --brand-100: 186 94% 90%;
+    --brand-200: 184 85% 81%;
+    --brand-300: 180 77% 66%;
+    --brand-400: 186 90% 53%;
+    --brand-500: 174 42% 40%;
+    --brand-600: 176 48% 30%;
+    --brand-700: 175 44% 23%;
+    --brand-800: 175 39% 19%;
+    --brand-900: 176 58% 11%;
+    
+    /* Accent Colors */
+    --sun-500: 33 90% 50%;
+    --coral-500: 350 83% 71%;
+    --sky-500: 199 89% 49%;
+    
+    /* Neutral Colors */
+    --ink-50: 210 40% 98%;
+    --ink-100: 210 40% 96.1%;
+    --ink-200: 214.3 31.8% 91.4%;
+    --ink-300: 213.7 26.8% 83.9%;
+    --ink-400: 215 20.2% 65.1%;
+    --ink-500: 215.4 16.3% 46.9%;
+    --ink-600: 215.3 19.3% 34.5%;
+    --ink-700: 215.3 25% 26.7%;
+    --ink-800: 217.2 32.6% 17.5%;
+    --ink-900: 222.2 84% 4.9%;
+    
+    /* Shadows */
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+  
+  .dark {
+    /* SoloAdventurer Dark Theme */
+    --background: 222 47% 7%; /* #0b1220 */
+    --foreground: 210 40% 98%;
+    
+    --card: 222 84% 5%; /* #0f172a */
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 186 90% 53%; /* brand-400 bright aqua */
+    --primary-foreground: 222 84% 5%;
+    
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 33 90% 50%; /* sun-500 */
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 63% 30%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 186 90% 53%;
+    
+    /* Dark mode brand colors */
+    --brand-50: 176 58% 11%;
+    --brand-100: 175 39% 19%;
+    --brand-200: 175 44% 23%;
+    --brand-300: 176 48% 30%;
+    --brand-400: 186 90% 53%;
+    --brand-500: 180 77% 66%;
+    --brand-600: 184 85% 81%;
+    --brand-700: 186 94% 90%;
+    --brand-800: 187 100% 96%;
+    --brand-900: 187 100% 98%;
+    
+    /* Dark mode shadows */
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-md;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
+
+@layer components {
+  /* Card styles */
+  .card-base {
+    @apply bg-card text-card-foreground rounded-2xl shadow-card;
+  }
+  
+  .card-interactive {
+    @apply card-base transition-all duration-200 hover:shadow-card-hover;
+  }
+  
+  /* Button variants */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+  
+  /* Text styles */
+  .text-muted {
+    @apply text-muted-foreground;
+  }
+  
+  .text-link {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-in {
+    animation: animateIn 0.2s ease-out;
+  }
+  
+  .animate-out {
+    animation: animateOut 0.15s ease-in forwards;
+  }
+  
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes animateOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  
+  /* Hide scrollbar utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

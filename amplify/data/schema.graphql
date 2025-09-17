@@ -1,0 +1,330 @@
+# Enums for better type safety
+enum TravelPace {
+  RELAXED
+  MODERATE
+  FAST
+}
+
+enum BudgetLevel {
+  BUDGET
+  MID_RANGE
+  LUXURY
+}
+
+enum AccommodationType {
+  HOSTEL
+  HOTEL
+  BNB
+  RESORT
+}
+
+enum DiningPreference {
+  STREET_FOOD
+  LOCAL_RESTAURANTS
+  FINE_DINING
+  MIXED
+}
+
+enum ActivityType {
+  HIKING
+  CULTURE
+  NIGHTLIFE
+  FOOD
+  ADVENTURE
+  RELAXATION
+  SHOPPING
+  PHOTOGRAPHY
+  NATURE
+  URBAN
+}
+
+enum TripStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum FollowStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+type User @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  email: String! @index(name: "byEmail", queryField: "userByEmail")
+  name: String!
+  avatar: String
+  bio: String
+  location: String
+  emailVerified: Boolean!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  trips: [Trip] @hasMany(indexName: "byUser", fields: ["id"])
+  travelStyle: TravelStyle @hasOne
+  preferences: UserPreferences @hasOne
+  followers: [UserFollow] @hasMany(indexName: "byFollowingUser", fields: ["id"])
+  following: [UserFollow] @hasMany(indexName: "byFollowedUser", fields: ["id"])
+}
+
+type TravelStyle @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  travelPace: TravelPace!
+  budget: BudgetLevel!
+  accommodationPreference: AccommodationType!
+  diningPreference: DiningPreference!
+  activityPreferences: [ActivityType!]!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type UserPreferences @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  language: String! # "en", "es", "fr", "de", "it", "pt", "zh", "ja"
+  currency: String! # "USD", "EUR", "GBP", "JPY", "AUD", "CAD"
+  timezone: String! # "UTC", "America/New_York", "Europe/London"
+  notificationSettings: NotificationSettings
+  privacySettings: PrivacySettings
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type NotificationSettings {
+  emailNotifications: Boolean!
+  pushNotifications: Boolean!
+  tripReminders: Boolean!
+  newMessages: Boolean!
+  connectionRequests: Boolean!
+}
+
+type PrivacySettings {
+  profileVisibility: String! # "public", "friends", "private"
+  showEmail: Boolean!
+  showLocation: Boolean!
+  allowMessages: Boolean!
+}
+
+type UserFollow @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  followingUserId: ID! @index(name: "byFollowingUser", fields: ["followingUserId"])
+  followingUser: User @belongsTo(fields: ["followingUserId"], references: ["id"])
+  followedUserId: ID! @index(name: "byFollowedUser", fields: ["followedUserId"])
+  followedUser: User @belongsTo(fields: ["followedUserId"], references: ["id"])
+  status: FollowStatus!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Trip @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  title: String!
+  description: String
+  status: TripStatus!
+  startDate: AWSDateTime!
+  endDate: AWSDateTime!
+  destination: Destination! @hasOne
+  budget: Float
+  currency: String!
+  isPublic: Boolean!
+  travelStyle: TravelStyleInput
+  travelers: [TripTraveler] @hasMany(indexName: "byTrip", fields: ["id"])
+  posts: [TripPost] @hasMany(indexName: "byTrip", fields: ["id"])
+  expenses: [Expense] @hasMany(indexName: "byTrip", fields: ["id"])
+  itinerary: [ItineraryItem] @hasMany(indexName: "byTrip", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Destination @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  tripId: ID! @index(name: "byTrip", fields: ["tripId"])
+  trip: Trip @belongsTo(fields: ["tripId"], references: ["id"])
+  country: String!
+  city: String!
+  state: String
+  latitude: Float
+  longitude: Float
+  timezone: String!
+  currency: String!
+  language: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TripTraveler @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  tripId: ID! @index(name: "byTrip", fields: ["tripId"])
+  trip: Trip @belongsTo(fields: ["tripId"], references: ["id"])
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  role: String! # "organizer", "participant", "viewer"
+  status: String! # "invited", "accepted", "declined", "left"
+  joinedAt: AWSDateTime
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TripPost @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  tripId: ID! @index(name: "byTrip", fields: ["tripId"])
+  trip: Trip @belongsTo(fields: ["tripId"], references: ["id"])
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  title: String!
+  content: String!
+  images: [PostImage] @hasMany(indexName: "byPost", fields: ["id"])
+  location: String
+  tags: [String]
+  likes: [PostLike] @hasMany(indexName: "byPost", fields: ["id"])
+  comments: [PostComment] @hasMany(indexName: "byPost", fields: ["id"])
+  isPublic: Boolean!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type PostImage @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  postId: ID! @index(name: "byPost", fields: ["postId"])
+  post: TripPost @belongsTo(fields: ["postId"], references: ["id"])
+  url: String!
+  caption: String
+  order: Int!
+  createdAt: AWSDateTime!
+}
+
+type PostLike @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  postId: ID! @index(name: "byPost", fields: ["postId"])
+  post: TripPost @belongsTo(fields: ["postId"], references: ["id"])
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  createdAt: AWSDateTime!
+}
+
+type PostComment @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  postId: ID! @index(name: "byPost", fields: ["postId"])
+  post: TripPost @belongsTo(fields: ["postId"], references: ["id"])
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  content: String!
+  parentId: ID
+  replies: [PostComment] @hasMany(indexName: "byParentComment", fields: ["id"])
+  parentComment: PostComment @belongsTo(fields: ["parentId"], references: ["id"])
+  likes: [CommentLike] @hasMany(indexName: "byComment", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type CommentLike @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  commentId: ID! @index(name: "byComment", fields: ["commentId"])
+  comment: PostComment @belongsTo(fields: ["commentId"], references: ["id"])
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  createdAt: AWSDateTime!
+}
+
+type Expense @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  tripId: ID! @index(name: "byTrip", fields: ["tripId"])
+  trip: Trip @belongsTo(fields: ["tripId"], references: ["id"])
+  userId: ID! @index(name: "byUser", fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"], references: ["id"])
+  category: String! # "accommodation", "food", "transport", "activities", "shopping", "other"
+  amount: Float!
+  currency: String!
+  description: String!
+  date: AWSDateTime!
+  receipts: [ExpenseReceipt] @hasMany(indexName: "byExpense", fields: ["id"])
+  paidBy: String! # "me", "split_equally", "custom"
+  splitBetween: [String] # User IDs for custom splitting
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type ExpenseReceipt @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  expenseId: ID! @index(name: "byExpense", fields: ["expenseId"])
+  expense: Expense @belongsTo(fields: ["expenseId"], references: ["id"])
+  url: String!
+  filename: String!
+  uploadedAt: AWSDateTime!
+}
+
+type ItineraryItem @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  tripId: ID! @index(name: "byTrip", fields: ["tripId"])
+  trip: Trip @belongsTo(fields: ["tripId"], references: ["id"])
+  type: String! # "accommodation", "transport", "activity", "meal", "other"
+  title: String!
+  description: String
+  location: String
+  startTime: AWSDateTime!
+  endTime: AWSDateTime
+  cost: Float
+  currency: String
+  status: String! # "planned", "completed", "cancelled"
+  notes: String
+  attachments: [ItineraryAttachment] @hasMany(indexName: "byItineraryItem", fields: ["id"])
+  order: Int!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type ItineraryAttachment @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  itineraryItemId: ID! @index(name: "byItineraryItem", fields: ["itineraryItemId"])
+  itineraryItem: ItineraryItem @belongsTo(fields: ["itineraryItemId"], references: ["id"])
+  url: String!
+  filename: String!
+  type: String! # "image", "document", "other"
+  uploadedAt: AWSDateTime!
+}
+
+# Input Types for Mutations
+input TravelStyleInput {
+  travelPace: String
+  budget: String
+  accommodationPreference: String
+  diningPreference: String
+  activityPreferences: [String]
+}
+
+# Queries
+type Query {
+  getUserFeed: [TripPost] @auth(rules: [{ allow: private }])
+  searchUsers(query: String!): [User] @auth(rules: [{ allow: private }])
+  searchTrips(query: String!): [Trip] @auth(rules: [{ allow: private }])
+  getTripStatistics(tripId: ID!): TripStatistics @auth(rules: [{ allow: private }])
+}
+
+type TripStatistics {
+  totalExpenses: Float!
+  averageDailyExpense: Float!
+  expenseByCategory: [ExpenseByCategory]
+  travelersCount: Int!
+  postsCount: Int!
+  itineraryItemsCount: Int!
+}
+
+type ExpenseByCategory {
+  category: String!
+  total: Float!
+  percentage: Float!
+}
+
+# Custom Subscriptions
+type Subscription {
+  onTripUpdate(tripId: ID!): Trip @aws_subscribe(mutations: ["updateTrip"])
+  onNewPost(tripId: ID!): TripPost @aws_subscribe(mutations: ["createTripPost"])
+  onNewComment(postId: ID!): PostComment @aws_subscribe(mutations: ["createPostComment"])
+  onNewFollower(userId: ID!): UserFollow @aws_subscribe(mutations: ["createUserFollow"])
+}

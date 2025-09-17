@@ -1,0 +1,11 @@
+// Mock AWS Amplify auth module
+export const signIn = jest.fn()
+export const signUp = jest.fn()
+export const signOut = jest.fn()
+export const resetPassword = jest.fn()
+export const confirmResetPassword = jest.fn()
+export const confirmSignUp = jest.fn()
+export const fetchAuthSession = jest.fn()
+export const getCurrentUser = jest.fn()
+export const fetchUserAttributes = jest.fn()
+export const resendSignUpCode = jest.fn()
