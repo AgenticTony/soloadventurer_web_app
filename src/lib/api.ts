@@ -33,9 +33,13 @@ export async function createTrip(tripData: CreateTripInput): Promise<CreateTripR
       throw new TripsApiError('User not authenticated');
     }
 
-    // Get API endpoint from amplify outputs
-    const amplifyOutputs = await import('../../amplify_outputs.json');
-    const apiEndpoint = amplifyOutputs.custom?.API?.TripsAPI?.endpoint;
+    // Get API endpoint from environment or amplify outputs
+    let apiEndpoint = process.env.NEXT_PUBLIC_API_BASE;
+
+    if (!apiEndpoint) {
+      const amplifyOutputs = await import('../../amplify_outputs.json');
+      apiEndpoint = amplifyOutputs.custom?.API?.TripsAPI?.endpoint;
+    }
 
     if (!apiEndpoint) {
       throw new TripsApiError('API endpoint not configured');

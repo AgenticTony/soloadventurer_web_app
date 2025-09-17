@@ -8,6 +8,7 @@ import {
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Alarm, Metric } from 'aws-cdk-lib/aws-cloudwatch';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { tripsApi } from './functions/trips-api/resource';
@@ -84,6 +85,42 @@ backend.tripsApi.resources.lambda.addToRolePolicy(
     resources: [backend.data.resources.tables['Trip'].tableArn],
   })
 );
+
+// Add CloudWatch Alarms
+const functionName = backend.tripsApi.resources.lambda.functionName;
+
+// 5XX Error Alarm
+new Alarm(apiStack, 'TripApi5XXAlarm', {
+  alarmName: 'TripAPI-5XX-Errors',
+  alarmDescription: 'Alert when 5XX errors > 5/min',
+  metric: new Metric({
+    namespace: 'AWS/ApiGateway',
+    metricName: '5XXError',
+    dimensionsMap: {
+      ApiName: tripsRestApi.restApiName,
+      Stage: 'dev',
+    },
+    statistic: 'Sum',
+  }),
+  threshold: 5,
+  evaluationPeriods: 1,
+});
+
+// Lambda Duration Alarm
+new Alarm(apiStack, 'TripApiDurationAlarm', {
+  alarmName: 'TripAPI-Lambda-Duration',
+  alarmDescription: 'Alert when Lambda p95 duration > 2s',
+  metric: new Metric({
+    namespace: 'AWS/Lambda',
+    metricName: 'Duration',
+    dimensionsMap: {
+      FunctionName: functionName,
+    },
+    statistic: 'p95',
+  }),
+  threshold: 2000,
+  evaluationPeriods: 2,
+});
 
 // Add outputs
 backend.addOutput({

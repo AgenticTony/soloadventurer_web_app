@@ -18,6 +18,7 @@ Enable users to create, manage, and discover trips through an interactive map in
 ### Trip Management
 - Trip creation wizard with location, dates, and activities
 - Trip CRUD operations (Create, Read, Update, Delete)
+
 - Trip sharing and privacy controls
 - Trip templates and suggestions
 
