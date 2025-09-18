@@ -2,15 +2,14 @@
 
 import { useState, use } from 'react'
 import { ProfileLayout } from '@/components/layout/ProfileLayout'
-import { AnimatedGradientBackground } from '@/components/ui/animated-gradient-background'
 import { ParallaxHero } from '@/components/ui/parallax-hero'
 import { AnimatedStatCard } from '@/components/ui/animated-stat-card'
 import { TravelMap } from '@/components/ui/travel-map'
 import { motion } from 'framer-motion'
 import { 
-  MapPin, Globe, Calendar, Camera, Users, Star, 
+  MapPin, Globe, Camera, Users, 
   Mountain, Plane, Heart, MessageCircle, Share2,
-  Award, Compass, Map, Backpack, CameraIcon
+  Award, Compass, Map, CameraIcon
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

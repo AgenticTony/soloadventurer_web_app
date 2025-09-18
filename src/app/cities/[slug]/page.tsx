@@ -18,11 +18,6 @@ export default function CityPage({ params }: CityPageProps) {
   const { slug } = use(params)
   const [activeTab, setActiveTab] = useState('feed')
 
-  const mockUser = {
-    name: 'Sarah Chen',
-    avatar: '',
-    location: 'San Francisco, CA'
-  }
 
   const mockCity = {
     name: slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),

@@ -164,7 +164,7 @@ export function usePaginatedState<T = unknown>(initialPage = 1) {
       setError(err)
       throw err
     }
-  }, [reset, setLoading, setData, initialPage])
+  }, [reset, setLoading, setData, setError, initialPage])
 
   return {
     ...state,

@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext'
 function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { login, isLoading, isAuthenticated } = useAuth()
+  const { login, isLoading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

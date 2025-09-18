@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, Command, MapPin, Users, Calendar, Hash, Star } from 'lucide-react'
+import { Search, X, MapPin, Users, Calendar, Hash, Star } from 'lucide-react'
 
 interface SearchResult {
   id: string
@@ -45,6 +45,19 @@ export function SearchOmni({
   const resultsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
+  const handleClose = () => {
+    setIsOpen(false)
+    setQuery('')
+    setResults([])
+    setSelectedIndex(0)
+  }
+
+  const handleSelectResult = useCallback((result: SearchResult) => {
+    onSelect?.(result)
+    router.push(result.url)
+    handleClose()
+  }, [onSelect, router])
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -84,7 +97,7 @@ export function SearchOmni({
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, results, selectedIndex])
+  }, [isOpen, results, selectedIndex, handleSelectResult])
 
   // Search for results when query changes
   useEffect(() => {
@@ -131,19 +144,6 @@ export function SearchOmni({
   const handleOpen = () => {
     setIsOpen(true)
     setTimeout(() => inputRef.current?.focus(), 100)
-  }
-
-  const handleClose = () => {
-    setIsOpen(false)
-    setQuery('')
-    setResults([])
-    setSelectedIndex(0)
-  }
-
-  const handleSelectResult = (result: SearchResult) => {
-    onSelect?.(result)
-    router.push(result.url)
-    handleClose()
   }
 
   const getResultIcon = (type: SearchResult['type']) => {

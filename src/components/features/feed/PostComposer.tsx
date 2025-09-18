@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import NextImage from 'next/image'
 import { Image, MapPin, Calendar, Smile, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -90,10 +91,13 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
               {selectedImages.map((image, index) => (
                 <div key={index} className="relative group">
                   <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                    <img
+                    <NextImage
                       src={URL.createObjectURL(image)}
                       alt={`Upload ${index + 1}`}
+                      width={200}
+                      height={200}
                       className="w-full h-full object-cover"
+                      unoptimized
                     />
                   </div>
                   <button

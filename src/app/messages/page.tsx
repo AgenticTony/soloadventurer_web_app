@@ -2,18 +2,12 @@
 
 import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { UserMiniCard } from '@/components/features/users/UserMiniCard'
 import { MessageCircle, Search, Paperclip, Send, MoreVertical } from 'lucide-react'
 
 export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
-  const mockUser = {
-    name: 'Sarah Chen',
-    avatar: '',
-    location: 'San Francisco, CA'
-  }
 
   const mockConversations = [
     {

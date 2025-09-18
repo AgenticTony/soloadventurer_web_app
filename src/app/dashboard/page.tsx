@@ -6,12 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Link from 'next/link'
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
-
-  const handleLogout = async () => {
-    await logout()
-    window.location.href = '/sign-in'
-  }
+  const {} = useAuth()
 
   return (
     <div className="bg-gray-50">

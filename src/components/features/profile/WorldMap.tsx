@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-// @ts-expect-error - react-simple-maps doesn't have TypeScript definitions
-import { 
-  ComposableMap, 
-  Geographies, 
-  Geography, 
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
   ZoomableGroup
 } from 'react-simple-maps'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -210,8 +209,8 @@ export function WorldMap({ visitedCountries = [], className = '' }: WorldMapProp
           >
             <ZoomableGroup center={[0, 20]} zoom={1}>
               <Geographies geography={geoUrl}>
-                {({ geographies }) =>
-                  geographies.map((geo) => (
+                {({ geographies }: { geographies: GeographyObject[] }) =>
+                  geographies.map((geo: GeographyObject) => (
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}

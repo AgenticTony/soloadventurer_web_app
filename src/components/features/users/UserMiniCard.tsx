@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, MessageCircle, Users, Camera, Globe, Calendar } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, MessageCircle, Globe, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface UserMiniCardProps {
@@ -60,9 +61,11 @@ export function UserMiniCard({ user, onFollow, onMessage, showActions, compact =
         {/* Avatar */}
         <div className="flex-shrink-0">
           {user.avatar ? (
-            <img
+            <Image
               src={user.avatar}
               alt={user.name}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
@@ -110,9 +113,11 @@ export function UserMiniCard({ user, onFollow, onMessage, showActions, compact =
         <div className="flex items-center space-x-3">
           {/* Avatar */}
           {user.avatar ? (
-            <img
+            <Image
               src={user.avatar}
               alt={user.name}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (

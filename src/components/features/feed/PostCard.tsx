@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import {
   Heart,
   MessageCircle,
@@ -11,7 +12,6 @@ import {
   Bookmark,
   ThumbsUp,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 interface PostCardProps {
   id: string
@@ -102,9 +102,11 @@ export function PostCard({
     if (photos.length === 1) {
       return (
         <div className="mt-3 overflow-hidden rounded-xl">
-          <img
+          <Image
             src={photos[0].url}
             alt={photos[0].alt || 'Post image'}
+            width={800}
+            height={400}
             className="h-auto max-h-[400px] w-full object-cover"
           />
         </div>
@@ -116,9 +118,11 @@ export function PostCard({
         <div className="mt-3 grid grid-cols-2 gap-1 overflow-hidden rounded-xl">
           {photos.map((photo, index) => (
             <div key={photo.id} className="aspect-square">
-              <img
+              <Image
                 src={photo.url}
                 alt={photo.alt || `Post image ${index + 1}`}
+                width={400}
+                height={400}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -131,23 +135,29 @@ export function PostCard({
       return (
         <div className="mt-3 grid grid-cols-2 gap-1 overflow-hidden rounded-xl">
           <div className="row-span-2">
-            <img
+            <Image
               src={photos[0].url}
               alt={photos[0].alt || 'Post image 1'}
+              width={400}
+              height={800}
               className="h-full w-full object-cover"
             />
           </div>
           <div className="aspect-square">
-            <img
+            <Image
               src={photos[1].url}
               alt={photos[1].alt || 'Post image 2'}
+              width={400}
+              height={400}
               className="h-full w-full object-cover"
             />
           </div>
           <div className="aspect-square">
-            <img
+            <Image
               src={photos[2].url}
               alt={photos[2].alt || 'Post image 3'}
+              width={400}
+              height={400}
               className="h-full w-full object-cover"
             />
           </div>
@@ -160,9 +170,11 @@ export function PostCard({
         <div className="mt-3 grid grid-cols-2 gap-1 overflow-hidden rounded-xl">
           {photos.map((photo, index) => (
             <div key={photo.id} className="aspect-square">
-              <img
+              <Image
                 src={photo.url}
                 alt={photo.alt || `Post image ${index + 1}`}
+                width={400}
+                height={400}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -176,9 +188,11 @@ export function PostCard({
       <div className="mt-3 grid grid-cols-2 gap-1 overflow-hidden rounded-xl">
         {photos.slice(0, 4).map((photo, index) => (
           <div key={photo.id} className="relative aspect-square">
-            <img
+            <Image
               src={photo.url}
               alt={photo.alt || `Post image ${index + 1}`}
+              width={400}
+              height={400}
               className="h-full w-full object-cover"
             />
             {index === 3 && photos.length > 4 && (

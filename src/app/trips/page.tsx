@@ -2,17 +2,11 @@
 
 import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { UserMiniCard } from '@/components/features/users/UserMiniCard'
 import { Calendar, MapPin, Plus, Filter } from 'lucide-react'
 
 export default function TripsPage() {
   const [activeTab, setActiveTab] = useState('my-trips')
 
-const mockUser = {
-  name: 'Sarah Chen',
-  avatar: '',
-  location: 'San Francisco, CA'
-}
 
   const mockTrips = [
     {

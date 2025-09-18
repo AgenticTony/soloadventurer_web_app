@@ -2,17 +2,11 @@
 
 import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { UserMiniCard } from '@/components/features/users/UserMiniCard'
 import { Heart, MessageCircle, Users, Calendar, MapPin, Filter } from 'lucide-react'
 
 export default function NotificationsPage() {
   const [activeFilter, setActiveFilter] = useState('all')
 
-const mockUser = {
-  name: 'Sarah Chen',
-  avatar: '',
-  location: 'San Francisco, CA'
-}
 
   const mockNotifications = [
     {
