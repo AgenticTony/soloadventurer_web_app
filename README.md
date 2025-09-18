@@ -65,11 +65,14 @@ A modern social platform for solo travelers built with Next.js 15, React 19 RC, 
 - [Mobile Architecture](./docs/adr/0002-mobile-flutter-web-react.md)
 
 ### Sprint Documentation
-- [Sprint 1: Foundations & Authentication](./docs/sprints/sprint-01-foundations.md)
-- [Sprint 2: Trips & Explore Map](./docs/sprints/sprint-02-trips-map.md)
+- [Sprint 1: Foundations & Authentication](./docs/sprints/sprint-01-foundations.md) ✅
+- [Sprint 2: Trips & Explore Map](./docs/sprints/sprint-02-trips-map.md) 🔄 (75% complete)
 - [Sprint 3: Matching & Connections](./docs/sprints/sprint-03-matching-connections.md)
 - [Sprint 4: Messaging & Feed](./docs/sprints/sprint-04-messages-feed.md)
 - [Sprint 5: Safety & Scaling](./docs/sprints/sprint-05-safety-scale.md)
+
+### Technical Implementation Guides
+- [Mapbox Integration Guide](./docs/MAPBOX_INTEGRATION_GUIDE.md) - Complete technical documentation for map functionality
 
 ## 🛠 Development
 
@@ -412,8 +415,8 @@ For support and questions:
 
 ## 📊 Project Status
 
-**Current Sprint**: Sprint 1 - Foundations & Authentication ✅  
-**Next Sprint**: Sprint 2 - Trips & Explore Map  
+**Current Sprint**: Sprint 2 - Trips & Explore Map 🔄 (75% complete)
+**Major Milestone**: Interactive map with location services ✅
 **MVP Target**: Q4 2024
 
 ### Completed Features
@@ -425,12 +428,15 @@ For support and questions:
 - ✅ Keyboard navigation
 - ✅ Dark mode support
 - ✅ Accessibility features
+- ✅ Interactive explore map with Mapbox GL JS
+- ✅ User location detection and navigation
+- ✅ Trip visualization with marker clustering
 
 ### In Progress
+- 🚧 Trip CRUD operations and management UI
 - 🚧 Backend integration (AWS AppSync)
 - 🚧 Real-time messaging
-- 🚧 Trip planning features
-- 🚧 Explore map integration
+- 🚧 Advanced map search and filtering
 
 ### Upcoming Features
 - 📅 Real-time location sharing
