@@ -13,16 +13,17 @@
     "test:watch": "jest --watch",
     "deploy": "next build && next start",
     "prepare": "husky",
-    "lint-staged": {
-      "*.{js,jsx,ts,tsx}": [
-        "eslint --fix",
-        "prettier --write"
-      ],
-      "*.{json,css,md}": [
-        "prettier --write"
-      ]
-    },
+    "lint-staged": "lint-staged",
     "e2e": "cypress run"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "keywords": [
     "travel",
