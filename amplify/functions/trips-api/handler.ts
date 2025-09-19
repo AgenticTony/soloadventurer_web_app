@@ -1,10 +1,11 @@
-import type { APIGatewayProxyHandler } from 'aws-lambda';
+import type { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'crypto';
 
 const client = new DynamoDBClient({});
-const ddbDocClient = DynamoDBDocumentClient.from(client);
+const ddb = DynamoDBDocumentClient.from(client);
+const TABLE = process.env.TRIP_TABLE_NAME!;
 
 interface TripInput {
   title: string;
@@ -58,44 +59,105 @@ function isValidISODate(dateString: string): boolean {
   return date.toISOString().startsWith(dateString.split('T')[0]);
 }
 
+// Pagination helper functions
+function encodeCursor(lastEvaluatedKey: any): string {
+  return Buffer.from(JSON.stringify(lastEvaluatedKey)).toString('base64');
+}
+
+function decodeCursor(cursor: string): any {
+  try {
+    return JSON.parse(Buffer.from(cursor, 'base64').toString('utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function validateLimit(limit?: string): number {
+  if (!limit) return 20;
+  const parsed = parseInt(limit, 10);
+  if (isNaN(parsed) || parsed < 1) return 1;
+  if (parsed > 100) return 100;
+  return parsed;
+}
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Methods': 'POST,GET,OPTIONS',
+};
+
 export const handler: APIGatewayProxyHandler = async (event) => {
-  // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-    'Access-Control-Allow-Methods': 'POST,OPTIONS',
-  };
 
   // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
+    return { statusCode: 200, headers: corsHeaders, body: '' };
   }
 
-  // Only allow POST
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+  if (event.httpMethod === 'POST') {
+    return handleCreateTrip(event);
   }
 
+  if (event.httpMethod === 'GET') {
+    const id = event.pathParameters?.id;
+    return id ? handleGetTrip(event, id) : handleListTrips(event);
+  }
+
+  return {
+    statusCode: 405,
+    headers: corsHeaders,
+    body: JSON.stringify({ error: 'Method not allowed' }),
+  };
+};
+
+// Helper functions
+function ok(data: any): APIGatewayProxyResult {
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify(data),
+  };
+}
+
+function notFound(): APIGatewayProxyResult {
+  return {
+    statusCode: 404,
+    headers: corsHeaders,
+    body: JSON.stringify({ error: 'Trip not found' }),
+  };
+}
+
+function unauthorized(): APIGatewayProxyResult {
+  return {
+    statusCode: 401,
+    headers: corsHeaders,
+    body: JSON.stringify({ error: 'Unauthorized' }),
+  };
+}
+
+function serverError(): APIGatewayProxyResult {
+  return {
+    statusCode: 500,
+    headers: corsHeaders,
+    body: JSON.stringify({ error: 'Internal server error' }),
+  };
+}
+
+function getUserId(event: APIGatewayProxyEvent): string | undefined {
+  return (event.requestContext.authorizer as any)?.claims?.sub;
+}
+
+async function handleCreateTrip(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   try {
     // Get user from Cognito
-    const cognitoIdentityId = event.requestContext.identity.cognitoIdentityId;
-    if (!cognitoIdentityId) {
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ error: 'Unauthorized' }),
-      };
-    }
+    const userId = getUserId(event);
+    if (!userId) return unauthorized();
 
     // Parse and validate input
     if (!event.body) {
       return {
         statusCode: 400,
-        headers,
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Request body is required' }),
       };
     }
@@ -106,7 +168,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (validationErrors.length > 0) {
       return {
         statusCode: 400,
-        headers,
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Validation failed', details: validationErrors }),
       };
     }
@@ -117,35 +179,111 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const tripItem = {
       id: tripId,
-      ownerId: cognitoIdentityId,
+      ownerId: userId,
       title: tripInput.title.trim(),
       startDate: tripInput.startDate,
       endDate: tripInput.endDate,
       isPrivate: tripInput.isPrivate || false,
       createdAt: now,
       updatedAt: now,
-      owner: cognitoIdentityId, // For Amplify auth
+      owner: userId, // For Amplify auth
     };
 
     // Insert into DynamoDB
-    await ddbDocClient.send(
+    await ddb.send(
       new PutCommand({
-        TableName: process.env.TRIP_TABLE_NAME,
+        TableName: TABLE,
         Item: tripItem,
       })
     );
 
     return {
       statusCode: 201,
-      headers,
+      headers: corsHeaders,
       body: JSON.stringify({ id: tripId }),
     };
   } catch (error) {
     console.error('Error creating trip:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'Internal server error' }),
-    };
+    return serverError();
   }
-};
+}
+
+async function handleGetTrip(event: APIGatewayProxyEvent, id: string): Promise<APIGatewayProxyResult> {
+  try {
+    const userId = getUserId(event);
+    if (!userId) return unauthorized();
+
+    const { Item } = await ddb.send(new GetCommand({
+      TableName: TABLE,
+      Key: { id },
+    }));
+
+    if (!Item) return notFound();
+
+    // deny if private and not owner
+    if (Item.isPrivate === true && Item.ownerId !== userId) return notFound();
+
+    return ok(Item);
+  } catch (error) {
+    console.error('Error getting trip:', error);
+    return serverError();
+  }
+}
+
+async function handleListTrips(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  try {
+    const userId = getUserId(event);
+    if (!userId) return unauthorized();
+
+    const queryOwnerId = event.queryStringParameters?.ownerId;
+    const limit = validateLimit(event.queryStringParameters?.limit);
+    const nextToken = event.queryStringParameters?.nextToken;
+
+    // Decode cursor if provided
+    const exclusiveStartKey = nextToken ? decodeCursor(nextToken) : undefined;
+    if (nextToken && !exclusiveStartKey) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Invalid nextToken' }),
+      };
+    }
+
+    const ownerId = queryOwnerId || userId;
+
+    // Build query parameters
+    const queryParams: any = {
+      TableName: TABLE,
+      IndexName: 'ownerId-index',
+      KeyConditionExpression: 'ownerId = :o',
+      ExpressionAttributeValues: { ':o': ownerId },
+      Limit: limit,
+    };
+
+    if (exclusiveStartKey) {
+      queryParams.ExclusiveStartKey = exclusiveStartKey;
+    }
+
+    // If querying other user's trips, filter to public only
+    if (ownerId !== userId) {
+      queryParams.FilterExpression = 'isPrivate = :f';
+      queryParams.ExpressionAttributeValues[':f'] = false;
+    }
+
+    const result = await ddb.send(new QueryCommand(queryParams));
+
+    // Prepare response with pagination
+    const responseData: any = {
+      items: result.Items || []
+    };
+
+    if (result.LastEvaluatedKey) {
+      responseData.nextToken = encodeCursor(result.LastEvaluatedKey);
+    }
+
+    return ok(responseData);
+  } catch (error) {
+    console.error('Error listing trips:', error);
+    return serverError();
+  }
+}

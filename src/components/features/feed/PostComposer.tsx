@@ -135,6 +135,7 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
                 htmlFor="image-upload"
                 className="cursor-pointer flex flex-col items-center justify-center space-y-2"
               >
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image className="w-8 h-8 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
                   Drag & drop photos here or click to browse
@@ -153,6 +154,7 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
                 htmlFor="image-upload"
                 className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer"
               >
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image className="w-5 h-5 text-muted-foreground hover:text-foreground" />
               </label>
               

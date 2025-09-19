@@ -31,7 +31,7 @@ interface UserMiniCardProps {
   compact?: boolean
 }
 
-export function UserMiniCard({ user, onFollow, onMessage, showActions, compact = false }: UserMiniCardProps) {
+export function UserMiniCard({ user, onFollow, onMessage, compact = false }: UserMiniCardProps) {
   const [isFollowing, setIsFollowing] = useState(false)
 
   const handleFollow = () => {

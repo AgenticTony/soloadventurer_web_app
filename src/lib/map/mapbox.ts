@@ -41,18 +41,16 @@ export function createMap(options: Omit<MapboxOptions, 'accessToken'>): mapboxgl
 
 export function convertTripsToGeoJSON(trips: Trip[]): TripGeoJSON {
   const features: TripFeature[] = trips
-    .filter(trip => {
-      return true;
-    })
+    // Filter out trips without valid coordinates
+    .filter(trip => trip.coordinates?.latitude && trip.coordinates?.longitude)
     .map(trip => {
-      const mockLat = 40.7128 + (Math.random() - 0.5) * 10;
-      const mockLng = -74.0060 + (Math.random() - 0.5) * 20;
+      const { latitude, longitude } = trip.coordinates!;
 
       return {
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [mockLng, mockLat],
+          coordinates: [longitude, latitude], // GeoJSON format: [lng, lat]
         },
         properties: {
           id: trip.id,
@@ -168,14 +166,14 @@ export function addTripMarkers(map: mapboxgl.Map, geoJSON: TripGeoJSON): void {
       if (err) return;
 
       map.easeTo({
-        center: (features[0].geometry as any).coordinates,
+        center: (features[0].geometry as unknown as { coordinates: [number, number] }).coordinates,
         zoom: zoom || 10
       });
     });
   });
 
   map.on('click', 'unclustered-point', (e) => {
-    const coordinates = (e.features?.[0].geometry as any)?.coordinates?.slice();
+    const coordinates = (e.features?.[0].geometry as unknown as { coordinates: [number, number] })?.coordinates?.slice();
     const properties = e.features?.[0].properties;
 
     if (!coordinates || !properties) return;
@@ -185,17 +183,21 @@ export function addTripMarkers(map: mapboxgl.Map, geoJSON: TripGeoJSON): void {
     }
 
     new mapboxgl.Popup()
-      .setLngLat(coordinates)
+      .setLngLat(coordinates as [number, number])
       .setHTML(`
-        <div class="p-2">
-          <h3 class="font-semibold">${properties.title}</h3>
-          <p class="text-sm text-gray-600">
+        <div class="p-3">
+          <h3 class="font-semibold text-lg mb-2">${properties.title}</h3>
+          <p class="text-sm text-gray-600 mb-2">
             ${new Date(properties.startDate).toLocaleDateString()} -
             ${new Date(properties.endDate).toLocaleDateString()}
           </p>
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-gray-500 mb-3">
             ${properties.isPrivate ? 'Private' : 'Public'} trip
           </p>
+          <a href="/trips/${properties.id}"
+             class="inline-block bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded transition-colors">
+            View Details
+          </a>
         </div>
       `)
       .addTo(map);

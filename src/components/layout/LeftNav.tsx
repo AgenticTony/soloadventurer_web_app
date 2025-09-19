@@ -1,19 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  Home, 
-  Compass, 
-  Users, 
+import {
+  Home,
+  Users,
   Calendar,
   Bookmark,
   Settings,
   HelpCircle,
   MapPin,
   MessageCircle,
-  Camera,
   Plane
 } from 'lucide-react'
 import { clsx } from 'clsx'

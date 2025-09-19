@@ -1,7 +1,8 @@
 import '../styles/globals.css'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
-import ConfigureAmplifyClientSide from '@/components/ConfigureAmplifyClientSide'
+import AmplifyProvider from './providers/AmplifyProvider'
+import ApolloProvider from './providers/ApolloProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,10 +19,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning>
-        <ConfigureAmplifyClientSide />
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <AmplifyProvider>
+          <ApolloProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ApolloProvider>
+        </AmplifyProvider>
       </body>
     </html>
   )

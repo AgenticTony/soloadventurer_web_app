@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, ThermometerSun, Users, Calendar, TrendingUp, Star } from 'lucide-react'
+import { MapPin, Users, Calendar, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface CityModuleProps {

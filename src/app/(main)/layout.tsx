@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export default function MainLayoutWrapper({
   children,
@@ -6,8 +7,10 @@ export default function MainLayoutWrapper({
   children: React.ReactNode
 }) {
   return (
-    <MainLayout>
-      {children}
-    </MainLayout>
+    <ErrorBoundary context="main application">
+      <MainLayout>
+        {children}
+      </MainLayout>
+    </ErrorBoundary>
   )
 }

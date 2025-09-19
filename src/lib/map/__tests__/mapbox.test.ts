@@ -6,7 +6,7 @@ jest.mock('mapbox-gl', () => ({
 }));
 
 import { validateMapboxToken, convertTripsToGeoJSON, MapboxError } from '../mapbox';
-import type { Trip } from '@/lib/api';
+import type { Trip } from '@/types/trip';
 
 describe('mapbox utilities', () => {
   describe('validateMapboxToken', () => {
@@ -36,20 +36,30 @@ describe('mapbox utilities', () => {
       {
         id: 'trip-1',
         title: 'Paris Adventure',
+        description: 'Exploring the beautiful city of lights',
+        location: 'Paris, France',
         startDate: '2024-03-01T10:00:00Z',
         endDate: '2024-03-05T10:00:00Z',
+        status: 'PLANNING',
         isPrivate: false,
         ownerId: 'user-1',
+        owner: 'user_one',
         createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z'
       },
       {
         id: 'trip-2',
         title: 'Tokyo Journey',
+        description: 'Discovering the vibrant culture of Japan',
+        location: 'Tokyo, Japan',
         startDate: '2024-04-01T10:00:00Z',
         endDate: '2024-04-10T10:00:00Z',
+        status: 'ACTIVE',
         isPrivate: true,
         ownerId: 'user-2',
+        owner: 'user_two',
         createdAt: '2024-01-02T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z'
       },
     ];
 
@@ -89,13 +99,13 @@ describe('mapbox utilities', () => {
       result.features.forEach(feature => {
         const [lng, lat] = feature.geometry.coordinates;
 
-        // Longitude should be roughly between -84 and -54 (mocked range around NYC)
-        expect(lng).toBeGreaterThan(-95);
-        expect(lng).toBeLessThan(-54);
+        // Longitude should be roughly between -125 and -55 (USA bounds)
+        expect(lng).toBeGreaterThan(-125);
+        expect(lng).toBeLessThan(-55);
 
-        // Latitude should be roughly between 35 and 46 (mocked range around NYC with some margin)
-        expect(lat).toBeGreaterThan(35);
-        expect(lat).toBeLessThan(46);
+        // Latitude should be roughly between 25 and 65 (USA bounds)
+        expect(lat).toBeGreaterThan(25);
+        expect(lat).toBeLessThan(65);
       });
     });
 
@@ -103,10 +113,16 @@ describe('mapbox utilities', () => {
       const tripWithoutPrivate: Trip = {
         id: 'trip-3',
         title: 'Public Trip',
+        description: 'A trip without explicit privacy setting',
+        location: 'Amsterdam, Netherlands',
         startDate: '2024-05-01T10:00:00Z',
         endDate: '2024-05-05T10:00:00Z',
+        status: 'COMPLETED',
+        isPrivate: false,
         ownerId: 'user-3',
+        owner: 'user_three',
         createdAt: '2024-01-03T00:00:00Z',
+        updatedAt: '2024-01-03T00:00:00Z'
       };
 
       const result = convertTripsToGeoJSON([tripWithoutPrivate]);

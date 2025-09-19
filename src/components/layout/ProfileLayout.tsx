@@ -2,7 +2,7 @@
 
 import { Header } from './Header'
 import { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { BottomTabBar } from './BottomTabBar'
 
 interface ProfileLayoutProps {
@@ -11,6 +11,7 @@ interface ProfileLayoutProps {
 
 export function ProfileLayout({ children }: ProfileLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Close mobile menu on route change
@@ -32,11 +33,12 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
   }
 
   const handleTabChange = (tab: string) => {
-    console.log('Navigate to:', tab)
+    const route = `/${tab === 'feed' ? '' : tab}`
+    if (pathname !== route) router.push(route)
   }
 
   const handleCreatePost = () => {
-    console.log('Open post composer')
+    router.push('/create')
   }
 
   return (

@@ -1,4 +1,3 @@
-import type { Trip } from '@/lib/api';
 
 export interface UserLocation {
   latitude: number;

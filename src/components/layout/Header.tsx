@@ -69,8 +69,8 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-card shadow-header border-b border-border">
-      <nav className="mx-auto">
+    <header className="sticky top-0 z-50 bg-card shadow-header border-b border-border" role="banner">
+      <nav className="mx-auto" role="navigation" aria-label="Main navigation">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Left: Logo and Menu */}
@@ -113,6 +113,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                   )}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setIsSearchFocused(false)}
+                  aria-label="Search travelers, cities, and trips"
                 />
               </div>
             </div>
@@ -120,23 +121,23 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
               {/* Create Button */}
-              <button className="hidden sm:flex p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 group">
+              <button className="hidden sm:flex p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 group" aria-label="Create new post">
                 <Plus className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
               </button>
               
               {/* Messages */}
-              <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group">
+              <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Messages">
                 <MessageCircle className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                 {isAuthenticated && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse" aria-hidden="true"></span>
                 )}
               </button>
               
               {/* Notifications */}
-              <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group">
+              <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Notifications">
                 <Bell className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                 {isAuthenticated && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-coral-500 rounded-full animate-pulse"></span>
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-coral-500 rounded-full animate-pulse" aria-hidden="true"></span>
                 )}
               </button>
               
@@ -162,6 +163,8 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                     type="button"
                     className="flex items-center gap-2 p-1 rounded-2xl hover:bg-muted transition-all duration-200 group"
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    aria-expanded={isUserMenuOpen}
+                    aria-haspopup="menu"
                   >
                     <span className="sr-only">Open user menu</span>
                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center ring-2 ring-border group-hover:ring-primary transition-all">
@@ -173,7 +176,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
 
                   {/* Dropdown menu */}
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-2xl bg-card py-2 shadow-lg ring-1 ring-border animate-in">
+                    <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-2xl bg-card py-2 shadow-lg ring-1 ring-border animate-in" role="menu">
                       <div className="px-4 py-3 border-b border-border">
                         <p className="text-sm font-medium text-foreground">{user.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>

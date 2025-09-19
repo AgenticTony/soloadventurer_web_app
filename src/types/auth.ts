@@ -14,6 +14,7 @@ export interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  error: AuthError | null
   login: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<{ userConfirmed: boolean }>
   logout: () => Promise<void>

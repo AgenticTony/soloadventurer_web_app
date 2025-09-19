@@ -2,7 +2,7 @@ import { readFileSync } from 'fs'
 import path from 'path'
 
 // Read the actual GraphQL schema
-const schemaPath = path.join(__dirname, '../schema.graphql')
+const schemaPath = path.join(__dirname, '../../../amplify/data/schema.graphql')
 const schemaContent = readFileSync(schemaPath, 'utf-8')
 
 describe('GraphQL Schema Validation', () => {

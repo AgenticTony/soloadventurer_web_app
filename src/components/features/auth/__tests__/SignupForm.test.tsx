@@ -25,6 +25,7 @@ describe('SignupForm', () => {
       user: null,
       login: jest.fn(),
       logout: jest.fn(),
+      clearAuthState: jest.fn(),
       resetPassword: jest.fn(),
       confirmResetPassword: jest.fn(),
       confirmSignUp: jest.fn(),
@@ -90,8 +91,10 @@ describe('SignupForm', () => {
       user: null,
       login: jest.fn(),
       logout: jest.fn(),
+      clearAuthState: jest.fn(),
       resetPassword: jest.fn(),
       confirmResetPassword: jest.fn(),
+      confirmSignUp: jest.fn(),
       resendSignUpCode: jest.fn()
     })
 

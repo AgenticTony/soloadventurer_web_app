@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
-import { Toast, ToastType } from '@/components/ui/toast'
+import { Toast } from '@/components/ui/toast'
 
 interface ToastContextType {
   showToast: (toast: Omit<Toast, 'id'>) => void
@@ -20,7 +20,7 @@ interface ToastProviderProps {
 }
 
 export function ToastProvider({ children }: ToastProviderProps) {
-  const [toasts, setToasts] = useState<Toast[]>([])
+  const [toasts, setToasts] = useState<Toast[]>([]) // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const showToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9)

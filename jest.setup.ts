@@ -1,6 +1,14 @@
 // jest.setup.ts
 import '@testing-library/jest-dom'
 
+// Polyfill fetch for Node.js testing environment
+import { TextEncoder, TextDecoder } from 'util'
+global.TextEncoder = TextEncoder as any
+global.TextDecoder = TextDecoder as any
+
+// Mock fetch for Apollo Client
+global.fetch = jest.fn()
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
@@ -29,13 +37,22 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
+  root: Element | null = null
+  rootMargin: string = '0px'
+  thresholds: ReadonlyArray<number> = []
+
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.root = (options?.root as Element) || null
+    this.rootMargin = options?.rootMargin || '0px'
+    this.thresholds = options?.threshold
+      ? Array.isArray(options.threshold) ? options.threshold : [options.threshold]
+      : []
+  }
+
   disconnect() {}
   observe() {}
   unobserve() {}
-  takeRecords() {
-    return []
-  }
+  takeRecords(): IntersectionObserverEntry[] { return [] }
 }
 
 // Mock ResizeObserver

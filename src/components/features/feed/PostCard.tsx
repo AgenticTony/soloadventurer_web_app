@@ -58,7 +58,6 @@ export function PostCard({
   content,
   photos,
   location,
-  trip,
   timestamp,
   reactions,
   commentCount,

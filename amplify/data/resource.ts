@@ -16,6 +16,8 @@ const schema = `
     description: String
     startDate: AWSDateTime!
     endDate: AWSDateTime!
+    isPrivate: Boolean
+    ownerId: String! @index(name: "ownerId-index")
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
   }

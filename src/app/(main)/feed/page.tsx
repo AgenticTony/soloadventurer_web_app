@@ -1,19 +1,33 @@
 'use client'
 
-import { Suspense } from 'react'
-import { useQuery } from '@apollo/client'
+import { Suspense, useEffect, useState } from 'react'
 import { PostComposer } from '@/components/features/feed/PostComposer'
-import { PostCard } from '@/components/features/feed/PostCard'
 import { TrendingUp } from 'lucide-react'
-import { GET_USER_FEED } from '@/graphql/queries'
-import type { GetUserFeedResponse, TripPost } from '@/graphql/types'
-
+import { getFeed } from '@/lib/api'
+import type { FeedItem } from '@/lib/api'
 
 function FeedContent() {
-  const { data, loading, error } = useQuery<GetUserFeedResponse>(GET_USER_FEED, {
-    variables: { limit: 10 },
-    errorPolicy: 'all'
-  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [feedItems, setFeedItems] = useState<FeedItem[]>([])
+
+  useEffect(() => {
+    const loadFeed = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const feed = await getFeed()
+        setFeedItems(feed)
+      } catch (err) {
+        console.error('Failed to load feed:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load feed')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadFeed()
+  }, [])
 
   if (loading) {
     return (
@@ -44,14 +58,12 @@ function FeedContent() {
         <div className="card-base p-6 text-center">
           <h3 className="text-lg font-semibold text-destructive mb-2">Unable to load feed</h3>
           <p className="text-muted-foreground">
-            {error.message || 'There was an error loading your feed. Please try again later.'}
+            There was an error loading your feed. Please try again later.
           </p>
         </div>
       </div>
     )
   }
-
-  const feedPosts = data?.getUserFeed || []
 
   return (
     <div className="space-y-8">
@@ -66,7 +78,7 @@ function FeedContent() {
 
       {/* Feed Posts */}
       <div className="space-y-6">
-        {feedPosts.length === 0 ? (
+        {feedItems.length === 0 ? (
           <div className="card-base p-8 text-center">
             <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No posts in your feed yet</h3>
@@ -75,41 +87,16 @@ function FeedContent() {
             </p>
           </div>
         ) : (
-          feedPosts.map((post: TripPost) => (
-            <PostCard
-              key={post.id}
-              id={post.id}
-              author={{
-                id: post.user.id,
-                name: post.user.name,
-                username: post.user.email?.split('@')[0] || post.user.name,
-                avatar: post.user.avatar,
-                isVerified: false
-              }}
-              content={post.content}
-              photos={post.images?.items?.map(img => ({
-                id: img.id,
-                url: img.url,
-                alt: img.caption || ''
-              }))}
-              location={post.location ? {
-                id: post.location,
-                name: post.location,
-                country: ''
-              } : undefined}
-              trip={post.trip ? {
-                id: post.trip.id,
-                name: post.trip.title
-              } : undefined}
-              timestamp={post.createdAt}
-              reactions={[
-                { type: 'like', count: post.likes?.items?.length || 0 },
-                { type: 'love', count: 0 }
-              ]}
-              commentCount={post.comments?.items?.length || 0}
-              shareCount={0}
-              isBookmarked={false}
-            />
+          feedItems.map((item) => (
+            <div key={item.id} className="card-base p-4">
+              <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+              {item.excerpt && (
+                <p className="text-muted-foreground mb-2">{item.excerpt}</p>
+              )}
+              <div className="text-sm text-muted-foreground">
+                {new Date(item.createdAt).toLocaleDateString()}
+              </div>
+            </div>
           ))
         )}
       </div>

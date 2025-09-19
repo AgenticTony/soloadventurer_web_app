@@ -17,6 +17,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false)
@@ -57,15 +58,15 @@ export function MainLayout({ children }: MainLayoutProps) {
     console.log('Open post composer')
   }
 
-  // Mock user data for development
-  const mockUser = isAuthenticated
+  // Basic user data from auth context
+  const userData = isAuthenticated
     ? {
-        name: user?.name || 'John Doe',
-        location: 'San Francisco, CA',
+        name: user?.name || 'Traveler',
+        location: user?.location || 'Location not set',
         stats: {
-          trips: 12,
-          connections: 89,
-          posts: 45,
+          trips: 0,
+          connections: 0,
+          posts: 0,
         },
       }
     : undefined
@@ -90,7 +91,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               />
               <div className="fixed inset-y-0 left-0 z-40 w-[280px] bg-card duration-200 animate-in slide-in-from-left lg:hidden">
                 <div className="pt-20">
-                  <LeftNav user={mockUser} />
+                  <LeftNav user={userData} />
                 </div>
               </div>
             </>
@@ -98,11 +99,11 @@ export function MainLayout({ children }: MainLayoutProps) {
 
           {/* Left Navigation (Desktop) */}
           <div className="hidden w-[280px] flex-shrink-0 lg:block">
-            <LeftNav user={mockUser} />
+            <LeftNav user={userData} />
           </div>
 
           {/* Center Content - Feed Area */}
-          <main className="mx-auto min-w-0 max-w-2xl flex-1 border-x border-border">
+          <main id="main-content" className="mx-auto min-w-0 max-w-2xl flex-1 border-x border-border">
             <div className="p-4 pb-20 lg:pb-4">{children}</div>
           </main>
 

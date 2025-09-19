@@ -1,17 +1,13 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { 
-  Shield, 
-  Calendar, 
-  Zap, 
-  Award, 
-  MapPin, 
-  Globe, 
-  Camera,
+import {
+  Shield,
+  Calendar,
+  Zap,
+  MapPin,
+  Globe,
   Users,
-  Star,
-  Crown,
-  Target
+  Star
 } from "lucide-react"
 
 interface AchievementBadgeProps {

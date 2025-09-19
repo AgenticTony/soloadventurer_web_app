@@ -1,38 +1,57 @@
 'use client'
 
 import { useState } from 'react'
+import { useQuery } from '@apollo/client'
 import { ProfileLayout } from '@/components/layout/ProfileLayout'
-import {
-  MapPin,
-  Globe,
-  Camera,
-  Users,
-  Edit,
-  Mountain,
-  Award,
-  Compass,
-  Map,
-  CameraIcon,
-  Settings,
-  Calendar,
-  TrendingUp,
-  Zap,
-  Shield,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { ProfileCompletionTracker } from '@/components/features/profile/ProfileCompletionTracker'
-import { AchievementGrid } from '@/components/features/profile/AchievementGrid'
+import { LIST_USER_TRIPS } from '@/graphql/queries'
+import type { ListUserTripsResponse } from '@/graphql/types'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Compass,
+  CameraIcon,
+  Map,
+  TrendingUp,
+  Globe,
+  MapPin,
+  Users,
+  Mountain,
+  Camera,
+  Shield,
+  Calendar,
+  Award
+} from 'lucide-react'
 import { WorldMap } from '@/components/features/profile/WorldMap'
+import { AchievementGrid } from '@/components/features/profile/AchievementGrid'
+import { ProfileCompletionTracker } from '@/components/features/profile/ProfileCompletionTracker'
 
 export default function ProfilePage() {
   const { user } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('adventures')
-  const [isEditing, setIsEditing] = useState(false)
+
+  // Query for detailed user data (disabled temporarily)
+  // const { data: userData } = useQuery<GetUserResponse>(
+  //   GET_USER,
+  //   {
+  //     variables: { id: user?.id },
+  //     skip: !user?.id,
+  //     errorPolicy: 'all'
+  //   }
+  // )
+
+  // Query for user's trips
+  const { data: tripsData, loading: tripsLoading } = useQuery<ListUserTripsResponse>(
+    LIST_USER_TRIPS,
+    {
+      variables: { ownerId: user?.id, limit: 10 },
+      skip: !user?.id,
+      errorPolicy: 'all'
+    }
+  )
+
 
   if (!user) {
     return (
@@ -58,11 +77,14 @@ export default function ProfilePage() {
     { id: 'stats', label: 'Statistics', icon: TrendingUp },
   ]
 
+  // Use GraphQL data to populate stats
+  const userTrips = tripsData?.listTrips?.items || []
+
   const stats = [
     { label: 'Countries Visited', value: 0, icon: Globe, color: 'from-blue-500 to-cyan-600' },
     { label: 'Cities Explored', value: 0, icon: MapPin, color: 'from-purple-500 to-pink-600' },
     { label: 'Travel Buddies', value: 0, icon: Users, color: 'from-green-500 to-teal-600' },
-    { label: 'Adventures', value: 0, icon: Mountain, color: 'from-orange-500 to-red-600' },
+    { label: 'Adventures', value: userTrips.length, icon: Mountain, color: 'from-orange-500 to-red-600' },
   ]
 
   return (
@@ -292,16 +314,55 @@ export default function ProfilePage() {
         {/* Tab Content */}
         <div>
           {activeTab === 'adventures' && (
-            <div className="py-16 text-center">
-              <Mountain className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-              <h3 className="mb-2 text-2xl font-bold">No Adventures Yet</h3>
-              <p className="mb-6 text-muted-foreground">
-                Start your journey by sharing your first travel story!
-              </p>
-              <Button onClick={() => router.push('/trips')}>
-                <Compass className="mr-2 h-4 w-4" />
-                Plan Your First Trip
-              </Button>
+            <div>
+              {tripsLoading ? (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {[...Array(3)].map((_, i) => (
+                    <Card key={i} className="animate-pulse">
+                      <CardContent className="p-4">
+                        <div className="h-4 bg-muted rounded mb-2"></div>
+                        <div className="h-3 bg-muted rounded w-2/3"></div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : userTrips.length === 0 ? (
+                <div className="py-16 text-center">
+                  <Mountain className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
+                  <h3 className="mb-2 text-2xl font-bold">No Adventures Yet</h3>
+                  <p className="mb-6 text-muted-foreground">
+                    Start your journey by sharing your first travel story!
+                  </p>
+                  <Button onClick={() => router.push('/trips')}>
+                    <Compass className="mr-2 h-4 w-4" />
+                    Plan Your First Trip
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {userTrips.map((trip) => (
+                    <Card key={trip.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-4">
+                        <h4 className="font-semibold text-lg mb-2">{trip.title}</h4>
+                        {trip.description && (
+                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                            {trip.description}
+                          </p>
+                        )}
+                        {/* Destination information not available in current schema */}
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-brand-100 text-brand-800">
+                            {trip.isPrivate ? 'Private' : 'Public'}
+                          </span>
+                          <time className="text-xs text-muted-foreground">
+                            {new Date(trip.startDate).toLocaleDateString()}
+                          </time>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

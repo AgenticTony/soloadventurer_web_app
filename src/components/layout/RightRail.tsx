@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { MapPin, Users, Calendar, Sun, Cloud, CloudRain, User, Plus } from 'lucide-react'
+import { MapPin, Users, Calendar, Sun, Cloud, CloudRain, Plus } from 'lucide-react'
 import { clsx } from 'clsx'
 
 interface CityData {

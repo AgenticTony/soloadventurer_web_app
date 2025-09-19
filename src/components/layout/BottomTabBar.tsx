@@ -11,7 +11,6 @@ import {
   Plus,
   Menu
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 interface BottomTabBarProps {
   activeTab?: string
@@ -33,7 +32,7 @@ export function BottomTabBar({
   onTabChange, 
   onCreatePost,
   unreadMessages = 0,
-  unreadNotifications = 0
+  unreadNotifications = 0 // eslint-disable-line @typescript-eslint/no-unused-vars
 }: BottomTabBarProps) {
   const [showMoreMenu, setShowMoreMenu] = useState(false)
 

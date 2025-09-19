@@ -21,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error] = useState<AuthError | null>(null)
 
   useEffect(() => {
     // Check for existing session on mount
@@ -117,8 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (email: string, password: string, name: string) => {
     setIsLoading(true)
     try {
-      console.log('Starting signup for:', email)
-      const { isSignUpComplete, userId, nextStep } = await signUp({
+      const { isSignUpComplete } = await signUp({
         username: email,
         password,
         options: {
@@ -136,7 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       })
 
-      console.log('Signup response:', { isSignUpComplete, userId, nextStep })
       return { userConfirmed: isSignUpComplete }
     } catch (error) {
       console.error('Signup error:', error)
@@ -227,21 +226,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         confirmationCode: code,
       })
 
-      // After successful confirmation, automatically sign in the user
-      try {
-        const { isSignedIn } = await signIn({
-          username: email,
-          password: '', // This will fail but we'll handle it gracefully
-        })
-
-        if (isSignedIn) {
-          await checkAuthStatus()
-        }
-      } catch (signInError) {
-        // Expected - we don't have the password here
-        // User will need to sign in manually
-        console.log('Auto sign-in after confirmation failed (expected)')
-      }
+      // User will need to sign in manually after confirmation
     } catch (error) {
       console.error('Sign up confirmation failed:', error)
       if (error instanceof Error) {
@@ -253,9 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resendSignUpCode = async (email: string) => {
     try {
-      console.log('Resending verification code to:', email)
-      const result = await resendSignUpCodeFn({ username: email })
-      console.log('Resend code result:', result)
+      await resendSignUpCodeFn({ username: email })
     } catch (error) {
       console.error('Resend code error:', error)
       if (error instanceof Error) {
@@ -271,6 +254,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
+        error,
         login,
         signup,
         logout,

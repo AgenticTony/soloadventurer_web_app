@@ -1,14 +1,35 @@
+export interface ItineraryItem {
+  id: string
+  title: string
+  description?: string
+  location?: string
+  startTime?: string
+  endTime?: string
+  type: 'activity' | 'transport' | 'accommodation' | 'meal' | 'other'
+  order: number
+  completed?: boolean
+}
+
+export interface TripCoordinates {
+  latitude: number
+  longitude: number
+}
+
 export interface Trip {
   id: string
   title: string
   description: string
   location: string
+  coordinates?: TripCoordinates
   startDate: string
   endDate: string
   status: 'PLANNING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
   createdAt: string
   updatedAt: string
   owner: string
+  ownerId: string
+  isPrivate: boolean
+  itinerary?: ItineraryItem[]
 }
 
 export interface TripPost {
@@ -47,6 +68,8 @@ export interface CreateTripInput {
   location: string
   startDate: string
   endDate: string
+  isPrivate?: boolean
+  itinerary?: ItineraryItem[]
 }
 
 export interface UpdateTripInput {
@@ -57,6 +80,8 @@ export interface UpdateTripInput {
   startDate?: string
   endDate?: string
   status?: 'PLANNING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
+  isPrivate?: boolean
+  itinerary?: ItineraryItem[]
 }
 
 export interface CreatePostInput {

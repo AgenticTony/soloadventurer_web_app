@@ -54,10 +54,10 @@ const mockAmplify = Amplify as jest.Mocked<typeof Amplify>
 beforeEach(() => {
   ;(mockSignIn as jest.Mock).mockResolvedValue({ isSignedIn: true, nextStep: undefined })
   ;(mockSignUp as jest.Mock).mockResolvedValue({ isSignUpComplete: true, nextStep: undefined })
-  ;(mockSignOut as jest.Mock).mockResolvedValue()
-  ;(mockResetPassword as jest.Mock).mockResolvedValue()
-  ;(mockConfirmResetPassword as jest.Mock).mockResolvedValue()
-  ;(mockConfirmSignUp as jest.Mock).mockResolvedValue()
+  ;(mockSignOut as jest.Mock).mockResolvedValue({})
+  ;(mockResetPassword as jest.Mock).mockResolvedValue({})
+  ;(mockConfirmResetPassword as jest.Mock).mockResolvedValue({})
+  ;(mockConfirmSignUp as jest.Mock).mockResolvedValue({})
   ;(mockFetchAuthSession as jest.Mock).mockResolvedValue({
     tokens: {
       idToken: {
@@ -183,7 +183,7 @@ describe('AuthProvider', () => {
   })
 
   test('handles authentication errors', async () => {
-    mockSignIn.mockRejectedValue(new Error('Login failed'))
+    ;(mockSignIn as jest.Mock).mockRejectedValue(new Error('Login failed'))
 
     render(
       <AuthProvider>
@@ -201,7 +201,7 @@ describe('AuthProvider', () => {
   })
 
   test('handles password reset', async () => {
-    const TestWrapper = ({ children }) => (
+    const TestWrapper = ({ children }: { children: React.ReactNode }) => (
       <AuthProvider>{children}</AuthProvider>
     )
 
@@ -228,7 +228,7 @@ describe('AuthProvider', () => {
   })
 
   test('handles password reset confirmation', async () => {
-    const TestWrapper = ({ children }) => (
+    const TestWrapper = ({ children }: { children: React.ReactNode }) => (
       <AuthProvider>{children}</AuthProvider>
     )
 
@@ -258,7 +258,7 @@ describe('AuthProvider', () => {
   })
 
   test('handles signup confirmation', async () => {
-    const TestWrapper = ({ children }) => (
+    const TestWrapper = ({ children }: { children: React.ReactNode }) => (
       <AuthProvider>{children}</AuthProvider>
     )
 

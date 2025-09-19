@@ -25,6 +25,7 @@ describe('LoginForm', () => {
       user: null,
       signup: jest.fn(),
       logout: jest.fn(),
+      clearAuthState: jest.fn(),
       resetPassword: jest.fn(),
       confirmResetPassword: jest.fn(),
       confirmSignUp: jest.fn(),
@@ -70,46 +71,44 @@ describe('LoginForm', () => {
     })
   })
 
-  test('displays loading state when logging in', () => {
-    mockUseAuth.mockReturnValue({
-      login: mockLogin,
-      isLoading: true,
-      error: mockError,
-      isAuthenticated: false,
-      user: null,
-      signup: jest.fn(),
-      logout: jest.fn(),
-      resetPassword: jest.fn(),
-      confirmResetPassword: jest.fn(),
-      confirmSignUp: jest.fn(),
-      resendSignUpCode: jest.fn()
-    })
+  test('displays loading state when logging in', async () => {
+    // Mock the login function to simulate loading state
+    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
 
     render(<LoginForm />)
-    
-    expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled()
-    expect(screen.getByText(/signing in/i)).toBeInTheDocument()
+
+    const emailInput = screen.getByLabelText(/email/i)
+    const passwordInput = screen.getByLabelText(/password/i)
+    const submitButton = screen.getByRole('button', { name: /sign in/i })
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
+    fireEvent.change(passwordInput, { target: { value: 'password123' } })
+    fireEvent.click(submitButton)
+
+    // Wait for loading state to appear
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled()
+      expect(screen.getByText(/signing in/i)).toBeInTheDocument()
+    })
   })
 
-  test('displays error message when login fails', () => {
-    const errorMessage = 'Invalid email or password'
-    mockUseAuth.mockReturnValue({
-      login: mockLogin,
-      isLoading: false,
-      error: errorMessage,
-      isAuthenticated: false,
-      user: null,
-      signup: jest.fn(),
-      logout: jest.fn(),
-      resetPassword: jest.fn(),
-      confirmResetPassword: jest.fn(),
-      confirmSignUp: jest.fn(),
-      resendSignUpCode: jest.fn()
-    })
+  test('displays error message when login fails', async () => {
+    const errorMessage = 'Incorrect email or password'
+    mockLogin.mockRejectedValueOnce(new Error(errorMessage))
 
     render(<LoginForm />)
-    
-    expect(screen.getByText(errorMessage)).toBeInTheDocument()
+
+    const emailInput = screen.getByLabelText(/email/i)
+    const passwordInput = screen.getByLabelText(/password/i)
+    const submitButton = screen.getByRole('button', { name: /sign in/i })
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
+    fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } })
+    fireEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument()
+    })
     expect(screen.getByText(errorMessage)).toHaveClass('text-red-600')
   })
 

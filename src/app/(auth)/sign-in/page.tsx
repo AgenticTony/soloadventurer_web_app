@@ -50,7 +50,7 @@ function SignInContent() {
 
   return (
     <div className="min-h-screen bg-paper dark:bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <main id="main-content" className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-brand-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -99,7 +99,8 @@ function SignInContent() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-2"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -114,7 +115,7 @@ function SignInContent() {
                 />
                 <span className="ml-2 text-sm text-muted-foreground">Remember me</span>
               </label>
-              <Link href="/forgot-password" className="text-sm text-brand-500 hover:text-brand-600 transition-colors">
+              <Link href="/forgot-password" className="text-sm text-brand-600 hover:text-brand-700 transition-colors">
                 Forgot password?
               </Link>
             </div>
@@ -145,7 +146,7 @@ function SignInContent() {
         <div className="text-center">
           <p className="text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-brand-500 hover:text-brand-600 transition-colors font-medium">
+            <Link href="/signup" className="text-brand-600 hover:text-brand-700 transition-colors font-medium">
               Sign up
             </Link>
           </p>
@@ -177,7 +178,7 @@ function SignInContent() {
             </button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

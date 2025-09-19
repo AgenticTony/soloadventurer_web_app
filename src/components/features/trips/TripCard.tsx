@@ -2,14 +2,13 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Clock, 
-  Plane, 
-  Heart, 
-  Share, 
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  Plane,
+  Heart,
+  Share,
   MoreHorizontal,
   Edit,
   Trash2,
@@ -334,7 +333,7 @@ export function TripCard({
           <div className="mb-4">
             <h4 className="text-sm font-medium text-foreground mb-2">Activities</h4>
             <div className="flex flex-wrap gap-2">
-              {trip.activities.slice(0, 3).map((activity, index) => (
+              {trip.activities.slice(0, 3).map((activity) => (
                 <span
                   key={activity.id}
                   className="px-2 py-1 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 rounded-full text-xs font-medium"
@@ -356,7 +355,7 @@ export function TripCard({
           {/* Companions */}
           <div className="flex items-center space-x-2">
             <div className="flex -space-x-2">
-              {trip.companions.slice(0, 3).map((companion, index) => (
+              {trip.companions.slice(0, 3).map((companion) => (
                 <div
                   key={companion.id}
                   className="w-6 h-6 rounded-full bg-muted border-2 border-card flex items-center justify-center text-xs text-muted-foreground"

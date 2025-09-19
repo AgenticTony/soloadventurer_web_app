@@ -13,6 +13,28 @@ import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { tripsApi } from './functions/trips-api/resource';
 
+const getAllowedOrigins = (): string[] => {
+  // Staging environment
+  if (process.env.NODE_ENV === 'production' && process.env.STAGE === 'staging') {
+    return [
+      'https://staging.soloadventurer.com',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ];
+  }
+
+  // Production domains (replace with actual domains when deploying)
+  if (process.env.NODE_ENV === 'production') {
+    return [
+      'https://soloadventurer.com',
+      'https://www.soloadventurer.com'
+    ];
+  }
+
+  // Local development - allow all
+  return Cors.ALL_ORIGINS;
+};
+
 /**
  * @see https://docs.amplify.aws/react/build-a-backend/ to add storage, functions, and more
  */
@@ -33,9 +55,10 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
     stageName: 'dev',
   },
   defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: ['POST', 'OPTIONS'],
+    allowOrigins: getAllowedOrigins(),
+    allowMethods: ['POST', 'GET', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
+    allowCredentials: true,
   },
 });
 
@@ -55,6 +78,15 @@ tripsPath.addMethod('POST', lambdaIntegration, {
   authorizationType: AuthorizationType.COGNITO,
   authorizer: cognitoAuth,
 });
+tripsPath.addMethod('GET', lambdaIntegration, {
+  authorizationType: AuthorizationType.COGNITO,
+  authorizer: cognitoAuth,
+});
+const tripById = tripsPath.addResource('{id}');
+tripById.addMethod('GET', lambdaIntegration, {
+  authorizationType: AuthorizationType.COGNITO,
+  authorizer: cognitoAuth,
+});
 
 // Grant function access to Trip table
 const tripTableName = backend.data.resources.tables['Trip'].tableName;
@@ -67,6 +99,7 @@ const apiPolicy = new Policy(apiStack, 'TripsApiPolicy', {
       actions: ['execute-api:Invoke'],
       resources: [
         `${tripsRestApi.arnForExecuteApi('*', '/trips', 'dev')}`,
+        `${tripsRestApi.arnForExecuteApi('*', '/trips/*', 'dev')}`,
       ],
     }),
   ],
@@ -81,8 +114,12 @@ backend.tripsApi.resources.lambda.addToRolePolicy(
     actions: [
       'dynamodb:PutItem',
       'dynamodb:GetItem',
+      'dynamodb:Query',
     ],
-    resources: [backend.data.resources.tables['Trip'].tableArn],
+    resources: [
+      backend.data.resources.tables['Trip'].tableArn,
+      `${backend.data.resources.tables['Trip'].tableArn}/index/*`,
+    ],
   })
 );
 
