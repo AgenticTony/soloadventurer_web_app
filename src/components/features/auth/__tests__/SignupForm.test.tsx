@@ -82,10 +82,12 @@ describe('SignupForm', () => {
     })
   })
 
-  test('displays loading state when signing up', () => {
+  test('displays loading state when signing up', async () => {
+    // Mock signup to return a promise that doesn't resolve immediately
+    const mockSlowSignup = jest.fn(() => new Promise<{ userConfirmed: boolean }>(() => {}))
     mockUseAuth.mockReturnValue({
-      signup: mockSignup,
-      isLoading: true,
+      signup: mockSlowSignup,
+      isLoading: false,
       error: mockError,
       isAuthenticated: false,
       user: null,
@@ -99,10 +101,22 @@ describe('SignupForm', () => {
     })
 
     render(<SignupForm />)
-    
-    // The button should be disabled when auth context isLoading is true
+
+    // Fill the form
+    fireEvent.change(screen.getByLabelText('Full Name'), { target: { value: 'John Doe' } })
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'john@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
+    fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { value: 'Password123!' } })
+
+    // Submit the form
     const submitButton = screen.getByRole('button', { name: /create account/i })
-    expect(submitButton).toBeDisabled()
+    fireEvent.click(submitButton)
+
+    // The button should be disabled and show loading text during submission
+    await waitFor(() => {
+      expect(submitButton).toBeDisabled()
+      expect(submitButton).toHaveTextContent('Creating Account...')
+    })
   })
 
   test('displays error message when passwords do not match', () => {

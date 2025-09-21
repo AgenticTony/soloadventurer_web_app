@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import { PrivacyControls } from '../PrivacyControls';
 import { PrivacyProvider } from '@/contexts/PrivacyContext';
 
@@ -7,46 +7,71 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <PrivacyProvider>{children}</PrivacyProvider>
 );
 
+// Mock the userService to avoid real API calls in tests
+jest.mock('@/services/users/userService', () => ({
+  userService: {
+    getUserProfile: jest.fn().mockResolvedValue({
+      id: 'test-user',
+      name: 'Test User',
+      username: 'testuser',
+      avatarUrl: null
+    }),
+    searchUsers: jest.fn().mockResolvedValue([])
+  }
+}));
+
 describe('PrivacyControls', () => {
-  test('renders privacy controls component', () => {
-    render(
-      <TestWrapper>
-        <PrivacyControls />
-      </TestWrapper>
-    );
+  test('renders privacy controls component', async () => {
+    await act(async () => {
+      render(
+        <TestWrapper>
+          <PrivacyControls />
+        </TestWrapper>
+      );
+    });
 
     expect(screen.getByText('Privacy Controls')).toBeInTheDocument();
     expect(screen.getByText(/Block users or hide your profile/)).toBeInTheDocument();
   });
 
-  test('shows empty states initially', () => {
-    render(
-      <TestWrapper>
-        <PrivacyControls />
-      </TestWrapper>
-    );
+  test('shows empty states initially', async () => {
+    await act(async () => {
+      render(
+        <TestWrapper>
+          <PrivacyControls />
+        </TestWrapper>
+      );
+    });
 
-    expect(screen.getByText("You haven't blocked any users yet")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("You haven't blocked any users yet")).toBeInTheDocument();
+    });
   });
 
-  test('renders tabs for blocked and hidden users', () => {
-    render(
-      <TestWrapper>
-        <PrivacyControls />
-      </TestWrapper>
-    );
+  test('renders tabs for blocked and hidden users', async () => {
+    await act(async () => {
+      render(
+        <TestWrapper>
+          <PrivacyControls />
+        </TestWrapper>
+      );
+    });
 
     expect(screen.getByText(/Blocked Users/)).toBeInTheDocument();
     expect(screen.getByText(/Hidden From/)).toBeInTheDocument();
   });
 
-  test('shows add user functionality', () => {
-    render(
-      <TestWrapper>
-        <PrivacyControls />
-      </TestWrapper>
-    );
+  test('shows add user functionality', async () => {
+    await act(async () => {
+      render(
+        <TestWrapper>
+          <PrivacyControls />
+        </TestWrapper>
+      );
+    });
 
-    expect(screen.getByText('Add User')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Block User')).toBeInTheDocument();
+    });
   });
 });

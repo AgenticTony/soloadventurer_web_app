@@ -44,6 +44,7 @@ const userMocks = [
     result: {
       data: {
         getUser: {
+          __typename: 'User',
           id: '1',
           email: 'test@example.com',
           name: 'Test User',
@@ -67,8 +68,10 @@ const userMocks = [
     result: {
       data: {
         listTrips: {
+          __typename: 'TripConnection',
           items: [
             {
+              __typename: 'Trip',
               id: '1',
               title: 'Test Trip',
               description: 'A test trip description',
@@ -76,6 +79,7 @@ const userMocks = [
               startDate: '2024-01-01',
               endDate: '2024-01-07',
               destination: {
+                __typename: 'Destination',
                 id: '1',
                 country: 'Test Country',
                 city: 'Test City'
@@ -93,7 +97,7 @@ const userMocks = [
 describe('ProfilePage', () => {
   it('renders user profile with GraphQL data', async () => {
     render(
-      <MockedProvider mocks={userMocks} addTypename={false}>
+      <MockedProvider mocks={userMocks} >
         <ProfilePage />
       </MockedProvider>
     )
@@ -111,7 +115,7 @@ describe('ProfilePage', () => {
 
   it('displays user trips in adventures tab', async () => {
     render(
-      <MockedProvider mocks={userMocks} addTypename={false}>
+      <MockedProvider mocks={userMocks} >
         <ProfilePage />
       </MockedProvider>
     )
@@ -126,7 +130,7 @@ describe('ProfilePage', () => {
 
   it('shows correct adventure count in stats', async () => {
     render(
-      <MockedProvider mocks={userMocks} addTypename={false}>
+      <MockedProvider mocks={userMocks} >
         <ProfilePage />
       </MockedProvider>
     )
@@ -149,6 +153,7 @@ describe('ProfilePage', () => {
         result: {
           data: {
             listTrips: {
+              __typename: 'TripConnection',
               items: [],
               nextToken: null
             }
@@ -158,7 +163,7 @@ describe('ProfilePage', () => {
     ]
 
     render(
-      <MockedProvider mocks={emptyTripsMocks} addTypename={false}>
+      <MockedProvider mocks={emptyTripsMocks} >
         <ProfilePage />
       </MockedProvider>
     )

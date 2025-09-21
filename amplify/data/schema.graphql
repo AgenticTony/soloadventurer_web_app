@@ -321,10 +321,125 @@ type ExpenseByCategory {
   percentage: Float!
 }
 
+# Wave System for User Connections
+enum WaveType {
+  SENT
+  RECEIVED
+  MUTUAL
+}
+
+enum WaveStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+type Wave @model @auth(rules: [{ allow: owner, operations: [create, read, update, delete] }, { allow: private, operations: [read] }]) {
+  id: ID!
+  fromUserId: ID! @index(name: "byFromUser", fields: ["fromUserId"])
+  fromUser: User @belongsTo(fields: ["fromUserId"], references: ["id"])
+  toUserId: ID! @index(name: "byToUser", fields: ["toUserId"])
+  toUser: User @belongsTo(fields: ["toUserId"], references: ["id"])
+  type: WaveType!
+  status: WaveStatus!
+  message: String
+  tripId: ID? @index(name: "byTrip", fields: ["tripId"])
+  trip: Trip? @belongsTo(fields: ["tripId"], references: ["id"])
+  expiresAt: AWSDateTime!
+  isRead: Boolean!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type WaveConnection @model @auth(rules: [{ allow: owner, operations: [create, read, update, delete] }]) {
+  id: ID!
+  userOneId: ID! @index(name: "byUserOne", fields: ["userOneId"])
+  userOne: User @belongsTo(fields: ["userOneId"], references: ["id"])
+  userTwoId: ID! @index(name: "byUserTwo", fields: ["userTwoId"])
+  userTwo: User @belongsTo(fields: ["userTwoId"], references: ["id"])
+  waveOneId: ID!
+  waveOne: Wave @belongsTo(fields: ["waveOneId"], references: ["id"])
+  waveTwoId: ID!
+  waveTwo: Wave @belongsTo(fields: ["waveTwoId"], references: ["id"])
+  connectionDate: AWSDateTime!
+  isActive: Boolean!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+# Wave-specific Queries
+type Query {
+  getUserFeed: [TripPost] @auth(rules: [{ allow: private }])
+  searchUsers(query: String!): [User] @auth(rules: [{ allow: private }])
+  searchTrips(query: String!): [Trip] @auth(rules: [{ allow: private }])
+  getTripStatistics(tripId: ID!): TripStatistics @auth(rules: [{ allow: private }])
+
+  # Wave queries
+  getWavesByUser(userId: ID!, status: WaveStatus, limit: Int, nextToken: String): WaveConnection @auth(rules: [{ allow: private }])
+  getMutualConnections(userId: ID!, limit: Int, nextToken: String): [WaveConnection] @auth(rules: [{ allow: private }])
+  getWaveStats(userId: ID!): WaveStatistics @auth(rules: [{ allow: private }])
+}
+
+type WaveConnection {
+  waves: [Wave]
+  nextToken: String
+}
+
+type WaveStatistics {
+  sentCount: Int!
+  receivedCount: Int!
+  mutualCount: Int!
+  pendingCount: Int!
+  todaysSentCount: Int!
+}
+
+# Wave-specific Mutations
+type Mutation {
+  sendWave(input: SendWaveInput!): SendWaveResponse @auth(rules: [{ allow: private }])
+  respondToWave(input: RespondToWaveInput!): RespondToWaveResponse @auth(rules: [{ allow: private }])
+  markWaveAsRead(waveId: ID!): Wave @auth(rules: [{ allow: private }])
+  expireOldWaves: ExpireWavesResponse @auth(rules: [{ allow: private }])
+}
+
+input SendWaveInput {
+  toUserId: ID!
+  message: String
+  tripId: ID
+}
+
+input RespondToWaveInput {
+  waveId: ID!
+  response: WaveStatus! # ACCEPTED or DECLINED
+}
+
+type SendWaveResponse {
+  wave: Wave
+  isMutual: Boolean!
+  connection: WaveConnection
+}
+
+type RespondToWaveResponse {
+  wave: Wave
+  isMutual: Boolean!
+  connection: WaveConnection
+}
+
+type ExpireWavesResponse {
+  expiredCount: Int!
+  message: String!
+}
+
 # Custom Subscriptions
 type Subscription {
   onTripUpdate(tripId: ID!): Trip @aws_subscribe(mutations: ["updateTrip"])
   onNewPost(tripId: ID!): TripPost @aws_subscribe(mutations: ["createTripPost"])
   onNewComment(postId: ID!): PostComment @aws_subscribe(mutations: ["createPostComment"])
   onNewFollower(userId: ID!): UserFollow @aws_subscribe(mutations: ["createUserFollow"])
+
+  # Wave real-time subscriptions
+  onWaveReceived(userId: ID!): Wave @aws_subscribe(mutations: ["sendWave"])
+  onWaveResponded(userId: ID!): Wave @aws_subscribe(mutations: ["respondToWave"])
+  onMutualMatch(userId: ID!): WaveConnection @aws_subscribe(mutations: ["sendWave", "respondToWave"])
+  onWaveStatusChange(waveId: ID!): Wave @aws_subscribe(mutations: ["respondToWave", "markWaveAsRead"])
 }

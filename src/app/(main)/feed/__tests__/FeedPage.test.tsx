@@ -25,7 +25,7 @@ jest.mock('@/components/features/feed/PostCard', () => ({
 describe('FeedPage', () => {
   it('renders feed page with empty state', () => {
     render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider mocks={[]}>
         <FeedPage />
       </MockedProvider>
     )

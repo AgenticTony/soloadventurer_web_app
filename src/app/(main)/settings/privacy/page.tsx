@@ -5,6 +5,7 @@ import { ArrowLeft, Shield, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { PrivacyProvider, usePrivacy } from '@/contexts/PrivacyContext';
 import { LocationSettings, PrivacyControls } from '@/components/settings';
+import { SocialPrivacy } from '@/components/settings/SocialPrivacy';
 
 function PrivacyPageContent() {
   const { resetToDefaults } = usePrivacy();
@@ -34,7 +35,7 @@ function PrivacyPageContent() {
                 Privacy Settings
               </h1>
               <p className="text-gray-600 mt-1">
-                Control your location privacy and who can see your information
+                Control your location privacy, social features, and who can see your information
               </p>
             </div>
           </div>
@@ -55,7 +56,7 @@ function PrivacyPageContent() {
             <div className="text-sm text-blue-800">
               <p className="font-medium">Your Privacy Matters</p>
               <p className="mt-1">
-                These settings control how your location and profile information are shared with other users.
+                These settings control how your location, social interactions, and profile information are shared with other users.
                 We&apos;ve set privacy-first defaults to protect your information, but you can adjust these settings
                 to match your comfort level.
               </p>
@@ -69,6 +70,9 @@ function PrivacyPageContent() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <LocationSettings />
           </div>
+
+          {/* Social Features Privacy */}
+          <SocialPrivacy />
 
           {/* Privacy Controls */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">

@@ -3,7 +3,11 @@
 import { UserAvatar, UserAvatarSkeleton } from './UserAvatar';
 import { UserStats, UserStatsSkeleton } from './UserStats';
 import { PrivacyIndicator } from './PrivacyIndicator';
+import { WaveButton } from '@/components/waves/WaveButton';
+import { useWaves } from '@/hooks/useWaves';
+import { useAuth } from '@/contexts/AuthContext';
 import type { UserCardProps, UserCardSkeletonProps, UserCardSize } from '@/types/user';
+import type { WaveWithUsers } from '@/types/wave';
 
 const sizeStyles: Record<UserCardSize, {
   container: string;
@@ -48,6 +52,41 @@ export function UserCard({
   className = ''
 }: UserCardProps) {
   const styles = sizeStyles[size];
+  const { user: currentUser } = useAuth();
+  const { getWavesByUser, isConnected, respondToWave } = useWaves();
+
+  // Get wave status with current user
+  const getWaveStatus = (): {
+    status: 'none' | 'sent' | 'received' | 'mutual';
+    wave?: WaveWithUsers;
+  } => {
+    if (!currentUser) return { status: 'none' };
+
+    const sentWaves = getWavesByUser(currentUser.id);
+    const receivedWaves = getWavesByUser(user.id);
+
+    // Check for mutual connection
+    const mutualWave = sentWaves.find(w =>
+      w.toUserId === user.id && w.status === 'accepted' && w.isMutual
+    );
+    if (mutualWave) return { status: 'mutual', wave: mutualWave };
+
+    // Check for sent wave
+    const sentWave = sentWaves.find(w =>
+      w.toUserId === user.id && w.status === 'pending'
+    );
+    if (sentWave) return { status: 'sent', wave: sentWave };
+
+    // Check for received wave
+    const receivedWave = receivedWaves.find(w =>
+      w.fromUserId === user.id && w.status === 'pending'
+    );
+    if (receivedWave) return { status: 'received', wave: receivedWave };
+
+    return { status: 'none' };
+  };
+
+  const waveStatus = getWaveStatus();
 
   if (isLoading) {
     return <UserCardSkeleton size={size} showStats={showStats} showActions={showActions} className={className} />;
@@ -136,24 +175,89 @@ export function UserCard({
         </div>
       )}
 
-      {/* Actions section (placeholder for future buttons) */}
-      {showActions && (
-        <div className="mt-3 pt-3 border-t border-gray-100 flex justify-center">
-          <div className="flex gap-2">
-            <button
-              disabled
-              className="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-md cursor-not-allowed"
-              aria-label="Follow user (coming soon)"
-            >
-              Follow
-            </button>
-            <button
-              disabled
-              className="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-md cursor-not-allowed"
-              aria-label="Message user (coming soon)"
-            >
-              Message
-            </button>
+      {/* Actions section with wave functionality */}
+      {showActions && currentUser && currentUser.id !== user.id && (
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between">
+            {/* Wave status indicator */}
+            <div className="flex items-center gap-2">
+              {waveStatus.status === 'mutual' && (
+                <div className="flex items-center gap-1 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                  <span className="font-medium">Mutual Connection</span>
+                </div>
+              )}
+              {waveStatus.status === 'sent' && (
+                <div className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full" />
+                  <span className="font-medium">Wave Sent</span>
+                </div>
+              )}
+              {waveStatus.status === 'received' && (
+                <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span className="font-medium">Waved at You</span>
+                </div>
+              )}
+              {!isConnected && (
+                <div className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+                  <div className="w-2 h-2 bg-amber-400 rounded-full" />
+                  <span className="font-medium">Offline</span>
+                </div>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              {waveStatus.status === 'none' && (
+                <WaveButton
+                  toUserId={user.id}
+                  size="sm"
+                  variant="primary"
+                  className="text-xs"
+                  onWaveSent={() => {
+                    // Optimistic update handled by WaveButton and store
+                  }}
+                />
+              )}
+              {waveStatus.status === 'received' && waveStatus.wave && (
+                <div className="flex gap-1">
+                  <button
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+                    aria-label="Accept wave"
+                    onClick={async () => {
+                      try {
+                        await respondToWave(waveStatus.wave!.id, 'accepted');
+                      } catch (error) {
+                        console.error('Failed to respond to wave:', error);
+                      }
+                    }}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                    aria-label="Decline wave"
+                    onClick={async () => {
+                      try {
+                        await respondToWave(waveStatus.wave!.id, 'declined');
+                      } catch (error) {
+                        console.error('Failed to respond to wave:', error);
+                      }
+                    }}
+                  >
+                    Decline
+                  </button>
+                </div>
+              )}
+              <button
+                disabled
+                className="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-md cursor-not-allowed"
+                aria-label="Message user (coming soon)"
+              >
+                Message
+              </button>
+            </div>
           </div>
         </div>
       )}

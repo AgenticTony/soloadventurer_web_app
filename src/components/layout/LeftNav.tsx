@@ -14,6 +14,9 @@ import {
   Plane
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { Badge } from '@/components/ui/badge'
+import { useWebSocketContext } from '@/contexts/WebSocketContext'
+import { useState, useEffect } from 'react'
 
 interface NavItem {
   id: string
@@ -33,16 +36,39 @@ interface LeftNavProps {
       posts: number
     }
   }
+  unreadChatCount?: number
 }
 
-export function LeftNav({ user }: LeftNavProps) {
+export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   const pathname = usePathname()
+  const { isConnected } = useWebSocketContext()
+  const [realTimeUnreadCount, setRealTimeUnreadCount] = useState(unreadChatCount)
+
+  // Update real-time unread count when props change
+  useEffect(() => {
+    setRealTimeUnreadCount(unreadChatCount)
+  }, [unreadChatCount])
+
+  // WebSocket message listener for real-time updates
+  useEffect(() => {
+    // In a real implementation, listen for WebSocket messages
+    // and update unread count accordingly
+    const handleNewMessage = (event: any) => {
+      if (event.type === 'new_message' && !event.isRead) {
+        setRealTimeUnreadCount(prev => prev + 1)
+      }
+    }
+
+    // This would be implemented with actual WebSocket listeners
+    // window.addEventListener('websocket-message', handleNewMessage)
+    // return () => window.removeEventListener('websocket-message', handleNewMessage)
+  }, [])
   
   const navItems: NavItem[] = [
     { id: 'feed', label: 'Feed', icon: Home, href: '/' },
     { id: 'trips', label: 'Trips', icon: Plane, href: '/trips' },
     { id: 'cities', label: 'City Hubs', icon: MapPin, href: '/cities' },
-    { id: 'messages', label: 'Messages', icon: MessageCircle, href: '/messages' },
+    { id: 'messages', label: 'Messages', icon: MessageCircle, href: '/chat' },
     { id: 'groups', label: 'Groups', icon: Users, href: '/groups' },
     { id: 'events', label: 'Events & Trips', icon: Calendar, href: '/events' },
     { id: 'saved', label: 'Saved', icon: Bookmark, href: '/saved' },
@@ -123,7 +149,22 @@ export function LeftNav({ user }: LeftNavProps) {
                 )} />
                 <span className="font-medium">{item.label}</span>
                 {item.id === 'messages' && (
-                  <span className="ml-auto w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  <div className="ml-auto flex items-center gap-2">
+                    {realTimeUnreadCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="text-xs min-w-[1.25rem] h-5 flex items-center justify-center px-1.5"
+                      >
+                        {realTimeUnreadCount > 99 ? '99+' : realTimeUnreadCount}
+                      </Badge>
+                    )}
+                    {!isConnected && (
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" title="Reconnecting..." />
+                    )}
+                    {isConnected && realTimeUnreadCount === 0 && (
+                      <div className="w-2 h-2 bg-green-500 rounded-full" title="Connected" />
+                    )}
+                  </div>
                 )}
               </Link>
             )

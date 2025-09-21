@@ -16,9 +16,9 @@ describe('LocationSettings', () => {
     );
 
     expect(screen.getByText('Location Privacy')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Don't share my location/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Share with friends only/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Share with everyone/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Off/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Friends Only/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Everyone/)).toBeInTheDocument();
   });
 
   test('shows correct default selection', () => {
@@ -28,9 +28,9 @@ describe('LocationSettings', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByLabelText(/Don't share my location/)).toBeChecked();
-    expect(screen.getByLabelText(/Share with friends only/)).not.toBeChecked();
-    expect(screen.getByLabelText(/Share with everyone/)).not.toBeChecked();
+    expect(screen.getByLabelText(/Off/)).toBeChecked();
+    expect(screen.getByLabelText(/Friends Only/)).not.toBeChecked();
+    expect(screen.getByLabelText(/Everyone/)).not.toBeChecked();
   });
 
   test('allows changing location sharing level', () => {
@@ -40,13 +40,13 @@ describe('LocationSettings', () => {
       </TestWrapper>
     );
 
-    fireEvent.click(screen.getByLabelText(/Share with friends only/));
-    expect(screen.getByLabelText(/Share with friends only/)).toBeChecked();
-    expect(screen.getByLabelText(/Don't share my location/)).not.toBeChecked();
+    fireEvent.click(screen.getByLabelText(/Friends Only/));
+    expect(screen.getByLabelText(/Friends Only/)).toBeChecked();
+    expect(screen.getByLabelText(/Off/)).not.toBeChecked();
 
-    fireEvent.click(screen.getByLabelText(/Share with everyone/));
-    expect(screen.getByLabelText(/Share with everyone/)).toBeChecked();
-    expect(screen.getByLabelText(/Share with friends only/)).not.toBeChecked();
+    fireEvent.click(screen.getByLabelText(/Everyone/));
+    expect(screen.getByLabelText(/Everyone/)).toBeChecked();
+    expect(screen.getByLabelText(/Friends Only/)).not.toBeChecked();
   });
 
   test('shows precise location toggle only when sharing is enabled', () => {
@@ -58,7 +58,7 @@ describe('LocationSettings', () => {
 
     expect(screen.queryByText('Precise Location')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText(/Share with friends only/));
+    fireEvent.click(screen.getByLabelText(/Friends Only/));
     expect(screen.getByText('Precise Location')).toBeInTheDocument();
   });
 
@@ -69,7 +69,7 @@ describe('LocationSettings', () => {
       </TestWrapper>
     );
 
-    fireEvent.click(screen.getByLabelText(/Share with everyone/));
+    fireEvent.click(screen.getByLabelText(/Everyone/));
 
     const preciseToggle = screen.getByRole('switch');
     expect(preciseToggle).toBeChecked();
@@ -82,13 +82,13 @@ describe('LocationSettings', () => {
       </TestWrapper>
     );
 
-    fireEvent.click(screen.getByLabelText(/Share with friends only/));
+    fireEvent.click(screen.getByLabelText(/Friends Only/));
 
     const preciseToggle = screen.getByRole('switch');
     fireEvent.click(preciseToggle);
     expect(preciseToggle).toBeChecked();
 
-    fireEvent.click(screen.getByLabelText(/Don't share my location/));
+    fireEvent.click(screen.getByLabelText(/Off/));
     expect(screen.queryByRole('switch')).not.toBeInTheDocument();
   });
 
@@ -101,7 +101,7 @@ describe('LocationSettings', () => {
 
     expect(screen.getByText(/Your location is completely private/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText(/Share with friends only/));
+    fireEvent.click(screen.getByLabelText(/Friends Only/));
     expect(screen.getByText(/Your approximate location is visible to friends/)).toBeInTheDocument();
 
     const preciseToggle = screen.getByRole('switch');
@@ -116,9 +116,9 @@ describe('LocationSettings', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByText(/Most private option/)).toBeInTheDocument();
-    expect(screen.getByText(/Visible to people you follow/)).toBeInTheDocument();
-    expect(screen.getByText(/Visible to all SoloAdventurer users/)).toBeInTheDocument();
+    expect(screen.getByText(/Your location is completely private/)).toBeInTheDocument();
+    expect(screen.getByText(/Only people you follow and who follow you back/)).toBeInTheDocument();
+    expect(screen.getByText(/All users can see your location/)).toBeInTheDocument();
   });
 
   test('shows advanced settings toggle', () => {

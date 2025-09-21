@@ -1,8 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { moderationAPI, ModerationError } from '@/lib/api/moderation';
+import { useToast } from '@/contexts/ToastContext';
 
 export type LocationSharingLevel = 'off' | 'friends' | 'everyone';
+export type SocialInteractionLevel = 'everyone' | 'connections' | 'none';
 
 export interface PrivacySettings {
   locationSharing: LocationSharingLevel;
@@ -10,20 +13,37 @@ export interface PrivacySettings {
   blockedUsers: string[];
   hideFromUsers: string[];
   showPrivacyStatus: boolean;
+  // New social privacy settings
+  whoCanWave: SocialInteractionLevel;
+  whoCanMessage: SocialInteractionLevel;
+  readReceipts: boolean;
+  onlineStatus: boolean;
+  activityStatus: boolean;
 }
 
 export interface PrivacyContextType {
   settings: PrivacySettings;
   updateLocationSharing: (level: LocationSharingLevel) => void;
   togglePreciseLocation: () => void;
-  blockUser: (userId: string) => void;
-  unblockUser: (userId: string) => void;
+  blockUser: (userId: string, reason?: string) => Promise<void>;
+  unblockUser: (userId: string) => Promise<void>;
   hideFromUser: (userId: string) => void;
   showToUser: (userId: string) => void;
   togglePrivacyStatus: () => void;
   resetToDefaults: () => void;
   isUserBlocked: (userId: string) => boolean;
   isHiddenFromUser: (userId: string) => boolean;
+  getBlockedUsers: () => Promise<void>;
+  isBlockingEnabled: boolean;
+  isLoading: boolean;
+  // New social privacy methods
+  updateWhoCanWave: (level: SocialInteractionLevel) => void;
+  updateWhoCanMessage: (level: SocialInteractionLevel) => void;
+  toggleReadReceipts: () => void;
+  toggleOnlineStatus: () => void;
+  toggleActivityStatus: () => void;
+  canUserWave: (userId: string, userIsConnection?: boolean) => boolean;
+  canUserMessage: (userId: string, userIsConnection?: boolean) => boolean;
 }
 
 const PRIVACY_STORAGE_KEY = 'soloadventurer_privacy_settings';
@@ -35,6 +55,12 @@ const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
   blockedUsers: [],
   hideFromUsers: [],
   showPrivacyStatus: true,
+  // Social privacy defaults - privacy-first approach
+  whoCanWave: 'connections',
+  whoCanMessage: 'connections',
+  readReceipts: false,
+  onlineStatus: false,
+  activityStatus: false,
 };
 
 const PrivacyContext = createContext<PrivacyContextType | undefined>(undefined);
@@ -54,6 +80,9 @@ interface PrivacyProviderProps {
 export function PrivacyProvider({ children }: PrivacyProviderProps) {
   const [settings, setSettings] = useState<PrivacySettings>(DEFAULT_PRIVACY_SETTINGS);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isBlockingEnabled, setIsBlockingEnabled] = useState(true);
+  const { showSuccess, showError } = useToast();
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -103,21 +132,87 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
     }));
   }, []);
 
-  const blockUser = useCallback((userId: string) => {
-    setSettings(prev => ({
-      ...prev,
-      blockedUsers: [...new Set([...prev.blockedUsers, userId])],
-      // Also hide from blocked user
-      hideFromUsers: [...new Set([...prev.hideFromUsers, userId])],
-    }));
-  }, []);
+  const blockUser = useCallback(async (userId: string, reason?: string) => {
+    if (!userId || settings.blockedUsers.includes(userId)) {
+      return;
+    }
 
-  const unblockUser = useCallback((userId: string) => {
-    setSettings(prev => ({
-      ...prev,
-      blockedUsers: prev.blockedUsers.filter(id => id !== userId),
-    }));
-  }, []);
+    setIsLoading(true);
+    try {
+      // Optimistic update - add to blocked list immediately
+      setSettings(prev => ({
+        ...prev,
+        blockedUsers: [...new Set([...prev.blockedUsers, userId])],
+        // Also hide from blocked user
+        hideFromUsers: [...new Set([...prev.hideFromUsers, userId])],
+      }));
+
+      // Call API to persist the block
+      await moderationAPI.blockUser({
+        targetUserId: userId,
+        reason: reason
+      });
+
+      showSuccess('User Blocked', 'The user has been blocked successfully.');
+
+    } catch (error) {
+      console.error('Failed to block user:', error);
+
+      // Revert optimistic update on error
+      setSettings(prev => ({
+        ...prev,
+        blockedUsers: prev.blockedUsers.filter(id => id !== userId),
+        hideFromUsers: prev.hideFromUsers.filter(id => id !== userId),
+      }));
+
+      if (error instanceof ModerationError) {
+        showError('Failed to Block User', error.message);
+      } else {
+        showError('Failed to Block User', 'Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [settings.blockedUsers, showSuccess, showError]);
+
+  const unblockUser = useCallback(async (userId: string) => {
+    if (!userId || !settings.blockedUsers.includes(userId)) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Optimistic update - remove from blocked list immediately
+      setSettings(prev => ({
+        ...prev,
+        blockedUsers: prev.blockedUsers.filter(id => id !== userId),
+      }));
+
+      // Call API to persist the unblock
+      await moderationAPI.unblockUser({
+        targetUserId: userId
+      });
+
+      showSuccess('User Unblocked', 'The user has been unblocked successfully.');
+
+    } catch (error) {
+      console.error('Failed to unblock user:', error);
+
+      // Revert optimistic update on error
+      setSettings(prev => ({
+        ...prev,
+        blockedUsers: [...new Set([...prev.blockedUsers, userId])],
+      }));
+
+      if (error instanceof ModerationError) {
+        showError('Failed to Unblock User', error.message);
+      } else {
+        showError('Failed to Unblock User', 'Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [settings.blockedUsers, showSuccess, showError]);
 
   const hideFromUser = useCallback((userId: string) => {
     setSettings(prev => ({
@@ -152,6 +247,107 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
     return settings.hideFromUsers.includes(userId);
   }, [settings.hideFromUsers]);
 
+  /**
+   * Sync blocked users with API and update local state
+   */
+  const getBlockedUsers = useCallback(async () => {
+    if (!isBlockingEnabled) return;
+
+    try {
+      setIsLoading(true);
+      const response = await moderationAPI.getBlockedUsers();
+
+      // Update local state with server data
+      const serverBlockedUserIds = response.blockedUsers.map(user => user.id);
+      setSettings(prev => ({
+        ...prev,
+        blockedUsers: serverBlockedUserIds,
+      }));
+
+    } catch (error) {
+      console.error('Failed to sync blocked users:', error);
+      // Don't show error to user for background sync
+      setIsBlockingEnabled(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isBlockingEnabled]);
+
+  // Sync blocked users on mount if blocking is enabled
+  useEffect(() => {
+    if (isInitialized && isBlockingEnabled) {
+      getBlockedUsers();
+    }
+  }, [isInitialized, isBlockingEnabled, getBlockedUsers]);
+
+  // New social privacy methods following official React patterns
+  const updateWhoCanWave = useCallback((level: SocialInteractionLevel) => {
+    setSettings(prev => ({
+      ...prev,
+      whoCanWave: level,
+    }));
+  }, []);
+
+  const updateWhoCanMessage = useCallback((level: SocialInteractionLevel) => {
+    setSettings(prev => ({
+      ...prev,
+      whoCanMessage: level,
+    }));
+  }, []);
+
+  const toggleReadReceipts = useCallback(() => {
+    setSettings(prev => ({
+      ...prev,
+      readReceipts: !prev.readReceipts,
+    }));
+  }, []);
+
+  const toggleOnlineStatus = useCallback(() => {
+    setSettings(prev => ({
+      ...prev,
+      onlineStatus: !prev.onlineStatus,
+    }));
+  }, []);
+
+  const toggleActivityStatus = useCallback(() => {
+    setSettings(prev => ({
+      ...prev,
+      activityStatus: !prev.activityStatus,
+    }));
+  }, []);
+
+  const canUserWave = useCallback((userId: string, userIsConnection?: boolean): boolean => {
+    // Blocked users cannot wave
+    if (settings.blockedUsers.includes(userId)) return false;
+
+    switch (settings.whoCanWave) {
+      case 'everyone':
+        return true;
+      case 'connections':
+        return userIsConnection === true;
+      case 'none':
+        return false;
+      default:
+        return false;
+    }
+  }, [settings.blockedUsers, settings.whoCanWave]);
+
+  const canUserMessage = useCallback((userId: string, userIsConnection?: boolean): boolean => {
+    // Blocked users cannot message
+    if (settings.blockedUsers.includes(userId)) return false;
+
+    switch (settings.whoCanMessage) {
+      case 'everyone':
+        return true;
+      case 'connections':
+        return userIsConnection === true;
+      case 'none':
+        return false;
+      default:
+        return false;
+    }
+  }, [settings.blockedUsers, settings.whoCanMessage]);
+
   const contextValue: PrivacyContextType = {
     settings,
     updateLocationSharing,
@@ -164,6 +360,17 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
     resetToDefaults,
     isUserBlocked,
     isHiddenFromUser,
+    getBlockedUsers,
+    isBlockingEnabled,
+    isLoading,
+    // New social privacy methods
+    updateWhoCanWave,
+    updateWhoCanMessage,
+    toggleReadReceipts,
+    toggleOnlineStatus,
+    toggleActivityStatus,
+    canUserWave,
+    canUserMessage,
   };
 
   return (
@@ -183,7 +390,7 @@ export function getLocationVisibility(
     return 'hidden';
   }
 
-  // Check if viewer is blocked or hidden from
+  // CRITICAL: Check if viewer is blocked - blocked users should never see content
   if (settings.blockedUsers.includes(viewerUserId) || settings.hideFromUsers.includes(viewerUserId)) {
     return 'hidden';
   }
@@ -198,6 +405,28 @@ export function getLocationVisibility(
   }
 
   return 'hidden';
+}
+
+/**
+ * Helper function to determine if a user should be visible in any context
+ * This is the primary blocking enforcement function
+ */
+export function shouldShowUser(
+  settings: PrivacySettings,
+  userId: string
+): boolean {
+  return !settings.blockedUsers.includes(userId);
+}
+
+/**
+ * Helper function to determine if interaction is allowed with a user
+ * Blocked users cannot interact in any way
+ */
+export function canInteractWithUser(
+  settings: PrivacySettings,
+  userId: string
+): boolean {
+  return !settings.blockedUsers.includes(userId);
 }
 
 // Helper function to format privacy level for display
@@ -225,5 +454,85 @@ export function getPrivacyIcon(level: LocationSharingLevel): string {
       return '🌍';
     default:
       return '🔒';
+  }
+}
+
+/**
+ * Helper function to check if a user can wave to another user
+ * Following official patterns for privacy enforcement
+ */
+export function canWaveToUser(
+  settings: PrivacySettings,
+  targetUserId: string,
+  userIsConnection?: boolean
+): boolean {
+  // Blocked users cannot wave
+  if (settings.blockedUsers.includes(targetUserId)) return false;
+
+  switch (settings.whoCanWave) {
+    case 'everyone':
+      return true;
+    case 'connections':
+      return userIsConnection === true;
+    case 'none':
+      return false;
+    default:
+      return false;
+  }
+}
+
+/**
+ * Helper function to check if a user can message another user
+ * Following official patterns for privacy enforcement
+ */
+export function canMessageUser(
+  settings: PrivacySettings,
+  targetUserId: string,
+  userIsConnection?: boolean
+): boolean {
+  // Blocked users cannot message
+  if (settings.blockedUsers.includes(targetUserId)) return false;
+
+  switch (settings.whoCanMessage) {
+    case 'everyone':
+      return true;
+    case 'connections':
+      return userIsConnection === true;
+    case 'none':
+      return false;
+    default:
+      return false;
+  }
+}
+
+/**
+ * Helper function to format social interaction level for display
+ */
+export function formatSocialInteractionLevel(level: SocialInteractionLevel): string {
+  switch (level) {
+    case 'everyone':
+      return 'Everyone';
+    case 'connections':
+      return 'Connections Only';
+    case 'none':
+      return 'No One';
+    default:
+      return 'Connections Only';
+  }
+}
+
+/**
+ * Helper function to get social interaction icon
+ */
+export function getSocialInteractionIcon(level: SocialInteractionLevel): string {
+  switch (level) {
+    case 'everyone':
+      return '🌍';
+    case 'connections':
+      return '👥';
+    case 'none':
+      return '🚫';
+    default:
+      return '👥';
   }
 }

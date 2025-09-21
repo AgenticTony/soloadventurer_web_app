@@ -1,14 +1,19 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, use, useEffect } from 'react'
 import { ProfileLayout } from '@/components/layout/ProfileLayout'
-import { 
-  MapPin, Globe, Camera, Users, 
+import {
+  MapPin, Globe, Camera, Users,
   Mountain, Plane, Heart, MessageCircle, Share2,
-  Award, Compass, Map, CameraIcon
+  Award, Compass, Map, CameraIcon, Zap
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { WaveButton } from '@/components/waves/WaveButton'
+import { MutualMatchCelebration } from '@/components/waves/MutualMatchCelebration'
+import { useWaves } from '@/hooks/useWaves'
+import { useAuth } from '@/contexts/AuthContext'
+import type { WaveWithUsers } from '@/types/wave'
 
 interface ProfilePageProps {
   params: Promise<{
@@ -19,6 +24,63 @@ interface ProfilePageProps {
 export default function ProfilePage({ params }: ProfilePageProps) {
   const { username } = use(params)
   const [activeTab, setActiveTab] = useState('adventures')
+  const [showMutualCelebration, setShowMutualCelebration] = useState(false)
+  const { user: currentUser } = useAuth()
+  const { getWavesByUser, isConnected, respondToWave } = useWaves()
+
+  // Mock user data - in real app, this would come from API
+  const profileUser = {
+    id: 'user-' + username,
+    name: 'Sarah Chen',
+    username: username,
+    email: 'sarah@example.com',
+  }
+
+  // Get wave status between current user and profile user
+  const getWaveStatus = (): {
+    status: 'none' | 'sent' | 'received' | 'mutual';
+    wave?: WaveWithUsers;
+  } => {
+    if (!currentUser || currentUser.id === profileUser.id) return { status: 'none' }
+
+    const sentWaves = getWavesByUser(currentUser.id)
+    const receivedWaves = getWavesByUser(profileUser.id)
+
+    // Check for mutual connection
+    const mutualWave = sentWaves.find(w =>
+      w.toUserId === profileUser.id && w.status === 'accepted' && w.isMutual
+    )
+    if (mutualWave) return { status: 'mutual', wave: mutualWave }
+
+    // Check for sent wave
+    const sentWave = sentWaves.find(w =>
+      w.toUserId === profileUser.id && w.status === 'pending'
+    )
+    if (sentWave) return { status: 'sent', wave: sentWave }
+
+    // Check for received wave
+    const receivedWave = receivedWaves.find(w =>
+      w.fromUserId === profileUser.id && w.status === 'pending'
+    )
+    if (receivedWave) return { status: 'received', wave: receivedWave }
+
+    return { status: 'none' }
+  }
+
+  const waveStatus = getWaveStatus()
+
+  const handleWaveResponse = async (response: 'accepted' | 'declined') => {
+    if (waveStatus.status === 'received' && waveStatus.wave) {
+      try {
+        await respondToWave(waveStatus.wave.id, response)
+        if (response === 'accepted') {
+          setShowMutualCelebration(true)
+        }
+      } catch (error) {
+        console.error('Failed to respond to wave:', error)
+      }
+    }
+  }
 
   const tabs = [
     { id: 'adventures', label: 'Adventures', icon: Compass },
@@ -72,15 +134,82 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               </Badge>
             </div>
 
-            <div className="flex justify-center gap-4">
-              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-                <Users className="w-5 h-5 mr-2" />
-                Connect
-              </Button>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/20">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Message
-              </Button>
+            {/* Wave Status & Actions */}
+            <div className="flex flex-col items-center gap-4">
+              {/* Wave Status Badge */}
+              {waveStatus.status === 'mutual' && (
+                <Badge className="bg-purple-600/20 backdrop-blur-sm text-white border-purple-300/30 px-6 py-2 text-base">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Mutual Connection!
+                </Badge>
+              )}
+              {waveStatus.status === 'sent' && (
+                <Badge className="bg-blue-600/20 backdrop-blur-sm text-white border-blue-300/30 px-6 py-2">
+                  <div className="w-2 h-2 bg-blue-300 rounded-full mr-2 animate-pulse" />
+                  Wave Sent - Waiting for Response
+                </Badge>
+              )}
+              {waveStatus.status === 'received' && (
+                <Badge className="bg-green-600/20 backdrop-blur-sm text-white border-green-300/30 px-6 py-2">
+                  <div className="w-2 h-2 bg-green-300 rounded-full mr-2 animate-pulse" />
+                  {profileUser.name} Waved at You!
+                </Badge>
+              )}
+              {!isConnected && (
+                <Badge className="bg-amber-600/20 backdrop-blur-sm text-white border-amber-300/30 px-4 py-2">
+                  <div className="w-2 h-2 bg-amber-300 rounded-full mr-2" />
+                  Offline Mode
+                </Badge>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-center gap-4">
+                {currentUser && currentUser.id !== profileUser.id && (
+                  <>
+                    {waveStatus.status === 'none' && (
+                      <WaveButton
+                        toUserId={profileUser.id}
+                        size="lg"
+                        variant="primary"
+                        className="bg-white text-gray-900 hover:bg-gray-100 border-white"
+                        onWaveSent={() => {
+                          // Optimistic update handled by WaveButton and store
+                        }}
+                      />
+                    )}
+                    {waveStatus.status === 'received' && (
+                      <div className="flex gap-3">
+                        <Button
+                          size="lg"
+                          className="bg-green-600 text-white hover:bg-green-700"
+                          onClick={() => handleWaveResponse('accepted')}
+                        >
+                          <Heart className="w-5 h-5 mr-2" />
+                          Accept Wave
+                        </Button>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          className="text-white border-white hover:bg-white/20"
+                          onClick={() => handleWaveResponse('declined')}
+                        >
+                          Decline
+                        </Button>
+                      </div>
+                    )}
+                    {(waveStatus.status === 'sent' || waveStatus.status === 'mutual') && (
+                      <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+                        <Users className="w-5 h-5 mr-2" />
+                        Connected
+                      </Button>
+                    )}
+                  </>
+                )}
+                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/20">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Message
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -229,6 +358,20 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             </div>
           )}
         </div>
+
+        {/* Mutual Match Celebration */}
+        {showMutualCelebration && (
+          <MutualMatchCelebration
+            isVisible={showMutualCelebration}
+            onClose={() => setShowMutualCelebration(false)}
+            user={{
+              id: profileUser.id,
+              name: profileUser.name,
+              avatar: undefined,
+              location: 'Bali, Indonesia',
+            }}
+          />
+        )}
       </div>
     </ProfileLayout>
   )

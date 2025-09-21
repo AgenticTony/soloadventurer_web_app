@@ -1,6 +1,8 @@
 import '../styles/globals.css'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { WebSocketProvider } from '@/contexts/WebSocketContext'
+import { ToastProvider } from '@/contexts/ToastContext'
 import AmplifyProvider from './providers/AmplifyProvider'
 import ApolloProvider from './providers/ApolloProvider'
 
@@ -25,7 +27,11 @@ export default function RootLayout({
         <AmplifyProvider>
           <ApolloProvider>
             <AuthProvider>
-              {children}
+              <WebSocketProvider>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </WebSocketProvider>
             </AuthProvider>
           </ApolloProvider>
         </AmplifyProvider>

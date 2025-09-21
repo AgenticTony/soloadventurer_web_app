@@ -39,7 +39,7 @@ export function BottomTabBar({
   const mainTabs: TabItem[] = [
     { id: 'feed', label: 'Feed', icon: Home },
     { id: 'cities', label: 'Cities', icon: Compass },
-    { id: 'messages', label: 'Messages', icon: MessageCircle, badge: unreadMessages },
+    { id: 'chat', label: 'Messages', icon: MessageCircle, badge: unreadMessages },
     { id: 'buddies', label: 'Buddies', icon: Users },
   ]
 
@@ -81,7 +81,7 @@ export function BottomTabBar({
                   activeTab === tab.id && "animate-pulse"
                 )} />
                 {tab.badge && tab.badge > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-coral-500 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
+                  <span className="absolute -top-1 -right-1 min-w-[1rem] h-4 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white font-bold px-1">
                     {tab.badge > 99 ? '99+' : tab.badge}
                   </span>
                 )}

@@ -3,22 +3,27 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { 
-  Compass, 
-  User, 
-  LogOut, 
-  Settings, 
-  HelpCircle, 
-  Moon, 
+import {
+  Compass,
+  User,
+  LogOut,
+  Settings,
+  HelpCircle,
+  Moon,
   Sun,
   Plus,
   Search,
   MessageCircle,
   Bell,
   Menu,
-  X
+  X,
+  Waves
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useWaves } from '@/hooks/useWaves'
+import { useConnectionStatus } from '@/hooks/useWebSocket'
+import { WaveNotification } from '@/components/waves/WaveNotification'
+import { ConnectionDot } from '@/components/websocket/ConnectionStatus'
 import { clsx } from 'clsx'
 
 interface HeaderProps {
@@ -29,6 +34,8 @@ interface HeaderProps {
 export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
+  const { unreadCount, isConnected } = useWaves()
+  const { isConnected: wsConnected, statusColor } = useConnectionStatus()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -125,6 +132,27 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                 <Plus className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
               </button>
               
+              {/* Waves - Wave Notifications */}
+              {isAuthenticated && (
+                <Link
+                  href="/waves"
+                  className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group"
+                  aria-label={`Waves${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+                >
+                  <Waves className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                  {unreadCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-blue-600 text-white text-xs font-medium rounded-full flex items-center justify-center px-1"
+                      aria-hidden="true"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                  {/* WebSocket Connection Status */}
+                  <ConnectionDot className="absolute bottom-0 right-0 border-2 border-white" />
+                </Link>
+              )}
+
               {/* Messages */}
               <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Messages">
                 <MessageCircle className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
@@ -132,7 +160,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse" aria-hidden="true"></span>
                 )}
               </button>
-              
+
               {/* Notifications */}
               <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Notifications">
                 <Bell className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
@@ -189,6 +217,20 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                       >
                         <User className="w-4 h-4" />
                         Your Profile
+                      </Link>
+
+                      <Link
+                        href="/waves"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <Waves className="w-4 h-4" />
+                        <span>Waves</span>
+                        {unreadCount > 0 && (
+                          <span className="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                          </span>
+                        )}
                       </Link>
                       
                       <Link

@@ -185,7 +185,7 @@ describe('PrivacyContext', () => {
     expect(screen.getByTestId('hidden-users')).toHaveTextContent('');
   });
 
-  test('handles localStorage errors gracefully', () => {
+  test('handles localStorage errors gracefully', async () => {
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = jest.fn(() => {
       throw new Error('Storage quota exceeded');
@@ -201,7 +201,10 @@ describe('PrivacyContext', () => {
 
     fireEvent.click(screen.getByText('Share with friends'));
 
-    expect(consoleSpy).toHaveBeenCalled();
+    // Wait for the effect to run and the warning to be logged
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save privacy settings to localStorage:', expect.any(Error));
+    });
 
     localStorage.setItem = originalSetItem;
     consoleSpy.mockRestore();
