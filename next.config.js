@@ -11,7 +11,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'solo-adventurer.s3.amazonaws.com',
+        hostname: '*.supabase.co',
         port: '',
         pathname: '/**',
       },
@@ -25,11 +25,6 @@ const nextConfig = {
   },
   env: {
     CUSTOM_DOMAIN: process.env.CUSTOM_DOMAIN,
-    AWS_REGION: process.env.AWS_REGION,
-    COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID,
-    COGNITO_CLIENT_ID: process.env.COGNITO_CLIENT_ID,
-    COGNITO_IDENTITY_POOL_ID: process.env.COGNITO_IDENTITY_POOL_ID,
-    GRAPHQL_ENDPOINT: process.env.GRAPHQL_ENDPOINT,
   },
   async redirects() {
     return [

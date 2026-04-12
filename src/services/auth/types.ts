@@ -1,16 +1,6 @@
-// Re-export Amplify types for consistency
-export type {
-  SignUpInput,
-  SignInInput,
-  ConfirmSignUpInput,
-  ResetPasswordInput,
-  ConfirmResetPasswordInput,
-} from 'aws-amplify/auth';
-
-// Core auth user interface
+// Core auth user interface (Supabase-compatible)
 export interface AuthUser {
   userId: string;
-  username: string;
   email: string;
   emailVerified: boolean;
 }
@@ -20,34 +10,27 @@ export interface UserProfile extends AuthUser {
   name: string;
   bio: string;
   avatarUrl: string | null;
+  location: string;
   createdAt: string;
   updatedAt: string;
 }
 
 // Sign up result
 export interface SignUpResult {
-  isSignUpComplete: boolean;
-  nextStep: {
-    signUpStep: string;
-    additionalInfo?: Record<string, unknown>;
-  };
+  userConfirmed: boolean;
   userId?: string;
 }
 
 // Sign in result
 export interface SignInResult {
   isSignedIn: boolean;
-  nextStep: {
-    signInStep: string;
-    additionalInfo?: Record<string, unknown>;
-  };
 }
 
 // Auth session interface
 export interface AuthSession {
   accessToken: string;
-  idToken: string;
   refreshToken?: string;
+  expiresAt?: number;
   isValid: boolean;
 }
 
@@ -60,20 +43,12 @@ export interface AuthState {
   error: string | null;
 }
 
-// Auth context actions
-export type AuthAction =
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_USER'; payload: AuthUser | null }
-  | { type: 'SET_SESSION'; payload: AuthSession | null }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'SIGN_OUT' };
-
 // Form validation types
 export interface SignUpFormData {
   email: string;
   password: string;
   confirmPassword: string;
-  username?: string;
+  name: string;
 }
 
 export interface SignInFormData {

@@ -1,244 +1,127 @@
-import {
-  signUp,
-  signIn,
-  signOut,
-  confirmSignUp,
-  resetPassword,
-  confirmResetPassword,
-  fetchAuthSession,
-  getCurrentUser,
-  type SignUpInput,
-  type SignInInput,
-  type ConfirmSignUpInput,
-  type ResetPasswordInput,
-  type ConfirmResetPasswordInput,
-} from 'aws-amplify/auth';
-import { ApiError } from '../base/ApiClient';
+import { createClient } from '@/lib/supabase/client';
 import type {
   AuthUser,
   SignUpResult,
   SignInResult,
   AuthSession,
-  UserProfile
+  UserProfile,
 } from './types';
 
 export class AuthService {
-  /**
-   * Sign up a new user
-   */
-  async signUp(credentials: SignUpInput): Promise<SignUpResult> {
-    try {
-      const result = await signUp(credentials);
+  async signUp(email: string, password: string, name: string): Promise<SignUpResult> {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name, full_name: name },
+      },
+    });
 
-      return {
-        isSignUpComplete: result.isSignUpComplete,
-        nextStep: result.nextStep,
-        userId: result.userId,
-      };
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number; details?: { field: string; message: string; }[] };
-      throw new ApiError(
-        err.message || 'Sign up failed',
-        err.statusCode,
-        err.details
-      );
-    }
+    if (error) throw error;
+
+    return {
+      userConfirmed: !!data.session,
+      userId: data.user?.id,
+    };
   }
 
-  /**
-   * Sign in an existing user
-   */
-  async signIn(credentials: SignInInput): Promise<SignInResult> {
-    try {
-      const result = await signIn(credentials);
+  async signIn(email: string, password: string): Promise<SignInResult> {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      return {
-        isSignedIn: result.isSignedIn,
-        nextStep: result.nextStep,
-      };
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number; details?: { field: string; message: string; }[] };
-      throw new ApiError(
-        err.message || 'Sign in failed',
-        err.statusCode,
-        err.details
-      );
-    }
+    if (error) throw error;
+
+    return { isSignedIn: !!data.session };
   }
 
-  /**
-   * Sign out the current user
-   */
   async signOut(): Promise<void> {
-    try {
-      await signOut();
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number };
-      throw new ApiError(
-        err.message || 'Sign out failed',
-        err.statusCode
-      );
-    }
+    const supabase = createClient();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   }
 
-  /**
-   * Confirm user sign up with verification code
-   */
-  async confirmSignUp(input: ConfirmSignUpInput): Promise<void> {
-    try {
-      await confirmSignUp(input);
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number; details?: { field: string; message: string; }[] };
-      throw new ApiError(
-        err.message || 'Email confirmation failed',
-        err.statusCode,
-        err.details
-      );
-    }
+  async confirmSignUp(email: string, code: string): Promise<void> {
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'signup',
+    });
+    if (error) throw error;
   }
 
-  /**
-   * Request password reset
-   */
-  async resetPassword(input: ResetPasswordInput): Promise<void> {
-    try {
-      await resetPassword(input);
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number };
-      throw new ApiError(
-        err.message || 'Password reset request failed',
-        err.statusCode
-      );
-    }
+  async resetPassword(email: string): Promise<void> {
+    const supabase = createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
   }
 
-  /**
-   * Confirm password reset with verification code
-   */
-  async confirmResetPassword(input: ConfirmResetPasswordInput): Promise<void> {
-    try {
-      await confirmResetPassword(input);
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number };
-      throw new ApiError(
-        err.message || 'Password reset confirmation failed',
-        err.statusCode
-      );
-    }
+  async confirmResetPassword(email: string, code: string, newPassword: string): Promise<void> {
+    const supabase = createClient();
+    const { error: otpError } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'recovery',
+    });
+    if (otpError) throw otpError;
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (updateError) throw updateError;
   }
 
-  /**
-   * Get current authenticated user
-   */
   async getCurrentUser(): Promise<AuthUser | null> {
-    try {
-      const user = await getCurrentUser();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
 
-      return {
-        userId: user.userId,
-        username: user.username,
-        email: user.signInDetails?.loginId || '',
-        emailVerified: true, // Assume verified if user is authenticated
-      };
-    } catch (error: unknown) {
-      // User not authenticated
-      const err = error as Error & { statusCode?: number };
-      if (err.name === 'UserUnauthorizedException' ||
-          err.name === 'NotAuthorizedException') {
-        return null;
-      }
-
-      throw new ApiError(
-        err.message || 'Failed to get current user',
-        err.statusCode
-      );
-    }
+    return {
+      userId: user.id,
+      email: user.email ?? '',
+      emailVerified: user.email_confirmed_at != null,
+    };
   }
 
-  /**
-   * Get current auth session with tokens
-   */
-  async getAuthSession(): Promise<AuthSession | null> {
-    try {
-      const session = await fetchAuthSession();
+  async getSession(): Promise<AuthSession | null> {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
 
-      if (!session.tokens) {
-        return null;
-      }
-
-      return {
-        accessToken: session.tokens.accessToken.toString(),
-        idToken: session.tokens.idToken?.toString() || '',
-        refreshToken: session.tokens.accessToken.toString(), // Use accessToken as refreshToken fallback
-        isValid: true,
-      };
-    } catch (error: unknown) {
-      // Session not available
-      return null;
-    }
+    return {
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      expiresAt: session.expires_at ?? undefined,
+      isValid: true,
+    };
   }
 
-  /**
-   * Check if user is authenticated
-   */
-  async isAuthenticated(): Promise<boolean> {
-    try {
-      const session = await this.getAuthSession();
-      return session?.isValid || false;
-    } catch (error) {
-      return false;
-    }
-  }
+  async getUserProfile(userId: string): Promise<UserProfile | null> {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-  /**
-   * Get user profile information
-   * This combines auth user data with profile data
-   */
-  async getUserProfile(): Promise<UserProfile | null> {
-    try {
-      const user = await this.getCurrentUser();
+    if (error || !data) return null;
 
-      if (!user) {
-        return null;
-      }
-
-      // In the future, this could fetch additional profile data from GraphQL/REST API
-      return {
-        ...user,
-        name: user.username, // Default to username
-        bio: '',
-        avatarUrl: null,
-        createdAt: new Date().toISOString(), // Placeholder
-        updatedAt: new Date().toISOString(), // Placeholder
-      };
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number };
-      throw new ApiError(
-        err.message || 'Failed to get user profile',
-        err.statusCode
-      );
-    }
-  }
-
-  /**
-   * Refresh authentication session
-   */
-  async refreshSession(): Promise<AuthSession | null> {
-    try {
-      // Amplify handles token refresh automatically
-      return await this.getAuthSession();
-    } catch (error: unknown) {
-      const err = error as Error & { statusCode?: number };
-      throw new ApiError(
-        err.message || 'Failed to refresh session',
-        err.statusCode
-      );
-    }
+    return {
+      userId: data.id,
+      email: data.email ?? '',
+      emailVerified: true,
+      name: data.name ?? data.full_name ?? '',
+      bio: data.bio ?? '',
+      avatarUrl: data.avatar_url ?? null,
+      location: data.location ?? '',
+      createdAt: data.created_at ?? '',
+      updatedAt: data.updated_at ?? '',
+    };
   }
 }
 
-// Create singleton instance
 export const authService = new AuthService();
-
-// Export the service class for testing
-export default AuthService;

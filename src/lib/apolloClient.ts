@@ -1,8 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink, ApolloLink, NormalizedCacheObject } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
-import { fetchAuthSession } from 'aws-amplify/auth'
-import outputs from '../../amplify_outputs.json'
+import { createClient } from '@/lib/supabase/client'
 
 export type RedirectFn = (url: string) => void
 
@@ -13,16 +12,17 @@ const defaultRedirect: RedirectFn = (url) => {
 }
 
 export function makeApolloClient(redirect: RedirectFn = defaultRedirect): ApolloClient<NormalizedCacheObject> {
-  // Note: Amplify is configured in AmplifyProvider to ensure SSR compatibility
+  const graphqlEndpoint = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT
 
   const httpLink = createHttpLink({
-    uri: outputs.data.url,
+    uri: graphqlEndpoint,
   })
 
   const authLink = setContext(async (_, { headers }) => {
     try {
-      const session = await fetchAuthSession()
-      const token = session.tokens?.idToken?.toString()
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
 
       return {
         headers: {
@@ -46,15 +46,17 @@ export function makeApolloClient(redirect: RedirectFn = defaultRedirect): Apollo
         )
 
         if (extensions?.code === 'UNAUTHENTICATED') {
-          redirectFn('/login')
+          redirectFn('/sign-in')
         }
       })
     }
 
     if (networkError) {
+      // Silently ignore 404s when GraphQL endpoint isn't configured (data now via Supabase)
+      if ('statusCode' in networkError && networkError.statusCode === 404) return
       console.error(`[Network error]: ${networkError}`)
       if ('statusCode' in networkError && networkError.statusCode === 401) {
-        redirectFn('/login')
+        redirectFn('/sign-in')
       }
     }
   })

@@ -1,91 +1,44 @@
 import React from 'react'
 import { render, act, screen, waitFor } from '@testing-library/react'
 import { AuthProvider, useAuth } from '../AuthContext'
-import { Amplify } from 'aws-amplify'
 
-// Mock AWS Amplify and auth functions
-jest.mock('aws-amplify')
-jest.mock('aws-amplify/auth', () => ({
-  signIn: jest.fn(),
-  signUp: jest.fn(),
-  signOut: jest.fn(),
-  resetPassword: jest.fn(),
-  confirmResetPassword: jest.fn(),
-  confirmSignUp: jest.fn(),
-  fetchAuthSession: jest.fn(),
-  getCurrentUser: jest.fn(),
-  fetchUserAttributes: jest.fn(),
+// Mock the Supabase client
+const mockGetSession = jest.fn()
+const mockSignInWithPassword = jest.fn()
+const mockSignUp = jest.fn()
+const mockSignOut = jest.fn()
+const mockResetPasswordForEmail = jest.fn()
+const mockVerifyOtp = jest.fn()
+const mockUpdateUser = jest.fn()
+const mockResend = jest.fn()
+const mockOnAuthStateChange = jest.fn(() => ({
+  data: { subscription: { unsubscribe: jest.fn() } },
 }))
 
-// Import mocked functions
-import { 
-  signIn as mockSignIn,
-  signUp as mockSignUp,
-  signOut as mockSignOut,
-  resetPassword as mockResetPassword,
-  confirmResetPassword as mockConfirmResetPassword,
-  confirmSignUp as mockConfirmSignUp,
-  fetchAuthSession as mockFetchAuthSession,
-  getCurrentUser as mockGetCurrentUser,
-  fetchUserAttributes as mockFetchUserAttributes,
-} from 'aws-amplify/auth'
-jest.mock('../../../amplify_outputs.json', () => ({
-  version: '1',
-  auth: {
-    aws_region: 'us-east-1',
-    user_pool_id: 'us-east-1_test',
-    user_pool_client_id: 'test-client-id',
-    identity_pool_id: 'us-east-1:test-identity-pool',
-    standard_required_attributes: ['email'],
-    username_attributes: ['email'],
-    user_verification_types: ['email']
-  },
-  data: {
-    aws_region: 'us-east-1',
-    url: 'https://test.appsync-api.us-east-1.amazonaws.com/graphql',
-    default_authorization_type: 'AMAZON_COGNITO_USER_POOLS',
-    authorization_types: ['AMAZON_COGNITO_USER_POOLS']
-  }
+jest.mock('@/lib/supabase/client', () => ({
+  createClient: () => ({
+    auth: {
+      getSession: mockGetSession,
+      signInWithPassword: mockSignInWithPassword,
+      signUp: mockSignUp,
+      signOut: mockSignOut,
+      resetPasswordForEmail: mockResetPasswordForEmail,
+      verifyOtp: mockVerifyOtp,
+      updateUser: mockUpdateUser,
+      resend: mockResend,
+      onAuthStateChange: mockOnAuthStateChange,
+    },
+  }),
 }))
 
-const mockAmplify = Amplify as jest.Mocked<typeof Amplify>
-
-// Setup mock implementations
 beforeEach(() => {
-  ;(mockSignIn as jest.Mock).mockResolvedValue({ isSignedIn: true, nextStep: undefined })
-  ;(mockSignUp as jest.Mock).mockResolvedValue({ isSignUpComplete: true, nextStep: undefined })
-  ;(mockSignOut as jest.Mock).mockResolvedValue({})
-  ;(mockResetPassword as jest.Mock).mockResolvedValue({})
-  ;(mockConfirmResetPassword as jest.Mock).mockResolvedValue({})
-  ;(mockConfirmSignUp as jest.Mock).mockResolvedValue({})
-  ;(mockFetchAuthSession as jest.Mock).mockResolvedValue({
-    tokens: {
-      idToken: {
-        toString: () => 'test-jwt-token'
-      }
-    }
-  })
-  ;(mockGetCurrentUser as jest.Mock).mockResolvedValue({
-    userId: 'test-user-id'
-  })
-  ;(mockFetchUserAttributes as jest.Mock).mockResolvedValue({
-    email: 'test@example.com',
-    name: 'Test User',
-    email_verified: 'true'
-  })
-
-  mockAmplify.configure = jest.fn()
-})
-
-// Reset mocks after each test
-afterEach(() => {
   jest.clearAllMocks()
+  mockGetSession.mockResolvedValue({ data: { session: null } })
 })
 
-// Test component that uses auth context
 const TestComponent = () => {
   const { user, isAuthenticated, login, signup, logout } = useAuth()
-  
+
   return (
     <div>
       {isAuthenticated && <div data-testid="authenticated">Authenticated</div>}
@@ -108,7 +61,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     )
 
     expect(screen.getByTestId('login-btn')).toBeInTheDocument()
@@ -123,165 +76,159 @@ describe('AuthProvider', () => {
   })
 
   test('handles successful login', async () => {
+    mockSignInWithPassword.mockResolvedValue({ data: {}, error: null })
+
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     )
 
-    const loginBtn = screen.getByTestId('login-btn')
-    
     await act(async () => {
-      loginBtn.click()
+      screen.getByTestId('login-btn').click()
     })
 
-    expect(mockSignIn).toHaveBeenCalledWith({ username: 'test@example.com', password: 'password' })
+    expect(mockSignInWithPassword).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      password: 'password',
+    })
   })
 
   test('handles successful signup', async () => {
+    mockSignUp.mockResolvedValue({
+      data: { user: { id: 'test-id' }, session: { access_token: 'token' } },
+      error: null,
+    })
+
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     )
 
-    const signupBtn = screen.getByTestId('signup-btn')
-    
     await act(async () => {
-      signupBtn.click()
+      screen.getByTestId('signup-btn').click()
     })
 
     expect(mockSignUp).toHaveBeenCalledWith({
-      username: 'test@example.com',
+      email: 'test@example.com',
       password: 'password',
       options: {
-        userAttributes: {
-          email: 'test@example.com',
+        data: {
           name: 'Test User',
-          'custom:createdAt': expect.any(String),
-          'custom:updatedAt': expect.any(String)
+          full_name: 'Test User',
+          bio: '',
+          location: '',
         },
-        autoSignIn: true
-      }
+      },
     })
   })
 
   test('handles logout', async () => {
+    mockSignOut.mockResolvedValue({ error: null })
+
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     )
 
-    const logoutBtn = screen.getByTestId('logout-btn')
-    
     await act(async () => {
-      logoutBtn.click()
+      screen.getByTestId('logout-btn').click()
     })
 
     expect(mockSignOut).toHaveBeenCalled()
   })
 
   test('handles authentication errors', async () => {
-    ;(mockSignIn as jest.Mock).mockRejectedValue(new Error('Login failed'))
+    mockSignInWithPassword.mockRejectedValue(new Error('Invalid login credentials'))
 
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     )
 
-    const loginBtn = screen.getByTestId('login-btn')
-    
     await act(async () => {
-      expect(async () => {
-        loginBtn.click()
-      }).rejects.toThrow('Login failed')
+      screen.getByTestId('login-btn').click()
     })
   })
 
   test('handles password reset', async () => {
-    const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-      <AuthProvider>{children}</AuthProvider>
-    )
+    mockResetPasswordForEmail.mockResolvedValue({ error: null })
 
-    // Since resetPassword is not exposed in TestComponent, we'll test it through a custom component
     const TestResetComponent = () => {
       const { resetPassword } = useAuth()
-      
       React.useEffect(() => {
         resetPassword('test@example.com')
       }, [resetPassword])
-      
       return <div>Test</div>
     }
 
     render(
-      <TestWrapper>
+      <AuthProvider>
         <TestResetComponent />
-      </TestWrapper>
+      </AuthProvider>,
     )
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith({ username: 'test@example.com' })
+      expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
+        'test@example.com',
+        expect.objectContaining({ redirectTo: expect.stringContaining('/forgot-password') }),
+      )
     })
   })
 
   test('handles password reset confirmation', async () => {
-    const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-      <AuthProvider>{children}</AuthProvider>
-    )
+    mockVerifyOtp.mockResolvedValue({ error: null })
+    mockUpdateUser.mockResolvedValue({ error: null })
 
     const TestConfirmResetComponent = () => {
       const { confirmResetPassword } = useAuth()
-      
       React.useEffect(() => {
         confirmResetPassword('test@example.com', '123456', 'newPassword')
       }, [confirmResetPassword])
-      
       return <div>Test</div>
     }
 
     render(
-      <TestWrapper>
+      <AuthProvider>
         <TestConfirmResetComponent />
-      </TestWrapper>
+      </AuthProvider>,
     )
 
     await waitFor(() => {
-      expect(mockConfirmResetPassword).toHaveBeenCalledWith({
-        username: 'test@example.com',
-        confirmationCode: '123456',
-        newPassword: 'newPassword'
+      expect(mockVerifyOtp).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        token: '123456',
+        type: 'recovery',
       })
+      expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'newPassword' })
     })
   })
 
   test('handles signup confirmation', async () => {
-    const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-      <AuthProvider>{children}</AuthProvider>
-    )
+    mockVerifyOtp.mockResolvedValue({ error: null })
 
     const TestConfirmSignupComponent = () => {
       const { confirmSignUp } = useAuth()
-      
       React.useEffect(() => {
         confirmSignUp('test@example.com', '123456')
       }, [confirmSignUp])
-      
       return <div>Test</div>
     }
 
     render(
-      <TestWrapper>
+      <AuthProvider>
         <TestConfirmSignupComponent />
-      </TestWrapper>
+      </AuthProvider>,
     )
 
     await waitFor(() => {
-      expect(mockConfirmSignUp).toHaveBeenCalledWith({
-        username: 'test@example.com',
-        confirmationCode: '123456'
+      expect(mockVerifyOtp).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        token: '123456',
+        type: 'signup',
       })
     })
   })

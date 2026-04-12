@@ -1,4 +1,4 @@
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { createClient } from '@/lib/supabase/client';
 
 export class ApiError extends Error {
   constructor(
@@ -33,8 +33,9 @@ export class ApiClient {
 
   private async getAuthToken(): Promise<string | null> {
     try {
-      const session = await fetchAuthSession();
-      return session.tokens?.idToken?.toString() || null;
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token ?? null;
     } catch (error) {
       console.error('Failed to get auth token:', error);
       return null;
@@ -46,21 +47,9 @@ export class ApiClient {
       return this.baseURL;
     }
 
-    // Try environment variable first
     const envEndpoint = process.env.NEXT_PUBLIC_API_BASE;
     if (envEndpoint) {
       return envEndpoint;
-    }
-
-    // Fall back to Amplify outputs
-    try {
-      const amplifyOutputs = await import('../../../amplify_outputs.json');
-      const endpoint = amplifyOutputs.custom?.API?.TripsAPI?.endpoint;
-      if (endpoint) {
-        return endpoint;
-      }
-    } catch (error) {
-      console.error('Failed to load Amplify outputs:', error);
     }
 
     throw new ApiError('API endpoint not configured');
@@ -131,7 +120,6 @@ export class ApiClient {
           );
         }
 
-        // Handle empty responses
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           return await response.json();

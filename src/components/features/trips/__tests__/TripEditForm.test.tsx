@@ -1,15 +1,15 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { TripEditForm } from '../TripEditForm'
 
-// Mock AWS Amplify auth
-jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: jest.fn().mockResolvedValue({
-    tokens: {
-      idToken: {
-        toString: () => 'mock-jwt-token'
-      }
-    }
-  })
+// Mock Supabase client for auth
+jest.mock('@/lib/supabase/client', () => ({
+  createClient: () => ({
+    auth: {
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { access_token: 'mock-jwt-token' } },
+      }),
+    },
+  }),
 }))
 
 // Mock the trip service

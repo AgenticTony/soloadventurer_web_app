@@ -3,6 +3,7 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector, persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { immer } from 'zustand/middleware/immer';
 import {
   WaveState,
@@ -402,19 +403,19 @@ export const useSentWaves = () => useWaveStore((state) => state.sentWaves);
 export const useReceivedWaves = () => useWaveStore((state) => state.receivedWaves);
 export const useMutualWaves = () => useWaveStore((state) => state.mutualWaves);
 export const useWaveStats = () => useWaveStore((state) => state.stats);
-export const useWaveLoading = () => useWaveStore((state) => ({
+export const useWaveLoading = () => useWaveStore(useShallow((state) => ({
   isLoading: state.isLoading,
   isSending: state.isSending,
   isResponding: state.isResponding,
-}));
-export const useWaveConnection = () => useWaveStore((state) => ({
+})));
+export const useWaveConnection = () => useWaveStore(useShallow((state) => ({
   isConnected: state.isConnected,
   lastSync: state.lastSync,
   error: state.error,
-}));
+})));
 
 // Actions
-export const useWaveActions = () => useWaveStore((state) => ({
+export const useWaveActions = () => useWaveStore(useShallow((state) => ({
   sendWave: state.sendWave,
   respondToWave: state.respondToWave,
   loadWaves: state.loadWaves,
@@ -424,7 +425,7 @@ export const useWaveActions = () => useWaveStore((state) => ({
   unsubscribeFromWaves: state.unsubscribeFromWaves,
   reset: state.reset,
   setError: state.setError,
-}));
+})));
 
 // Auto-cleanup expired waves every 5 minutes
 if (typeof window !== 'undefined') {

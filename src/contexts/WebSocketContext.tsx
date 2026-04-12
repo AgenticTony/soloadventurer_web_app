@@ -6,7 +6,7 @@
 import React, { createContext, useContext, useEffect, useReducer, useCallback } from 'react';
 import { wsClient, WebSocketState, WebSocketMessage, AuthToken } from '@/lib/websocket/wsClient';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * WebSocket Context based on official patterns:
@@ -172,17 +172,18 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
     try {
       // Fetch current auth session for tokens
-      const session = await fetchAuthSession();
-      if (!session.tokens?.accessToken) {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
         log('No access token available');
         return;
       }
 
       // Update auth token before connecting
       const authToken: AuthToken = {
-        accessToken: session.tokens.accessToken.toString(),
-        refreshToken: (session.tokens as any).refreshToken?.toString(),
-        expiresAt: session.tokens.accessToken.payload.exp ? session.tokens.accessToken.payload.exp * 1000 : Date.now() + 3600000,
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token,
+        expiresAt: session.expires_at ? session.expires_at * 1000 : Date.now() + 3600000,
         userId: user.id,
       };
 
@@ -332,12 +333,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     if (autoReconnectOnAuth && state.isConnected && user) {
       log('Updating WebSocket auth token on user change');
       // Fetch fresh tokens and update
-      fetchAuthSession().then(session => {
-        if (session.tokens?.accessToken) {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.access_token) {
           const authToken: AuthToken = {
-            accessToken: session.tokens.accessToken.toString(),
-            refreshToken: (session.tokens as any).refreshToken?.toString(),
-            expiresAt: session.tokens.accessToken.payload.exp ? session.tokens.accessToken.payload.exp * 1000 : Date.now() + 3600000,
+            accessToken: session.access_token,
+            refreshToken: session.refresh_token,
+            expiresAt: session.expires_at ? session.expires_at * 1000 : Date.now() + 3600000,
             userId: user.id,
           };
           updateAuthToken(authToken);

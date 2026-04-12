@@ -1,145 +1,154 @@
-import { ApiClient, ApiError } from '../base/ApiClient';
+import { createClient } from '@/lib/supabase/client';
+import { ApiError } from '../base/ApiClient';
 import { Trip, CreateTripInput, CreateTripResponse, ListTripsOptions, ListTripsResponse } from './types';
 
-export class TripService {
-  constructor(private apiClient: ApiClient) {}
+function mapTrip(row: Record<string, unknown>): Trip {
+  return {
+    id: row.id as string,
+    title: row.name as string,
+    description: (row.description as string) ?? '',
+    startDate: row.start_date as string,
+    endDate: row.end_date as string ?? '',
+    isPrivate: !(row.is_public as boolean),
+    ownerId: row.user_id as string,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
 
-  /**
-   * Create a new trip
-   */
+async function getAuthContext() {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new ApiError('User not authenticated', 401);
+  return { supabase, userId: session.user.id };
+}
+
+export class TripService {
   async createTrip(tripData: CreateTripInput): Promise<CreateTripResponse> {
     try {
-      return await this.apiClient.post<CreateTripResponse>('/trips', tripData);
+      const { supabase } = await getAuthContext();
+
+      const { data, error } = await supabase.rpc('create_trip', {
+        p_name: tripData.title,
+        p_destination: tripData.title,
+        p_start_date: tripData.startDate,
+        p_end_date: tripData.endDate,
+        p_is_public: !tripData.isPrivate,
+        p_description: tripData.description ?? null,
+      });
+
+      if (error) throw new ApiError(error.message);
+      return { id: data as string };
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      if (error instanceof ApiError) throw error;
       throw new ApiError('Failed to create trip');
     }
   }
 
-  /**
-   * Get a specific trip by ID
-   */
   async getTrip(tripId: string): Promise<Trip> {
     try {
-      return await this.apiClient.get<Trip>(`/trips/${tripId}`);
+      const { supabase } = await getAuthContext();
+      const { data, error } = await supabase.rpc('get_trip_by_id', { p_id: tripId });
+      if (error) throw new ApiError(error.message);
+      if (!data || (data as unknown[]).length === 0) throw new ApiError('Trip not found');
+      const row = Array.isArray(data) ? data[0] : data;
+      return mapTrip(row as Record<string, unknown>);
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      if (error instanceof ApiError) throw error;
       throw new ApiError('Failed to fetch trip');
     }
   }
 
-  /**
-   * List trips with optional filtering
-   */
-  async listTrips(ownerId?: string, options?: ListTripsOptions): Promise<ListTripsResponse> {
+  async listTrips(_ownerId?: string, options?: ListTripsOptions): Promise<ListTripsResponse> {
     try {
-      const params = new URLSearchParams();
+      const { supabase } = await getAuthContext();
+      const limit = Math.min(options?.limit ?? 50, 100);
 
-      if (ownerId) {
-        params.set('ownerId', ownerId);
-      }
+      const { data, error } = await supabase.rpc('list_my_trips', {
+        p_limit: limit + 1,
+        p_offset: 0,
+      });
 
-      if (options?.limit !== undefined) {
-        params.set('limit', options.limit.toString());
-      }
+      if (error) throw new ApiError(error.message);
 
-      if (options?.nextToken) {
-        params.set('nextToken', options.nextToken);
-      }
+      const rows = ((data ?? []) as Record<string, unknown>[]);
+      const hasMore = rows.length > limit;
+      const items = hasMore ? rows.slice(0, limit) : rows;
 
-      const queryString = params.toString();
-      const endpoint = queryString ? `/trips?${queryString}` : '/trips';
-
-      return await this.apiClient.get<ListTripsResponse>(endpoint);
+      return {
+        items: items.map(mapTrip),
+        nextToken: hasMore ? String(items[items.length - 1]?.id) : undefined,
+      };
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      if (error instanceof ApiError) throw error;
       throw new ApiError('Failed to list trips');
     }
   }
 
-  /**
-   * Get public trips for map display
-   */
   async getPublicTrips(options?: ListTripsOptions): Promise<ListTripsResponse> {
     try {
-      const params = new URLSearchParams();
+      const { supabase } = await getAuthContext();
+      const limit = Math.min(options?.limit ?? 50, 100);
 
-      // Filter for public trips only
-      params.set('isPrivate', 'false');
+      const { data, error } = await supabase.rpc('list_my_trips', {
+        p_limit: limit,
+        p_offset: 0,
+      });
 
-      if (options?.limit !== undefined) {
-        params.set('limit', options.limit.toString());
-      }
+      if (error) throw new ApiError(error.message);
 
-      if (options?.nextToken) {
-        params.set('nextToken', options.nextToken);
-      }
-
-      const queryString = params.toString();
-      const endpoint = `/trips?${queryString}`;
-
-      return await this.apiClient.get<ListTripsResponse>(endpoint);
+      return {
+        items: ((data ?? []) as Record<string, unknown>[]).map(mapTrip),
+      };
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      if (error instanceof ApiError) throw error;
       throw new ApiError('Failed to get public trips');
     }
   }
 
-  /**
-   * Update an existing trip
-   */
   async updateTrip(tripId: string, updates: Partial<CreateTripInput>): Promise<Trip> {
     try {
-      return await this.apiClient.put<Trip>(`/trips/${tripId}`, updates);
+      const { supabase } = await getAuthContext();
+
+      const { data, error } = await supabase.rpc('update_my_trip', {
+        p_id: tripId,
+        p_name: updates.title ?? null,
+        p_description: updates.description ?? null,
+        p_start_date: updates.startDate ?? null,
+        p_end_date: updates.endDate ?? null,
+        p_is_public: updates.isPrivate !== undefined ? !updates.isPrivate : null,
+      });
+
+      if (error) throw new ApiError(error.message);
+      if (!data || (data as unknown[]).length === 0) throw new ApiError('Trip not found or not authorized');
+      const row = Array.isArray(data) ? data[0] : data;
+      return mapTrip(row as Record<string, unknown>);
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      if (error instanceof ApiError) throw error;
       throw new ApiError('Failed to update trip');
     }
   }
 
-  /**
-   * Delete a trip
-   */
   async deleteTrip(tripId: string): Promise<void> {
     try {
-      await this.apiClient.delete<void>(`/trips/${tripId}`);
+      const { supabase } = await getAuthContext();
+      const { data, error } = await supabase.rpc('delete_my_trip', { p_id: tripId });
+      if (error) throw new ApiError(error.message);
+      if (!data) throw new ApiError('Trip not found or not authorized');
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      if (error instanceof ApiError) throw error;
       throw new ApiError('Failed to delete trip');
     }
   }
 
-  /**
-   * Get trips by current user
-   */
   async getMyTrips(options?: ListTripsOptions): Promise<ListTripsResponse> {
-    // The API will automatically filter by the authenticated user when no ownerId is specified
     return this.listTrips(undefined, options);
   }
 
-  /**
-   * Get public trips by another user
-   */
   async getUserTrips(ownerId: string, options?: ListTripsOptions): Promise<ListTripsResponse> {
     return this.listTrips(ownerId, options);
   }
 }
 
-// Create singleton instance
-import { apiClient } from '../base/ApiClient';
-export const tripService = new TripService(apiClient);
-
-// Export the service class for testing
+export const tripService = new TripService();
 export default TripService;

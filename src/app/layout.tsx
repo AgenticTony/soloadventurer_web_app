@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { WebSocketProvider } from '@/contexts/WebSocketContext'
 import { ToastProvider } from '@/contexts/ToastContext'
-import AmplifyProvider from './providers/AmplifyProvider'
 import ApolloProvider from './providers/ApolloProvider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,17 +23,15 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <AmplifyProvider>
-          <ApolloProvider>
-            <AuthProvider>
-              <WebSocketProvider>
-                <ToastProvider>
-                  {children}
-                </ToastProvider>
-              </WebSocketProvider>
-            </AuthProvider>
-          </ApolloProvider>
-        </AmplifyProvider>
+        <ApolloProvider>
+          <AuthProvider>
+            <WebSocketProvider>
+              <ToastProvider>
+                {children}
+              </ToastProvider>
+            </WebSocketProvider>
+          </AuthProvider>
+        </ApolloProvider>
       </body>
     </html>
   )

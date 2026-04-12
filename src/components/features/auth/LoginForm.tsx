@@ -44,15 +44,14 @@ export function LoginForm() {
       const error = err as Error & { code?: string }
       console.error('Login error:', error)
       
-      // Handle specific AWS Cognito errors
-      if (error.message?.includes('confirm your email')) {
+      // Handle Supabase auth errors
+      const msg = error.message?.toLowerCase() ?? ''
+      if (msg.includes('email not confirmed')) {
         setError('Please confirm your email address before logging in')
-      } else if (error.code === 'UserNotFoundException') {
-        setError('No account found with this email')
-      } else if (error.code === 'NotAuthorizedException') {
+      } else if (msg.includes('invalid login credentials')) {
         setError('Incorrect email or password')
-      } else if (error.code === 'UserNotConfirmedException') {
-        setError('Please confirm your email address first')
+      } else if (msg.includes('too many requests')) {
+        setError('Too many attempts. Please wait a moment and try again.')
       } else {
         setError(error.message || 'Login failed. Please try again.')
       }

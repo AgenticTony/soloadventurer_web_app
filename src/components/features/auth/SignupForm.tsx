@@ -54,12 +54,15 @@ export function SignupForm() {
         router.push(`/confirm-email?email=${encodeURIComponent(formData.email)}`)
       }
     } catch (err: unknown) {
-      // Handle specific AWS Cognito errors
+      // Handle Supabase auth errors
       const error = err as Error & { code?: string }
-      if (error.message?.includes('Password')) {
+      const msg = error.message?.toLowerCase() ?? ''
+      if (msg.includes('password')) {
         setError(error.message)
-      } else if (error.code === 'UsernameExistsException') {
+      } else if (msg.includes('already registered') || msg.includes('user already registered')) {
         setError('An account with this email already exists')
+      } else if (msg.includes('weak password')) {
+        setError('Password is too weak. Use at least 6 characters with a mix of letters and numbers.')
       } else {
         setError(error.message || 'Signup failed. Please try again.')
       }
