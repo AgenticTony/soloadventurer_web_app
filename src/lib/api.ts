@@ -1,12 +1,9 @@
 import { createClient } from '@/lib/supabase/client';
+import { AppError } from '@/lib/errors';
 
-// ── Error class (preserved for consumers) ─────────────────────
-class TripsApiError extends Error {
-  constructor(public message: string, public details?: Array<{ field: string; message: string }>) {
-    super(message);
-    this.name = 'TripsApiError';
-  }
-}
+// Backward-compatible alias
+export type TripsApiError = AppError;
+export const TripsApiError = AppError;
 
 // ── Shared types ──────────────────────────────────────────────
 interface CreateTripInput {
@@ -236,5 +233,4 @@ export async function getMapTrips(): Promise<Trip[]> {
 
 export const getTripById = getTrip;
 
-export { TripsApiError };
 export type { CreateTripInput, CreateTripResponse };

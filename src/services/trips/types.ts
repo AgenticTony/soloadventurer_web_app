@@ -1,64 +1,42 @@
-// Core Trip interfaces
+// Trip types for the service layer
+// These match the actual Supabase data shape used throughout the app
+
 export interface Trip {
   id: string;
   title: string;
-  description?: string;
+  description: string;
+  location: string;
+  coordinates?: { latitude: number; longitude: number };
   startDate: string;
   endDate: string;
-  isPrivate?: boolean;
+  status: 'PLANNING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+  isPrivate: boolean;
   ownerId: string;
+  owner: string;
   createdAt: string;
   updatedAt: string;
 }
 
-// Trip creation input
 export interface CreateTripInput {
   title: string;
-  description?: string;
   startDate: string;
   endDate: string;
   isPrivate?: boolean;
+  description?: string;
 }
 
-// Trip creation response
 export interface CreateTripResponse {
   id: string;
-  message?: string;
 }
 
-// Trip listing options
 export interface ListTripsOptions {
   limit?: number;
   nextToken?: string;
 }
 
-// Trip listing response
 export interface ListTripsResponse {
   items: Trip[];
   nextToken?: string;
-  count?: number;
 }
 
-// Trip update input
-export interface UpdateTripInput extends Partial<CreateTripInput> {
-  // Allow partial updates of all creation fields
-}
-
-// Trip filter options (for future use)
-export interface TripFilters {
-  startDateFrom?: string;
-  startDateTo?: string;
-  endDateFrom?: string;
-  endDateTo?: string;
-  isPrivate?: boolean;
-  search?: string;
-}
-
-// Trip statistics (for future use)
-export interface TripStats {
-  totalTrips: number;
-  upcomingTrips: number;
-  completedTrips: number;
-  publicTrips: number;
-  privateTrips: number;
-}
+export interface UpdateTripInput extends Partial<CreateTripInput> {}

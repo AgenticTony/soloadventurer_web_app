@@ -9,9 +9,4 @@ export type {
   ListTripsOptions,
   ListTripsResponse,
   UpdateTripInput,
-  TripFilters,
-  TripStats,
 } from './types';
-
-// Export API error for consumers
-export { ApiError } from '../base/ApiClient';

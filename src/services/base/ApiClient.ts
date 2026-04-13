@@ -1,15 +1,9 @@
 import { createClient } from '@/lib/supabase/client';
+import { AppError } from '@/lib/errors';
 
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number,
-    public details?: Array<{ field: string; message: string }>
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
+// Backward-compatible alias
+export type ApiError = AppError;
+export const ApiError = AppError;
 
 export interface ApiClientConfig {
   baseURL?: string;

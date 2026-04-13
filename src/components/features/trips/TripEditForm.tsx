@@ -10,8 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { Edit, Save, X, Info } from 'lucide-react'
 import { tripService } from '@/services/trips/tripService'
-import { ApiError } from '@/services/base/ApiClient'
-import type { Trip } from '@/services/trips/types'
+import { TripsApiError } from '@/lib/api'
+import type { Trip } from '@/lib/api'
 import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema'
 
 
@@ -98,7 +98,7 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
       console.error('Error updating trip:', error)
 
       // Handle API validation errors
-      if (error instanceof ApiError) {
+      if (error instanceof TripsApiError) {
         setApiError(error.message)
       } else {
         setApiError('Failed to update trip')

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { tripService } from '@/services/trips/tripService';
-import { ApiError } from '@/services/base/ApiClient';
+import { TripsApiError } from '@/lib/api';
 import { TripTemplates } from '@/components/trips/TripTemplates';
 import { MapPin, Save, X, Sparkles } from 'lucide-react';
 import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema';
@@ -68,7 +68,7 @@ export function TripCreationForm() {
       console.error('Error creating trip:', error);
 
       // Handle API validation errors
-      if (error instanceof ApiError) {
+      if (error instanceof TripsApiError) {
         setApiError(error.message);
       } else {
         setApiError('Failed to create trip');
