@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useQuery } from '@apollo/client'
+import { useState, useEffect } from 'react'
 import { ProfileLayout } from '@/components/layout/ProfileLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { LIST_USER_TRIPS } from '@/graphql/queries'
-import type { ListUserTripsResponse } from '@/graphql/types'
+import { listTrips } from '@/lib/api'
+import type { Trip } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -31,27 +30,17 @@ export default function ProfilePage() {
   const { user } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('adventures')
+  const [userTrips, setUserTrips] = useState<Trip[]>([])
+  const [tripsLoading, setTripsLoading] = useState(true)
 
-  // Query for detailed user data (disabled temporarily)
-  // const { data: userData } = useQuery<GetUserResponse>(
-  //   GET_USER,
-  //   {
-  //     variables: { id: user?.id },
-  //     skip: !user?.id,
-  //     errorPolicy: 'all'
-  //   }
-  // )
-
-  // Query for user's trips
-  const { data: tripsData, loading: tripsLoading } = useQuery<ListUserTripsResponse>(
-    LIST_USER_TRIPS,
-    {
-      variables: { ownerId: user?.id, limit: 10 },
-      skip: !user?.id,
-      errorPolicy: 'all'
-    }
-  )
-
+  useEffect(() => {
+    if (!user) return
+    setTripsLoading(true)
+    listTrips(user.id, { limit: 10 })
+      .then(({ items }) => setUserTrips(items))
+      .catch(() => setUserTrips([]))
+      .finally(() => setTripsLoading(false))
+  }, [user])
 
   if (!user) {
     return (
@@ -76,9 +65,6 @@ export default function ProfilePage() {
     { id: 'map', label: 'Travel Map', icon: Map },
     { id: 'stats', label: 'Statistics', icon: TrendingUp },
   ]
-
-  // Use GraphQL data to populate stats
-  const userTrips = tripsData?.listTrips?.items || []
 
   const stats = [
     { label: 'Countries Visited', value: 0, icon: Globe, color: 'from-blue-500 to-cyan-600' },
@@ -349,7 +335,6 @@ export default function ProfilePage() {
                             {trip.description}
                           </p>
                         )}
-                        {/* Destination information not available in current schema */}
                         <div className="flex items-center justify-between">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-brand-100 text-brand-800">
                             {trip.isPrivate ? 'Private' : 'Public'}
