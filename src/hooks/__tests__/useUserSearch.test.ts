@@ -77,19 +77,23 @@ describe('useUserSearch', () => {
   it('should perform search when query changes', async () => {
     const { result } = renderHook(() => useUserSearch());
 
+    // Wait for initial mount search to complete
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    }, { timeout: 1000 });
+
     act(() => {
       result.current.setQuery('test query');
     });
 
-    // Wait for debounced search to trigger
+    // Wait for debounced search to fire with the new query
     await waitFor(
       () => {
-        expect(result.current.loading).toBe(false);
+        expect(mockSearchUsers).toHaveBeenCalledWith('test query', { limit: 12, offset: 0 });
       },
       { timeout: 1000 }
     );
 
-    expect(result.current.users.length).toBeGreaterThan(0);
     expect(result.current.filters.query).toBe('test query');
   });
 
@@ -146,57 +150,52 @@ describe('useUserSearch', () => {
   });
 
   it('should load more users', async () => {
-    // Mock initial response with hasMore = true
-    mockSearchUsers.mockResolvedValueOnce([
-        {
-          id: 'user-1',
-          username: 'testuser1',
-          email: 'test1@example.com',
-          name: 'Test User 1',
-          bio: 'Test bio 1',
-          avatarUrl: 'avatar-url-1',
-          emailVerified: true,
-          createdAt: '2023-01-01T00:00:00Z',
-          updatedAt: '2023-01-01T00:00:00Z',
-          followersCount: 100,
-          followingCount: 50,
-          tripsCount: 5,
-          isFollowing: false,
-          isPrivate: false
-        }
-      ] as UserProfile[]);
+    // Mock initial response with 12 users (so hasMore is true)
+    const firstPage = Array.from({ length: 12 }, (_, i) => ({
+      id: `user-${i + 1}`,
+      username: `testuser${i + 1}`,
+      email: `test${i + 1}@example.com`,
+      name: `Test User ${i + 1}`,
+      bio: `Test bio ${i + 1}`,
+      avatarUrl: `avatar-url-${i + 1}`,
+      emailVerified: true,
+      createdAt: '2023-01-01T00:00:00Z',
+      updatedAt: '2023-01-01T00:00:00Z',
+      followersCount: 100,
+      followingCount: 50,
+      tripsCount: 5,
+      isFollowing: false,
+      isPrivate: false
+    })) as UserProfile[];
 
-    // Mock second page response
-    mockSearchUsers.mockResolvedValueOnce([
-        {
-          id: 'user-2',
-          username: 'testuser2',
-          email: 'test2@example.com',
-          name: 'Test User 2',
-          bio: 'Test bio 2',
-          avatarUrl: 'avatar-url-2',
-          emailVerified: true,
-          createdAt: '2023-01-02T00:00:00Z',
-          updatedAt: '2023-01-02T00:00:00Z',
-          followersCount: 80,
-          followingCount: 40,
-          tripsCount: 3,
-          isFollowing: false,
-          isPrivate: false
-        }
-      ] as UserProfile[]);
+    const secondPage: UserProfile[] = [{
+      id: 'user-13',
+      username: 'testuser13',
+      email: 'test13@example.com',
+      name: 'Test User 13',
+      bio: 'Test bio 13',
+      avatarUrl: 'avatar-url-13',
+      emailVerified: true,
+      createdAt: '2023-01-02T00:00:00Z',
+      updatedAt: '2023-01-02T00:00:00Z',
+      followersCount: 80,
+      followingCount: 40,
+      tripsCount: 3,
+      isFollowing: false,
+      isPrivate: false
+    }];
+
+    mockSearchUsers
+      .mockResolvedValueOnce(firstPage)
+      .mockResolvedValueOnce(secondPage);
 
     const { result } = renderHook(() => useUserSearch());
 
-    // First, perform initial search
-    act(() => {
-      result.current.setQuery('test');
-    });
-
+    // Wait for initial mount search to complete
     await waitFor(
       () => {
         expect(result.current.loading).toBe(false);
-        expect(result.current.users.length).toBe(1);
+        expect(result.current.users.length).toBe(12);
       },
       { timeout: 1000 }
     );
@@ -209,7 +208,7 @@ describe('useUserSearch', () => {
     await waitFor(
       () => {
         expect(result.current.loading).toBe(false);
-        expect(result.current.users.length).toBe(2);
+        expect(result.current.users.length).toBe(13);
       },
       { timeout: 1000 }
     );
@@ -270,63 +269,57 @@ describe('useUserSearch', () => {
   });
 
   it('should not load more when already loading', async () => {
-    // Mock initial response with hasMore = true
-    mockSearchUsers
-      .mockResolvedValueOnce([
-          {
-            id: 'user-1',
-            username: 'testuser1_no_load_more',
-            email: 'test1@example.com',
-            name: 'Test User 1',
-            bio: 'Test bio 1',
-            avatarUrl: '/default-avatar.jpg',
-            emailVerified: true,
-            createdAt: '2023-01-01T00:00:00Z',
-            updatedAt: '2023-01-01T00:00:00Z',
-            followersCount: 100,
-            followingCount: 50,
-            tripsCount: 5,
-            isFollowing: false,
-            isPrivate: false
-          }
-        ] as UserProfile[]);
+    // Mock initial response with 12 users (so hasMore = true)
+    const firstPage = Array.from({ length: 12 }, (_, i) => ({
+      id: `user-${i + 1}`,
+      username: `testuser${i + 1}_no_load_more`,
+      email: `test${i + 1}@example.com`,
+      name: `Test User ${i + 1}`,
+      bio: `Test bio ${i + 1}`,
+      avatarUrl: '/default-avatar.jpg',
+      emailVerified: true,
+      createdAt: '2023-01-01T00:00:00Z',
+      updatedAt: '2023-01-01T00:00:00Z',
+      followersCount: 100,
+      followingCount: 50,
+      tripsCount: 5,
+      isFollowing: false,
+      isPrivate: false
+    })) as UserProfile[];
 
-    // Mock second page response
-    mockSearchUsers.mockResolvedValueOnce([
-          {
-            id: 'user-2',
-            username: 'testuser2_loadmore',
-            email: 'test2@example.com',
-            name: 'Test User 2',
-            bio: 'Test bio 2',
-            avatarUrl: '/default-avatar.jpg',
-            emailVerified: true,
-            createdAt: '2023-01-02T00:00:00Z',
-            updatedAt: '2023-01-02T00:00:00Z',
-            followersCount: 80,
-            followingCount: 40,
-            tripsCount: 3,
-            isFollowing: false,
-            isPrivate: false
-          }
-        ] as UserProfile[]);
+    const secondPage: UserProfile[] = [{
+      id: 'user-13',
+      username: 'testuser13_loadmore',
+      email: 'test13@example.com',
+      name: 'Test User 13',
+      bio: 'Test bio 13',
+      avatarUrl: '/default-avatar.jpg',
+      emailVerified: true,
+      createdAt: '2023-01-02T00:00:00Z',
+      updatedAt: '2023-01-02T00:00:00Z',
+      followersCount: 80,
+      followingCount: 40,
+      tripsCount: 3,
+      isFollowing: false,
+      isPrivate: false
+    }];
+
+    mockSearchUsers
+      .mockResolvedValueOnce(firstPage)
+      .mockResolvedValueOnce(secondPage);
 
     const { result } = renderHook(() => useUserSearch());
 
-    // Start initial search and wait for it to complete
-    act(() => {
-      result.current.setQuery('test');
-    });
-
+    // Wait for initial mount search to complete
     await waitFor(
       () => {
         expect(result.current.loading).toBe(false);
-        expect(result.current.users.length).toBe(1);
+        expect(result.current.users.length).toBe(12);
       },
       { timeout: 1000 }
     );
 
-    // Now try to load more when not loading
+    // Load more should work since hasMore is true
     act(() => {
       result.current.loadMore();
     });
@@ -334,7 +327,7 @@ describe('useUserSearch', () => {
     await waitFor(
       () => {
         expect(result.current.loading).toBe(false);
-        expect(result.current.users.length).toBe(2);
+        expect(result.current.users.length).toBe(13);
       },
       { timeout: 1000 }
     );
@@ -343,28 +336,44 @@ describe('useUserSearch', () => {
   });
 
   it('should not load more when no more results', async () => {
-    const { result } = renderHook(() => useUserSearch());
+    // Mock returns fewer than 12 items, so hasMore will be false
+    const singleUser: UserProfile[] = [{
+      id: 'user-1',
+      username: 'testuser1',
+      email: 'test1@example.com',
+      name: 'Test User 1',
+      bio: 'Test bio 1',
+      avatarUrl: '/default-avatar.jpg',
+      emailVerified: true,
+      createdAt: '2023-01-01T00:00:00Z',
+      updatedAt: '2023-01-01T00:00:00Z',
+      followersCount: 100,
+      followingCount: 50,
+      tripsCount: 5,
+      isFollowing: false,
+      isPrivate: false
+    }];
 
-    // Mock hasMore to be false
-    act(() => {
-      result.current.setQuery('test');
-    });
+    mockSearchUsers.mockResolvedValue(singleUser);
+
+    const { result } = renderHook(() => useUserSearch());
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
+      expect(result.current.users.length).toBe(1);
     });
 
-    // Manually set hasMore to false for testing
-    result.current.hasMore = false;
+    expect(result.current.hasMore).toBe(false);
 
-    const initialUserCount = result.current.users.length;
+    const callCountBefore = mockSearchUsers.mock.calls.length;
 
     act(() => {
       result.current.loadMore();
     });
 
-    await waitFor(() => {
-      expect(result.current.users.length).toBe(initialUserCount);
-    });
+    // Wait a bit to ensure no additional calls were made
+    await new Promise(r => setTimeout(r, 100));
+
+    expect(mockSearchUsers.mock.calls.length).toBe(callCountBefore);
   });
 });

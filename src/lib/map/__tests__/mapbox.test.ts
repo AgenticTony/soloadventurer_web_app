@@ -38,6 +38,7 @@ describe('mapbox utilities', () => {
         title: 'Paris Adventure',
         description: 'Exploring the beautiful city of lights',
         location: 'Paris, France',
+        coordinates: { latitude: 48.8566, longitude: 2.3522 },
         startDate: '2024-03-01T10:00:00Z',
         endDate: '2024-03-05T10:00:00Z',
         status: 'PLANNING',
@@ -52,6 +53,7 @@ describe('mapbox utilities', () => {
         title: 'Tokyo Journey',
         description: 'Discovering the vibrant culture of Japan',
         location: 'Tokyo, Japan',
+        coordinates: { latitude: 35.6762, longitude: 139.6503 },
         startDate: '2024-04-01T10:00:00Z',
         endDate: '2024-04-10T10:00:00Z',
         status: 'ACTIVE',
@@ -73,8 +75,6 @@ describe('mapbox utilities', () => {
       expect(feature1.type).toBe('Feature');
       expect(feature1.geometry.type).toBe('Point');
       expect(feature1.geometry.coordinates).toHaveLength(2);
-      expect(typeof feature1.geometry.coordinates[0]).toBe('number'); // longitude
-      expect(typeof feature1.geometry.coordinates[1]).toBe('number'); // latitude
 
       expect(feature1.properties).toEqual({
         id: 'trip-1',
@@ -93,20 +93,37 @@ describe('mapbox utilities', () => {
       expect(result.features).toHaveLength(0);
     });
 
-    it('should generate coordinates within reasonable bounds', () => {
+    it('should use actual coordinates from trip data', () => {
       const result = convertTripsToGeoJSON(mockTrips);
 
-      result.features.forEach(feature => {
-        const [lng, lat] = feature.geometry.coordinates;
+      // Paris coordinates
+      expect(result.features[0].geometry.coordinates[0]).toBe(2.3522); // longitude
+      expect(result.features[0].geometry.coordinates[1]).toBe(48.8566); // latitude
 
-        // Longitude should be roughly between -125 and -55 (USA bounds)
-        expect(lng).toBeGreaterThan(-125);
-        expect(lng).toBeLessThan(-55);
+      // Tokyo coordinates
+      expect(result.features[1].geometry.coordinates[0]).toBe(139.6503);
+      expect(result.features[1].geometry.coordinates[1]).toBe(35.6762);
+    });
 
-        // Latitude should be roughly between 25 and 65 (USA bounds)
-        expect(lat).toBeGreaterThan(25);
-        expect(lat).toBeLessThan(65);
-      });
+    it('should filter out trips without coordinates', () => {
+      const tripWithoutCoords: Trip = {
+        id: 'trip-3',
+        title: 'Public Trip',
+        description: 'A trip without coordinates',
+        location: 'Amsterdam, Netherlands',
+        startDate: '2024-05-01T10:00:00Z',
+        endDate: '2024-05-05T10:00:00Z',
+        status: 'COMPLETED',
+        isPrivate: false,
+        ownerId: 'user-3',
+        owner: 'user_three',
+        createdAt: '2024-01-03T00:00:00Z',
+        updatedAt: '2024-01-03T00:00:00Z'
+      };
+
+      const result = convertTripsToGeoJSON([tripWithoutCoords]);
+
+      expect(result.features).toHaveLength(0);
     });
 
     it('should handle trip with undefined isPrivate', () => {
@@ -115,6 +132,7 @@ describe('mapbox utilities', () => {
         title: 'Public Trip',
         description: 'A trip without explicit privacy setting',
         location: 'Amsterdam, Netherlands',
+        coordinates: { latitude: 52.3676, longitude: 4.9041 },
         startDate: '2024-05-01T10:00:00Z',
         endDate: '2024-05-05T10:00:00Z',
         status: 'COMPLETED',

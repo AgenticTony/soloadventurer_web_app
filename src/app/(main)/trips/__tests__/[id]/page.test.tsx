@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import TripDetailPage from '../../[id]/page'
-import { getTrip, TripsApiError } from '@/lib/api'
+import { getTrip } from '@/lib/api'
+import { AppError } from '@/lib/errors'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -11,20 +12,14 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/lib/api', () => ({
   getTrip: jest.fn(),
-  TripsApiError: jest.fn()
+  TripsApiError: jest.requireActual('@/lib/api').TripsApiError,
 }))
 
-jest.mock('@/components/layout/MainLayout', () => {
-  return function MockMainLayout({ children }: { children: React.ReactNode }) {
-    return <div data-testid="main-layout">{children}</div>
-  }
-})
-
-jest.mock('@/components/features/trips/TripDetail', () => {
-  return function MockTripDetail({ trip }: { trip: { title: string } }) {
+jest.mock('@/components/features/trips/TripDetail', () => ({
+  TripDetail: function MockTripDetail({ trip }: { trip: { title: string } }) {
     return <div data-testid="trip-detail">Trip: {trip.title}</div>
   }
-})
+}))
 
 const mockRouter = {
   push: jest.fn(),
@@ -62,7 +57,6 @@ describe('TripDetailPage', () => {
     const params = Promise.resolve({ id: 'trip-123' })
     render(<TripDetailPage params={params} />)
 
-    expect(screen.getByTestId('main-layout')).toBeInTheDocument()
     expect(screen.getByText('Back to Trips')).toBeInTheDocument()
 
     // Should show loading skeleton
@@ -101,8 +95,7 @@ describe('TripDetailPage', () => {
   it('should handle 404 errors by calling notFound', async () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { notFound } = require('next/navigation')
-    const error = { message: 'Trip not found' }
-    Object.setPrototypeOf(error, TripsApiError.prototype)
+    const error = new AppError('Trip not found')
     ;(getTrip as jest.Mock).mockRejectedValue(error)
 
     const params = Promise.resolve({ id: 'invalid-trip' })

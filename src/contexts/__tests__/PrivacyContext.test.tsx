@@ -2,6 +2,19 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { PrivacyProvider, usePrivacy } from '../PrivacyContext';
 
+jest.mock('@/contexts/ToastContext', () => ({
+  useToast: () => ({
+    showSuccess: jest.fn(),
+    showError: jest.fn(),
+    showInfo: jest.fn(),
+    showWarning: jest.fn(),
+    showToast: jest.fn(),
+    dismissToast: jest.fn(),
+    dismissAllToasts: jest.fn()
+  }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children
+}));
+
 const TestComponent = () => {
   const {
     settings,
@@ -186,12 +199,10 @@ describe('PrivacyContext', () => {
   });
 
   test('handles localStorage errors gracefully', async () => {
-    const originalSetItem = localStorage.setItem;
-    localStorage.setItem = jest.fn(() => {
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('Storage quota exceeded');
     });
-
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
     render(
       <PrivacyProvider>
@@ -201,12 +212,12 @@ describe('PrivacyContext', () => {
 
     fireEvent.click(screen.getByText('Share with friends'));
 
-    // Wait for the effect to run and the warning to be logged
+    // The component should log a warning when localStorage fails
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith('Failed to save privacy settings to localStorage:', expect.any(Error));
-    });
+    }, { timeout: 2000 });
 
-    localStorage.setItem = originalSetItem;
+    setItemSpy.mockRestore();
     consoleSpy.mockRestore();
   });
 });

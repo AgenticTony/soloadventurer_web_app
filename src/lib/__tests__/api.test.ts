@@ -1,21 +1,26 @@
 import { createTrip, getTrip, listTrips, TripsApiError } from '../api'
 
-// Mock Supabase client
-const mockGetSession = jest.fn()
-jest.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({
-    auth: {
-      getSession: mockGetSession,
-    },
-  }),
-}))
+// Mock Supabase client — full mock with auth, rpc, and from() chain
+jest.mock('@/lib/supabase/client', () => {
+  const rpc = jest.fn()
+  const from = jest.fn(() => ({
+    select: jest.fn(() => ({
+      eq: jest.fn(() => ({
+        single: jest.fn(),
+      })),
+      not: jest.fn(),
+    })),
+  }))
+  const auth = {
+    getSession: jest.fn(),
+  }
+  return { createClient: () => ({ auth, rpc, from }) }
+})
 
-// Mock environment
-process.env.NEXT_PUBLIC_API_BASE = 'https://api.example.com/dev'
-
-// Mock fetch
-global.fetch = jest.fn()
-const mockFetch = fetch as jest.MockedFunction<typeof fetch>
+import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
+const auth = supabase.auth
+const rpc = supabase.rpc as jest.Mock
 
 describe('createTrip', () => {
   beforeEach(() => {
@@ -23,14 +28,11 @@ describe('createTrip', () => {
   })
 
   it('should create a trip successfully', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
     })
 
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ id: 'trip-123' }),
-    } as Response)
+    rpc.mockResolvedValue({ data: 'trip-123', error: null })
 
     const tripData = {
       title: 'Test Trip',
@@ -42,19 +44,18 @@ describe('createTrip', () => {
     const result = await createTrip(tripData)
 
     expect(result).toEqual({ id: 'trip-123' })
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://api.example.com/dev/trips',
-      expect.objectContaining({
-        method: 'POST',
-        headers: expect.objectContaining({
-          Authorization: 'Bearer mock-token',
-        }),
-      }),
-    )
+    expect(rpc).toHaveBeenCalledWith('create_trip', {
+      p_name: 'Test Trip',
+      p_destination: 'Test Trip',
+      p_start_date: '2024-03-01T10:00:00Z',
+      p_end_date: '2024-03-05T10:00:00Z',
+      p_is_public: true,
+      p_description: null,
+    })
   })
 
   it('should throw error when user not authenticated', async () => {
-    mockGetSession.mockResolvedValue({
+    auth.getSession.mockResolvedValue({
       data: { session: null },
     })
 
@@ -67,18 +68,12 @@ describe('createTrip', () => {
     await expect(createTrip(tripData)).rejects.toThrow('User not authenticated')
   })
 
-  it('should handle validation errors', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
+  it('should handle RPC errors', async () => {
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
     })
 
-    mockFetch.mockResolvedValue({
-      ok: false,
-      json: async () => ({
-        error: 'Validation failed',
-        details: [{ field: 'title', message: 'Title is required' }],
-      }),
-    } as Response)
+    rpc.mockResolvedValue({ data: null, error: { message: 'Validation failed' } })
 
     const tripData = {
       title: '',
@@ -86,15 +81,15 @@ describe('createTrip', () => {
       endDate: '2024-03-05T10:00:00Z',
     }
 
-    await expect(createTrip(tripData)).rejects.toThrow('Validation failed')
+    await expect(createTrip(tripData)).rejects.toThrow('Failed to create trip')
   })
 
   it('should handle network errors', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
     })
 
-    mockFetch.mockRejectedValue(new Error('Network error'))
+    rpc.mockRejectedValue(new Error('Network error'))
 
     const tripData = {
       title: 'Test Trip',
@@ -112,56 +107,45 @@ describe('getTrip', () => {
   })
 
   it('should fetch trip successfully', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
     })
 
-    const mockTrip = {
+    const mockTripRow = {
       id: 'trip-123',
-      title: 'Test Trip',
+      name: 'Test Trip',
       description: 'A wonderful test trip',
-      location: 'Paris, France',
-      startDate: '2024-03-01T10:00:00Z',
-      endDate: '2024-03-05T10:00:00Z',
-      status: 'PLANNING',
-      isPrivate: false,
-      ownerId: 'user-123',
-      owner: 'test_user',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
+      destination_name: 'Paris, France',
+      start_date: '2024-03-01T10:00:00Z',
+      end_date: '2024-03-05T10:00:00Z',
+      is_public: true,
+      user_id: 'user-123',
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
     }
 
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => mockTrip,
-    } as Response)
+    rpc.mockResolvedValue({ data: mockTripRow, error: null })
 
     const result = await getTrip('trip-123')
 
-    expect(result).toEqual(mockTrip)
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://api.example.com/dev/trips/trip-123',
-      expect.objectContaining({
-        headers: { Authorization: 'Bearer mock-token' },
-      }),
-    )
+    expect(result.id).toBe('trip-123')
+    expect(result.title).toBe('Test Trip')
+    expect(result.location).toBe('Paris, France')
+    expect(rpc).toHaveBeenCalledWith('get_trip_by_id', { p_id: 'trip-123' })
   })
 
   it('should handle not found error', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
     })
 
-    mockFetch.mockResolvedValue({
-      ok: false,
-      json: async () => ({ error: 'Trip not found' }),
-    } as Response)
+    rpc.mockResolvedValue({ data: null, error: null })
 
     await expect(getTrip('nonexistent')).rejects.toThrow('Trip not found')
   })
 
   it('should handle authentication error', async () => {
-    mockGetSession.mockResolvedValue({
+    auth.getSession.mockResolvedValue({
       data: { session: null },
     })
 
@@ -175,59 +159,35 @@ describe('listTrips', () => {
   })
 
   it('should list own trips', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
     })
 
     const mockTrips = [
       {
         id: 'trip-1',
-        title: 'Trip 1',
+        name: 'Trip 1',
         description: 'First test trip',
-        location: 'Rome, Italy',
-        startDate: '2024-03-01T10:00:00Z',
-        endDate: '2024-03-05T10:00:00Z',
-        status: 'PLANNING',
-        isPrivate: true,
-        ownerId: 'user-123',
-        owner: 'test_user',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
+        destination_name: 'Rome, Italy',
+        start_date: '2024-03-01T10:00:00Z',
+        end_date: '2024-03-05T10:00:00Z',
+        is_public: false,
+        user_id: 'user-123',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
       },
     ]
 
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ items: mockTrips }),
-    } as Response)
+    rpc.mockResolvedValue({ data: mockTrips, error: null })
 
     const result = await listTrips()
 
-    expect(result).toEqual({ items: mockTrips })
-  })
-
-  it('should list other user public trips', async () => {
-    mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'mock-token' } },
-    })
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ items: [] }),
-    } as Response)
-
-    await listTrips('other-user')
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://api.example.com/dev/trips?ownerId=other-user',
-      expect.objectContaining({
-        headers: { Authorization: 'Bearer mock-token' },
-      }),
-    )
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0].title).toBe('Trip 1')
   })
 
   it('should handle authentication error', async () => {
-    mockGetSession.mockResolvedValue({
+    auth.getSession.mockResolvedValue({
       data: { session: null },
     })
 

@@ -3,6 +3,19 @@ import { render, screen, act, waitFor } from '@testing-library/react';
 import { PrivacyControls } from '../PrivacyControls';
 import { PrivacyProvider } from '@/contexts/PrivacyContext';
 
+jest.mock('@/contexts/ToastContext', () => ({
+  useToast: () => ({
+    showSuccess: jest.fn(),
+    showError: jest.fn(),
+    showInfo: jest.fn(),
+    showWarning: jest.fn(),
+    showToast: jest.fn(),
+    dismissToast: jest.fn(),
+    dismissAllToasts: jest.fn()
+  }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children
+}));
+
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <PrivacyProvider>{children}</PrivacyProvider>
 );
@@ -57,8 +70,9 @@ describe('PrivacyControls', () => {
       );
     });
 
-    expect(screen.getByText(/Blocked Users/)).toBeInTheDocument();
-    expect(screen.getByText(/Hidden From/)).toBeInTheDocument();
+    // Text appears in both tab button and heading, so use getAllByText
+    expect(screen.getAllByText(/Blocked Users/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Hidden From/).length).toBeGreaterThanOrEqual(1);
   });
 
   test('shows add user functionality', async () => {
