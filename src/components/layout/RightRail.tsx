@@ -19,7 +19,7 @@ interface NearbyTraveler {
   name: string
   distance: string
   avatar?: string
-  isFollowing?: boolean
+  isConnected?: boolean
 }
 
 interface UpcomingTrip {
@@ -169,12 +169,12 @@ export function RightRail({
                 <button
                   className={clsx(
                     'text-xs font-medium transition-colors',
-                    traveler.isFollowing
-                      ? 'text-muted-foreground hover:text-foreground'
-                      : 'text-primary hover:text-primary/80'
+                    traveler.isConnected
+                      ? 'text-connection hover:text-connection/80'
+                      : 'btn-connection px-2 py-1 rounded-lg'
                   )}
                 >
-                  {traveler.isFollowing ? 'Following' : 'Follow'}
+                  {traveler.isConnected ? 'Connected' : 'Say hi'}
                 </button>
               </div>
             ))}

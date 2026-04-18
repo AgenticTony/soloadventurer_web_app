@@ -25,18 +25,20 @@ interface UserMiniCardProps {
       posts: number
     }
   }
+  onConnect?: (userId: string) => void
   onFollow?: (userId: string) => void
   onMessage?: (userId: string) => void
   showActions?: boolean
   compact?: boolean
 }
 
-export function UserMiniCard({ user, onFollow, onMessage, compact = false }: UserMiniCardProps) {
-  const [isFollowing, setIsFollowing] = useState(false)
+export function UserMiniCard({ user, onConnect, onFollow, onMessage, compact = false }: UserMiniCardProps) {
+  const handleConnectAction = onFollow ?? onConnect
+  const [isConnected, setIsConnected] = useState(false)
 
-  const handleFollow = () => {
-    setIsFollowing(!isFollowing)
-    onFollow?.(user.id)
+  const handleConnect = () => {
+    setIsConnected(!isConnected)
+    handleConnectAction?.(user.id)
   }
 
   const handleMessage = () => {
@@ -90,17 +92,17 @@ export function UserMiniCard({ user, onFollow, onMessage, compact = false }: Use
 
         {/* Action */}
         <Button
-          onClick={handleFollow}
+          onClick={handleConnect}
           size="sm"
-          variant={isFollowing ? "outline" : "default"}
+          variant={isConnected ? "outline" : "default"}
           className={clsx(
             "flex-shrink-0",
-            isFollowing
-              ? "border-brand-500 text-brand-500 hover:bg-brand-50"
-              : "bg-brand-500 text-white hover:bg-brand-600"
+            isConnected
+              ? "border-connection text-connection hover:bg-connection/10"
+              : "btn-connection"
           )}
         >
-          {isFollowing ? 'Following' : 'Follow'}
+          {isConnected ? 'Connected' : 'Say hi'}
         </Button>
       </div>
     )
@@ -214,16 +216,16 @@ export function UserMiniCard({ user, onFollow, onMessage, compact = false }: Use
       {/* Action Buttons */}
       <div className="flex space-x-2">
         <Button
-          onClick={handleFollow}
+          onClick={handleConnect}
           className={clsx(
             "flex-1",
-            isFollowing
-              ? "border-brand-500 text-brand-500 hover:bg-brand-50"
-              : "bg-brand-500 text-white hover:bg-brand-600"
+            isConnected
+              ? "border-connection text-connection hover:bg-connection/10"
+              : "btn-connection"
           )}
-          variant={isFollowing ? "outline" : "default"}
+          variant={isConnected ? "outline" : "default"}
         >
-          {isFollowing ? 'Following' : 'Follow'}
+          {isConnected ? 'Connected' : 'Say hi'}
         </Button>
         
         <Button

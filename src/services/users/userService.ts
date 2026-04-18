@@ -81,13 +81,9 @@ export class UserService {
     }
   }
 
-  async uploadAvatar(_file: File): Promise<{ avatarUrl: string }> {
-    try {
-      throw new ApiError('Avatar upload not yet implemented', 501);
-    } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError('Failed to upload avatar');
-    }
+  async uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
+    void file;
+    throw new ApiError('Avatar upload not yet implemented', 501);
   }
 
   async getUserFeed(userId?: string): Promise<FeedItem[]> {

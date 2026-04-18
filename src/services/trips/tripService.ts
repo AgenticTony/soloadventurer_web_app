@@ -3,7 +3,6 @@ import {
   getTrip as apiGetTrip,
   listTrips as apiListTrips,
   getMapTrips as apiGetMapTrips,
-  TripsApiError,
 } from '@/lib/api';
 import type { Trip, CreateTripInput, CreateTripResponse, ListTripsOptions, ListTripsResponse } from './types';
 
@@ -28,13 +27,15 @@ export class TripService {
     return apiListTrips(undefined, options);
   }
 
-  async updateTrip(_tripId: string, _updates: Partial<CreateTripInput>): Promise<Trip> {
+  async updateTrip(tripId: string, updates: Partial<CreateTripInput>): Promise<Trip> {
     // TODO: Implement via Supabase RPC (update_my_trip)
+    void tripId; void updates;
     throw new Error('updateTrip not yet implemented for Supabase');
   }
 
-  async deleteTrip(_tripId: string): Promise<void> {
+  async deleteTrip(tripId: string): Promise<void> {
     // TODO: Implement via Supabase RPC (delete_my_trip)
+    void tripId;
     throw new Error('deleteTrip not yet implemented for Supabase');
   }
 

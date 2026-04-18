@@ -293,7 +293,7 @@ export default function CityPage({ params }: CityPageProps) {
                       upcomingTrip: traveler.upcomingTrip,
                       stats: traveler.stats
                     }}
-                    onFollow={(id) => console.log('Followed', id, traveler.name)}
+                    onFollow={(id: string) => console.log('Followed', id, traveler.name)}
                     onMessage={(id) => console.log('Message', id, traveler.name)}
                   />
                 ))}

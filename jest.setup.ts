@@ -3,8 +3,12 @@ import '@testing-library/jest-dom'
 
 // Polyfill fetch for Node.js testing environment
 import { TextEncoder, TextDecoder } from 'util'
-global.TextEncoder = TextEncoder as any
-global.TextDecoder = TextDecoder as any
+global.TextEncoder = TextEncoder as typeof globalThis.TextEncoder
+global.TextDecoder = TextDecoder as typeof globalThis.TextDecoder
+
+// Provide Supabase env vars so createBrowserClient doesn't throw in tests
+process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDYzNjEwMTMsImV4cCI6MTk2MTkzNzAxM30.placeholder'
 
 // Mock fetch for Apollo Client
 global.fetch = jest.fn()

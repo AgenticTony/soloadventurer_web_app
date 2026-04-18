@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MatchCard } from '../MatchCard';
-import type { PotentialMatch, CompositeMatch } from '@/types/matching';
+import type { PotentialMatch, CompositeMatch, Connection } from '@/types/matching';
 import * as matchingApi from '@/lib/api/matching';
 
 // ── Mocks ──────────────────────────────────────────────────────
@@ -51,7 +51,16 @@ const compositeMatch: CompositeMatch = {
 describe('MatchCard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestConnection.mockResolvedValue({} as Record<string, unknown>);
+    mockRequestConnection.mockResolvedValue({
+      id: 'conn-1',
+      requesterId: 'user-1',
+      recipientId: 'user-2',
+      status: 'pending',
+      matchType: null,
+      message: null,
+      createdAt: '2026-04-18T00:00:00Z',
+      updatedAt: '2026-04-18T00:00:00Z',
+    } as Connection);
   });
 
   // ── Basic rendering ───────────────────────────────────────

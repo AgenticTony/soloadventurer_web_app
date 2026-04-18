@@ -2,7 +2,6 @@ import {
   findPotentialMatches,
   requestConnection,
   respondToConnection,
-  getConnections,
 } from '../matching';
 import type { SemanticMatchResult } from '@/types/matching';
 

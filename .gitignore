@@ -51,6 +51,13 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Screenshots
+*.png
+!src/assets/**/*.png
+
+# MCP / Playwright
+.playwright-mcp/
+
 # Misc
 .tmp/
 
