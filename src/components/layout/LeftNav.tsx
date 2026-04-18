@@ -15,7 +15,6 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Badge } from '@/components/ui/badge'
-import { useWebSocketContext } from '@/contexts/WebSocketContext'
 import { useState, useEffect } from 'react'
 
 interface NavItem {
@@ -41,7 +40,6 @@ interface LeftNavProps {
 
 export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   const pathname = usePathname()
-  const { isConnected } = useWebSocketContext()
   const [realTimeUnreadCount, setRealTimeUnreadCount] = useState(unreadChatCount)
 
   // Update real-time unread count when props change
@@ -53,8 +51,8 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   useEffect(() => {
     // In a real implementation, listen for WebSocket messages
     // and update unread count accordingly
-    const handleNewMessage = (event: any) => {
-      if (event.type === 'new_message' && !event.isRead) {
+    const handleNewMessage = (event: unknown) => {
+      if (event && typeof event === 'object' && 'type' in event && event.type === 'new_message' && 'isRead' in event && !event.isRead) {
         setRealTimeUnreadCount(prev => prev + 1)
       }
     }
@@ -158,10 +156,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                         {realTimeUnreadCount > 99 ? '99+' : realTimeUnreadCount}
                       </Badge>
                     )}
-                    {!isConnected && (
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" title="Reconnecting..." />
-                    )}
-                    {isConnected && realTimeUnreadCount === 0 && (
+                    {!realTimeUnreadCount && (
                       <div className="w-2 h-2 bg-green-500 rounded-full" title="Connected" />
                     )}
                   </div>

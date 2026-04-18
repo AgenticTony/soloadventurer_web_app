@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useActionState, useId, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Flag, AlertTriangle, User, Upload, FileImage } from 'lucide-react';
-import { moderationAPI, CreateReportRequest, ReportCategory, ModerationError, moderationHelpers } from '@/lib/api/moderation';
+import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 import { clsx } from 'clsx';
 
@@ -31,8 +31,31 @@ interface ReportEvidence {
 }
 
 /**
+ * Report categories matching the reports table enum
+ */
+enum ReportCategory {
+  HARASSMENT = 'harassment',
+  SPAM = 'spam',
+  INAPPROPRIATE_CONTENT = 'inappropriate_content',
+  SAFETY_CONCERN = 'safety_concern',
+  FAKE_PROFILE = 'fake_profile',
+  OTHER = 'other'
+}
+
+/**
+ * Local report category labels and descriptions (replaces dead moderationHelpers)
+ */
+const REPORT_CATEGORY_INFO: Record<ReportCategory, { name: string; description: string }> = {
+  [ReportCategory.HARASSMENT]: { name: 'Harassment', description: 'Bullying, intimidation, or targeted harassment' },
+  [ReportCategory.SPAM]: { name: 'Spam', description: 'Unsolicited messages or repetitive content' },
+  [ReportCategory.INAPPROPRIATE_CONTENT]: { name: 'Inappropriate Content', description: 'Offensive, explicit, or disturbing content' },
+  [ReportCategory.SAFETY_CONCERN]: { name: 'Safety Concern', description: 'Threats, self-harm, or endangerment' },
+  [ReportCategory.FAKE_PROFILE]: { name: 'Fake Profile', description: 'Impersonation or misleading identity' },
+  [ReportCategory.OTHER]: { name: 'Other', description: 'Any other violation of community guidelines' },
+};
+
+/**
  * Submit report action following React 19 useActionState pattern
- * Official React.dev form action implementation
  */
 async function submitReportAction(
   prevState: { error?: string; success?: boolean },
@@ -51,33 +74,42 @@ async function submitReportAction(
       return { error: 'Invalid report category selected' };
     }
 
-    // Validate description using moderation helpers
-    const validation = moderationHelpers.validateReportInput(category, description);
-    if (!validation.isValid) {
-      return { error: validation.error || 'Invalid description' };
+    // Validate description
+    if (!description || description.trim().length < 10) {
+      return { error: 'Description must be at least 10 characters.' };
+    }
+    if (description.trim().length > 2000) {
+      return { error: 'Description must be 2000 characters or less.' };
     }
 
-    const reportRequest: CreateReportRequest = {
-      reportedUserId: targetUserId,
-      category: category as ReportCategory,
-      description: description.trim(),
-      evidence: {
-        messageId: messageId || undefined,
-        postId: postId || undefined,
-        urls: [],
-        screenshots: []
-      }
-    };
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return { error: 'You must be logged in to submit a report.' };
+    }
 
-    const response = await moderationAPI.submitReport(reportRequest);
+    const { data, error: insertError } = await supabase
+      .from('reports')
+      .insert({
+        reporter_id: session.user.id,
+        reported_user_id: targetUserId,
+        category,
+        description: description.trim(),
+        message_id: messageId || null,
+        post_id: postId || null,
+      })
+      .select('id')
+      .single();
 
-    return { success: true, reportId: response.report.id };
+    if (insertError) {
+      return { error: insertError.message || 'Failed to submit report.' };
+    }
+
+    return { success: true, reportId: data.id };
   } catch (error) {
     console.error('Submit report action failed:', error);
-    if (error instanceof ModerationError) {
-      return { error: error.message };
-    }
-    return { error: 'Failed to submit report. Please try again.' };
+    const message = error instanceof Error ? error.message : 'Failed to submit report. Please try again.';
+    return { error: message };
   }
 }
 
@@ -379,10 +411,10 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
                           />
                           <div className="ml-3">
                             <span className="text-sm font-medium text-gray-900 dark:text-white">
-                              {moderationHelpers.getReportCategoryName(category)}
+                              {REPORT_CATEGORY_INFO[category as ReportCategory]?.name ?? category}
                             </span>
                             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                              {moderationHelpers.getReportCategoryDescription(category)}
+                              {REPORT_CATEGORY_INFO[category as ReportCategory]?.description ?? ''}
                             </p>
                           </div>
                         </label>

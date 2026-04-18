@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { tripService } from '@/services/trips/tripService';
 import { TripsApiError } from '@/lib/api';
-import { TripTemplates } from '@/components/trips/TripTemplates';
 import { MapPin, Save, X, Sparkles } from 'lucide-react';
 import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema';
 
@@ -18,7 +17,6 @@ import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema
 export function TripCreationForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(false);
   const [apiError, setApiError] = useState<string>('');
 
   const {
@@ -39,12 +37,6 @@ export function TripCreationForm() {
   });
 
   const watchedValues = watch();
-
-
-  const handleTemplateSelect = (templateData: TripFormData) => {
-    reset(templateData);
-    setApiError('');
-  };
 
   const onSubmit = async (data: TripFormData) => {
     setIsSubmitting(true);
@@ -96,15 +88,6 @@ export function TripCreationForm() {
               Plan your next adventure and share it with fellow travelers
             </CardDescription>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowTemplates(true)}
-            className="flex items-center gap-2"
-          >
-            <Sparkles className="h-4 w-4" />
-            Use Template
-          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -245,12 +228,6 @@ export function TripCreationForm() {
         </form>
       </CardContent>
 
-      {/* Trip Templates Modal */}
-      <TripTemplates
-        isOpen={showTemplates}
-        onClose={() => setShowTemplates(false)}
-        onSelectTemplate={handleTemplateSelect}
-      />
     </Card>
   );
 }

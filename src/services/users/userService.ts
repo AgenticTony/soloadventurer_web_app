@@ -15,8 +15,7 @@ export class UserService {
       const { supabase } = await getAuthContext();
 
       // Try by ID first, then by username
-      let query = supabase.from('profiles').select('*').eq('id', identifier);
-      let { data, error } = await query.single();
+      let { data, error } = await supabase.from('profiles').select('*').eq('id', identifier).single();
 
       if (error) {
         // Try username lookup

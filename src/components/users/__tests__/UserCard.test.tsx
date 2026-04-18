@@ -1,7 +1,45 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { UserCard, UserCardSkeleton } from '../UserCard';
 import type { UserProfile, UserStats } from '@/types/user';
+
+// ── Mocks for connection error toast tests ──────────────────────
+
+const mockRequestConnection = jest.fn();
+jest.mock('@/lib/api/matching', () => ({
+  requestConnection: (...args: unknown[]) => mockRequestConnection(...args),
+}));
+
+const mockToastError = jest.fn();
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: {
+    error: (...args: unknown[]) => mockToastError(...args),
+    success: jest.fn(),
+  },
+  Toaster: () => null,
+}));
+
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
+const mockCurrentUser: UserProfile = {
+  id: 'current-user-id',
+  name: 'Current User',
+  email: 'current@example.com',
+  emailVerified: true,
+  bio: 'Test bio',
+  avatar: undefined,
+  isOnline: true,
+  isVerified: false,
+  stats: { tripsCount: 1, followersCount: 0, followingCount: 0, placesVisited: 0 },
+};
+
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ user: mockCurrentUser }),
+}));
 
 describe('UserCard', () => {
   const mockStats: UserStats = {
@@ -23,6 +61,10 @@ describe('UserCard', () => {
     stats: mockStats,
   };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should render user card with all elements', () => {
     render(<UserCard user={mockUser} />);
 
@@ -40,15 +82,6 @@ describe('UserCard', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.queryByText('12')).not.toBeInTheDocument();
     expect(screen.queryByText('Trips')).not.toBeInTheDocument();
-  });
-
-  it('should render action buttons when showActions is true', () => {
-    render(<UserCard user={mockUser} showActions={true} />);
-
-    expect(screen.getByLabelText('Follow user (coming soon)')).toBeInTheDocument();
-    expect(screen.getByLabelText('Message user (coming soon)')).toBeInTheDocument();
-    expect(screen.getByText('Follow')).toBeDisabled();
-    expect(screen.getByText('Message')).toBeDisabled();
   });
 
   it('should handle user without bio', () => {
@@ -107,6 +140,78 @@ describe('UserCard', () => {
     expect(screen.queryByDisplayValue('John Doe')).not.toBeInTheDocument();
     const article = container.querySelector('[role="article"]');
     expect(article).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  // ── Connection error toast tests (Epic 2) ──────────────────────
+
+  describe('connection actions with error handling', () => {
+    it('shows Connect button when showActions=true and viewing another user', () => {
+      render(<UserCard user={mockUser} showActions={true} />);
+
+      expect(screen.getByText('Connect')).toBeInTheDocument();
+    });
+
+    it('shows toast.error when connection request fails', async () => {
+      mockRequestConnection.mockRejectedValue(new Error('Already connected with this user'));
+
+      render(<UserCard user={mockUser} showActions={true} />);
+
+      const connectButton = screen.getByText('Connect');
+      fireEvent.click(connectButton);
+
+      await waitFor(() => {
+        expect(mockToastError).toHaveBeenCalledWith('Already connected with this user');
+      });
+    });
+
+    it('shows toast.error with default message on non-Error rejection', async () => {
+      mockRequestConnection.mockRejectedValue('string error');
+
+      render(<UserCard user={mockUser} showActions={true} />);
+
+      const connectButton = screen.getByText('Connect');
+      fireEvent.click(connectButton);
+
+      await waitFor(() => {
+        expect(mockToastError).toHaveBeenCalledWith('Failed to send connection request');
+      });
+    });
+
+    it('shows Message button after successful connection', async () => {
+      mockRequestConnection.mockResolvedValue({ id: 'conn-1' });
+
+      render(<UserCard user={mockUser} showActions={true} />);
+
+      const connectButton = screen.getByText('Connect');
+      fireEvent.click(connectButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Message')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Connect')).not.toBeInTheDocument();
+    });
+
+    it('shows Connecting... while request is in flight', async () => {
+      let resolveConnection: (value: unknown) => void;
+      mockRequestConnection.mockReturnValue(
+        new Promise((resolve) => { resolveConnection = resolve; }),
+      );
+
+      render(<UserCard user={mockUser} showActions={true} />);
+
+      const connectButton = screen.getByText('Connect');
+      fireEvent.click(connectButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Connecting...')).toBeInTheDocument();
+      });
+
+      // Resolve to clean up
+      resolveConnection!({ id: 'conn-1' });
+      await waitFor(() => {
+        expect(screen.getByText('Message')).toBeInTheDocument();
+      });
+    });
   });
 });
 

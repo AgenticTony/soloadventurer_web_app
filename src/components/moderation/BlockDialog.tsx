@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useActionState, useId, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Shield, AlertTriangle, User } from 'lucide-react';
-import { moderationAPI, BlockUserRequest, ModerationError } from '@/lib/api/moderation';
+import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 import { clsx } from 'clsx';
 
@@ -85,18 +85,32 @@ async function blockUserAction(
       }
     }
 
-    await moderationAPI.blockUser({
-      targetUserId,
-      reason: finalReason
-    });
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return { error: 'You must be logged in to block a user.' };
+    }
+
+    const { error: insertError } = await supabase
+      .from('blocked_users')
+      .insert({
+        blocker_id: session.user.id,
+        blocked_id: targetUserId,
+        reason: finalReason,
+      });
+
+    if (insertError) {
+      if (insertError.code === '23505') {
+        return { success: true, userId: targetUserId };
+      }
+      return { error: insertError.message || 'Failed to block user.' };
+    }
 
     return { success: true, userId: targetUserId };
   } catch (error) {
     console.error('Block user action failed:', error);
-    if (error instanceof ModerationError) {
-      return { error: error.message };
-    }
-    return { error: 'Failed to block user. Please try again.' };
+    const message = error instanceof Error ? error.message : 'Failed to block user. Please try again.';
+    return { error: message };
   }
 }
 
@@ -329,8 +343,8 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                       Before you block this user:
                     </p>
                     <ul className="text-yellow-700 dark:text-yellow-400 space-y-1 list-disc list-inside">
-                      <li>They won't be able to message you or see your posts</li>
-                      <li>You won't see their content or receive notifications from them</li>
+                      <li>They won&apos;t be able to message you or see your posts</li>
+                      <li>You won&apos;t see their content or receive notifications from them</li>
                       <li>You can unblock them later from your privacy settings</li>
                     </ul>
                   </div>

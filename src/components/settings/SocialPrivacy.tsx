@@ -19,7 +19,6 @@ import {
   Info
 } from 'lucide-react';
 import { usePrivacy, SocialInteractionLevel, formatSocialInteractionLevel } from '@/contexts/PrivacyContext';
-import { useWebSocketContext } from '@/contexts/WebSocketContext';
 import { clsx } from 'clsx';
 
 /**
@@ -37,7 +36,6 @@ export const SocialPrivacy: React.FC = () => {
     toggleActivityStatus,
   } = usePrivacy();
 
-  const { isConnected } = useWebSocketContext();
   const [isOnline] = useState(() => typeof window !== 'undefined' ? navigator.onLine : true);
 
   // WAI-ARIA accessibility IDs following React.dev useId patterns
@@ -195,7 +193,7 @@ export const SocialPrivacy: React.FC = () => {
             <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
               <WifiOff className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                You're offline. Settings will sync when you reconnect.
+                You&apos;re offline. Settings will sync when you reconnect.
               </p>
             </div>
           </motion.div>
@@ -207,11 +205,11 @@ export const SocialPrivacy: React.FC = () => {
         <CheckCircle
           className={clsx(
             'w-4 h-4',
-            isConnected ? 'text-green-500' : 'text-red-500'
+            isOnline ? 'text-green-500' : 'text-red-500'
           )}
         />
         <span>
-          {isConnected ? 'Connected' : 'Disconnected'} • Settings sync automatically
+          {isOnline ? 'Connected' : 'Offline'} • Settings sync automatically
         </span>
       </div>
 

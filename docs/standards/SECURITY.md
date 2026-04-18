@@ -25,82 +25,43 @@ This document outlines the security requirements and best practices for the Solo
 
 ## 👥 Authentication & Authorization
 
-### AWS Cognito Configuration
+### Supabase Auth Configuration
 
 ```typescript
-// ✅ Secure Cognito configuration
-const cognitoConfig = {
-  userPoolId: process.env.COGNITO_USER_POOL_ID,
-  userPoolClientId: process.env.COGNITO_CLIENT_ID,
-  identityPoolId: process.env.COGNITO_IDENTITY_POOL_ID,
-  region: process.env.AWS_REGION,
-  
-  // Security settings
-  passwordPolicy: {
-    minimumLength: 8,
-    requireLowercase: true,
-    requireNumbers: true,
-    requireUppercase: true,
-    requireSymbols: false,
-  },
-  
-  // Advanced security
-  advancedSecurityDataCollectionFlag: 'ENABLED',
-  
-  // MFA configuration
-  mfaConfiguration: 'OPTIONAL',
-  softwareTokenMfaConfiguration: {
-    enabled: true,
-  },
-};
+// ✅ Supabase client with auth
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
+
+// Session is managed automatically by Supabase Auth
+// Tokens are stored in httpOnly cookies via @supabase/ssr
 ```
 
-### JWT Token Handling
+### Session Handling
 
 ```typescript
-// ✅ Secure JWT token management
-interface JwtPayload {
-  sub: string;
-  email: string;
-  'cognito:groups': string[];
-  exp: number;
-  iat: number;
+// ✅ Secure session management via Supabase Auth
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
+
+// Get current session (tokens managed automatically)
+const { data: { session } } = await supabase.auth.getSession();
+
+if (session) {
+  const userId = session.user.id;
+  const email = session.user.email;
+  // Session includes access_token, refresh_token — handled by Supabase SDK
 }
 
-class AuthService {
-  private static instance: AuthService;
-  
-  async login(email: string, password: string): Promise<void> {
-    try {
-      const { CognitoUser } = await import('@aws-amplify/auth');
-      const user = await CognitoUser.signIn(email, password);
-      
-      // Store tokens securely
-      const tokens = user.getSignInUserSession()?.getIdToken().getJwtToken();
-      if (tokens) {
-        await this.secureStorage.setItem('auth_token', tokens);
-      }
-    } catch (error) {
-      throw new AuthenticationError('Invalid credentials');
-    }
-  }
-  
-  async verifyToken(token: string): Promise<JwtPayload> {
-    try {
-      // Verify JWT signature and claims
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-      
-      // Check token expiration
-      if (decoded.exp * 1000 < Date.now()) {
-        throw new AuthenticationError('Token expired');
-      }
-      
-      return decoded;
-    } catch (error) {
-      throw new AuthenticationError('Invalid token');
-    }
-  }
-}
+// Sign in
+const { error } = await supabase.auth.signInWithPassword({
+  email,
+  password,
+});
+
+// Sign out (clears session)
+await supabase.auth.signOut();
 ```
 
 ### Protected Routes
@@ -199,100 +160,42 @@ export const validateUserProfile = (data: unknown): UserProfile => {
 ### Database Security
 
 ```typescript
-// ✅ Secure database operations
-class UserService {
-  async createUser(userData: CreateUserInput): Promise<User> {
-    // Hash sensitive data before storage
-    const hashedEmail = await this.hashData(userData.email);
-    
-    const user = await prisma.user.create({
-      data: {
-        ...userData,
-        email: hashedEmail,
-        // PII encryption
-        personalInfo: userData.personalInfo ? 
-          await this.encryptData(userData.personalInfo) : null,
-      },
-      select: {
-        id: true,
-        email: false, // Exclude sensitive fields
-        name: true,
-        createdAt: true,
-      },
-    });
-    
-    return user;
-  }
-  
-  private async hashData(data: string): Promise<string> {
-    return crypto.createHash('sha256').update(data).digest('hex');
-  }
-  
-  private async encryptData(data: string): Promise<string> {
-    const cipher = crypto.createCipher(
-      'aes-256-cbc',
-      process.env.ENCRYPTION_KEY!
-    );
-    
-    let encrypted = cipher.update(data, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    
-    return encrypted;
-  }
-}
+// ✅ Secure database operations via Supabase client
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
+const { data: { session } } = await supabase.auth.getSession();
+
+// RLS (Row Level Security) enforced at database level
+// Only select the columns you need
+const { data, error } = await supabase
+  .from('profiles')
+  .select('id, name, avatar_url') // Never select email or sensitive fields unless needed
+  .eq('id', session!.user.id)
+  .single();
 ```
 
 ### API Security
 
 ```typescript
-// ✅ Secure API client configuration
-const createApolloClient = (token?: string) => {
-  const authLink = setContext((_, { headers }) => {
-    const token = localStorage.getItem('auth_token');
-    
-    return {
-      headers: {
-        ...headers,
-        authorization: token ? `Bearer ${token}` : '',
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'X-XSS-Protection': '1; mode=block',
-      },
-    };
-  });
-  
-  const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors) {
-      graphQLErrors.forEach(({ message, locations, path }) => {
-        console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-        );
-      });
-    }
-    
-    if (networkError) {
-      console.error(`[Network error]: ${networkError}`);
-      // Handle authentication errors
-      if (networkError.statusCode === 401) {
-        // Redirect to login
-        window.location.href = '/login';
-      }
-    }
-  });
-  
-  return new ApolloClient({
-    link: ApolloLink.from([authLink, errorLink, httpLink]),
-    cache: new InMemoryCache(),
-    defaultOptions: {
-      watchQuery: {
-        errorPolicy: 'all',
-      },
-      mutate: {
-        errorPolicy: 'all',
-      },
-    },
-  });
-};
+// ✅ Supabase client handles auth automatically
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
+
+// All Supabase calls include auth tokens automatically via the SDK
+// No manual token management needed
+
+// Edge Functions for validated operations
+const { data, error } = await supabase.functions.invoke('request-connection', {
+  body: { targetUserId: '...' },
+});
+
+// Handle auth errors
+if (error?.status === 401) {
+  // Session expired — redirect to login
+  window.location.href = '/sign-in';
+}
 ```
 
 ---
@@ -324,16 +227,18 @@ export class SecureFileUploader {
   async uploadFile(file: File, userId: string): Promise<string> {
     // Validate file
     this.validateFile(file);
-    
+
     // Generate secure filename
     const secureFilename = this.generateSecureFilename(file, userId);
-    
-    // Get presigned URL from S3
-    const presignedUrl = await this.getPresignedUrl(secureFilename, file.type);
-    
-    // Upload file directly to S3
-    await this.uploadToS3(presignedUrl, file);
-    
+
+    // Upload to Supabase Storage
+    const supabase = createClient();
+    const { error } = await supabase.storage
+      .from('media')
+      .upload(secureFilename, file, { contentType: file.type });
+
+    if (error) throw new UploadError('Failed to upload file');
+
     return secureFilename;
   }
   
@@ -363,39 +268,13 @@ export class SecureFileUploader {
   }
   
   private async getPresignedUrl(filename: string, contentType: string): Promise<string> {
-    const response = await fetch('/api/upload/presigned', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-      },
-      body: JSON.stringify({
-        filename,
-        contentType,
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new UploadError('Failed to get presigned URL');
-    }
-    
-    const { url } = await response.json();
-    return url;
-  }
-  
-  private async uploadToS3(presignedUrl: string, file: File): Promise<void> {
-    const response = await fetch(presignedUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': file.type,
-        'x-amz-acl': 'private',
-      },
-      body: file,
-    });
-    
-    if (!response.ok) {
-      throw new UploadError('Failed to upload file to S3');
-    }
+    const supabase = createClient();
+    const { data, error } = await supabase.storage
+      .from('media')
+      .createSignedUploadUrl(filename);
+
+    if (error) throw new UploadError('Failed to get upload URL');
+    return data.signedUrl;
   }
 }
 ```
@@ -422,7 +301,7 @@ module.exports = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",

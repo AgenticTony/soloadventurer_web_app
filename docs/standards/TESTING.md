@@ -309,9 +309,9 @@ describe('Utility Functions', () => {
 
 ## 🔗 Integration Testing
 
-### API Integration Testing ✅ IMPLEMENTED
+### API Integration Testing
 
-**Current Implementation Pattern (Sprint 2A):**
+**Current Implementation Pattern:**
 ```typescript
 // ✅ Actual implemented API test pattern
 // src/lib/__tests__/api.test.ts
@@ -468,41 +468,53 @@ describe('Trips API', () => {
 });
 ```
 
-**Lambda Function Testing Pattern:**
+**Supabase Edge Function Testing Pattern:**
 ```typescript
-// ✅ Actual implemented Lambda test pattern
-// amplify/functions/trips-api/handler.test.ts
-import { handler } from './handler';
-import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+// ✅ Edge function test pattern
+// src/lib/api/__tests__/matching.test.ts
+import { createClient } from '@/lib/supabase/client';
 
-// Mock AWS SDK
-jest.mock('@aws-sdk/lib-dynamodb', () => ({
-  DynamoDBDocumentClient: {
-    from: jest.fn(() => ({ send: mockSend })),
-  },
-  PutCommand: jest.fn(),
-  GetCommand: jest.fn(),
-  QueryCommand: jest.fn(),
-}));
+// Mock Supabase client
+jest.mock('@/lib/supabase/client');
+const mockSupabase = {
+  auth: { getSession: jest.fn() },
+  functions: { invoke: jest.fn() },
+  from: jest.fn(() => ({
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn(),
+  })),
+};
 
-const mockSend = jest.fn();
+jest.mocked(createClient).mockReturnValue(mockSupabase as unknown as ReturnType<typeof createClient>);
 
-describe('trips-api handler', () => {
-  it('handles authentication and access control', async () => {
-    const mockTrip = {
-      id: 'trip-123',
-      ownerId: 'other-user',
-      isPrivate: true,
-    };
+describe('matching API', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockSupabase.auth.getSession.mockResolvedValue({
+      data: { session: { user: { id: 'user-123' } } },
+    });
+  });
 
-    mockSend.mockResolvedValue({ Item: mockTrip });
+  it('fetches potential matches', async () => {
+    mockSupabase.functions.invoke.mockResolvedValue({
+      data: [{ id: 'match-1', name: 'Test User', score: 0.85 }],
+      error: null,
+    });
 
-    const event = createEvent('GET', null, 'user-123', { id: 'trip-123' });
-    const result = await handler(event, mockContext, () => {});
+    const result = await fetchPotentialMatches();
+    expect(result).toHaveLength(1);
+    expect(result[0].score).toBeGreaterThan(0.5);
+  });
 
-    // Should return 404 for private trip by non-owner
-    expect(result.statusCode).toBe(404);
-    expect(JSON.parse(result.body)).toEqual({ error: 'Trip not found' });
+  it('handles auth errors gracefully', async () => {
+    mockSupabase.auth.getSession.mockResolvedValue({
+      data: { session: null },
+    });
+
+    await expect(fetchPotentialMatches()).rejects.toThrow('Not authenticated');
   });
 });
 ```
@@ -720,21 +732,21 @@ describe('Trip Creation Flow', () => {
 
 ## 📊 Test Coverage
 
-### Coverage Targets ✅ ACHIEVED
+### Coverage Targets
 
-| Category | Target Coverage | Critical Path Coverage | Sprint 2A Status |
-|----------|-----------------|------------------------|------------------|
-| Unit Tests | 80% | 95% | ✅ **90%** (API Layer) |
-| Integration Tests | 70% | 90% | ✅ **95%** (Trips CRUD) |
-| E2E Tests | Critical flows only | 100% | ✅ **100%** (Auth + Trips) |
-| Overall | 75% | 85% | ✅ **87%** |
+| Category | Target Coverage | Critical Path Coverage |
+|----------|-----------------|------------------------|
+| Unit Tests | 80% | 95% |
+| Integration Tests | 70% | 90% |
+| E2E Tests | Critical flows only | 100% |
+| Overall | 75% | 85% |
 
 **Current Implementation Coverage:**
-- ✅ **Trips API**: Complete test coverage (createTrip, getTrip, listTrips)
-- ✅ **Authentication**: JWT token validation and error handling
-- ✅ **Access Control**: Owner vs. non-owner, private vs. public logic
-- ✅ **Error Scenarios**: 400, 401, 404, 500 status codes
-- ✅ **Lambda Functions**: Comprehensive handler testing with AWS SDK mocks
+- ✅ **Chat System**: Message sending, typing indicators, real-time subscriptions
+- ✅ **Authentication**: Supabase Auth session handling and error handling
+- ✅ **Matching & Connections**: Connection requests, wave flow, privacy checks
+- ✅ **Error Scenarios**: Auth errors, network errors, validation errors
+- ✅ **Supabase Client**: Mock patterns for database queries and Edge Functions
 - ✅ **Input Validation**: Boundary testing and malformed request handling
 
 ### Coverage Configuration
@@ -1025,6 +1037,6 @@ const generateTestReport = (metrics: TestMetrics): void => {
 
 ---
 
-**Last Updated**: 2025-09-18 (Sprint 2A - Trips API Testing Implementation)
+**Last Updated**: 2026-04-17 (Sprint 8 - Documentation cleanup, Supabase patterns)
 **Maintained By**: QA Team
 **Review Frequency**: Quarterly

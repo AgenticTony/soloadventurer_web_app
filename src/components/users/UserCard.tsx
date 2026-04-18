@@ -1,10 +1,14 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { UserAvatar, UserAvatarSkeleton } from './UserAvatar';
 import { UserStats, UserStatsSkeleton } from './UserStats';
 import { PrivacyIndicator } from './PrivacyIndicator';
 import { useAuth } from '@/contexts/AuthContext';
+import { requestConnection } from '@/lib/api/matching';
 import type { UserCardProps, UserCardSkeletonProps, UserCardSize } from '@/types/user';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const sizeStyles: Record<UserCardSize, {
   container: string;
@@ -50,6 +54,9 @@ export function UserCard({
 }: UserCardProps) {
   const styles = sizeStyles[size];
   const { user: currentUser } = useAuth();
+  const router = useRouter();
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connected, setConnected] = useState(false);
 
   if (isLoading) {
     return <UserCardSkeleton size={size} showStats={showStats} showActions={showActions} className={className} />;
@@ -143,13 +150,33 @@ export function UserCard({
         <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="flex items-center justify-end">
             <div className="flex gap-2">
-              <button
-                disabled
-                className="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-md cursor-not-allowed"
-                aria-label="Message user (coming soon)"
-              >
-                Message
-              </button>
+              {connected ? (
+                <button
+                  onClick={() => router.push(`/chat`)}
+                  className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                >
+                  Message
+                </button>
+              ) : (
+                <button
+                  onClick={async () => {
+                    setIsConnecting(true);
+                    try {
+                      await requestConnection(user.id);
+                      setConnected(true);
+                    } catch (error) {
+                      const message = error instanceof Error ? error.message : 'Failed to send connection request';
+                      toast.error(message);
+                    } finally {
+                      setIsConnecting(false);
+                    }
+                  }}
+                  disabled={isConnecting}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {isConnecting ? 'Connecting...' : 'Connect'}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -77,7 +77,7 @@ class MessagesAPI {
       .reduce((obj, key) => {
         obj[key] = data[key as keyof Conversation];
         return obj;
-      }, {} as any);
+      }, {} as Record<string, unknown>);
 
     return this.apiClient.put<Conversation>(`/conversations/${id}`, updateData);
   }
@@ -251,7 +251,12 @@ class MessagesAPI {
     deliveredAt?: Date;
     readAt?: Date;
   }> {
-    return this.apiClient.get<any>(`/messages/${messageId}/status`);
+    return this.apiClient.get<{
+      deliveredTo: string[];
+      readBy: string[];
+      deliveredAt?: Date;
+      readAt?: Date;
+    }>(`/messages/${messageId}/status`);
   }
 
   /**
@@ -264,7 +269,13 @@ class MessagesAPI {
     theme?: string;
     fontSize?: 'small' | 'medium' | 'large';
   }> {
-    return this.apiClient.get<any>(`/conversations/${conversationId}/settings`);
+    return this.apiClient.get<{
+      notifications: boolean;
+      soundEnabled: boolean;
+      customNicknames?: Record<string, string>;
+      theme?: string;
+      fontSize?: 'small' | 'medium' | 'large';
+    }>(`/conversations/${conversationId}/settings`);
   }
 
   /**

@@ -1,373 +1,419 @@
-// Chat Main Page - Split View Layout with Responsive Design
-// Sprint 3: Chat Page Integration with Official Best Practices
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Allotment } from 'allotment';
-import 'allotment/dist/style.css';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Menu, X, Archive, Search, Plus } from 'lucide-react';
+import {
+  MessageSquare, Send, ArrowLeft, Search, Plus,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useWebSocketContext } from '@/contexts/WebSocketContext';
-import { ChatList } from '@/components/chat/ChatList';
-import { ChatWindow } from '@/components/chat/ChatWindow';
-import { useToast } from '@/contexts/ToastContext';
-import { clsx } from 'clsx';
-import { chatService } from '@/services/chat/chatService';
-import { useChatStore } from '@/store/chatStore';
-import type { Conversation, User as ChatUser, Message as ChatMessage } from '@/types/chat';
+import { Card } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { TypingIndicator } from '@/components/features/chat/TypingIndicator';
+import {
+  getChatConversations,
+  getMessages,
+  sendMessage,
+  subscribeToMessages,
+  subscribeToAllMessages,
+  type ChatConversation,
+  type ChatMessage,
+} from '@/lib/api/chat';
 
-/**
- * Chat page interfaces following official patterns
- * Using official types from @/types/chat
- */
+// ── Chat Page Content ──────────────────────────────────────────
 
-
-/**
- * Main Chat Page Component
- * Implements split view for desktop and stacked navigation for mobile
- */
-export default function ChatPage() {
+function ChatPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { showSuccess, showError } = useToast();
-  const { isConnected } = useWebSocketContext();
+  const { user } = useAuth();
 
-  // State management with store
-  const conversations = useChatStore((state) => Object.values(state.conversations));
-  const selectedChatId = useChatStore((state) => state.selectedConversationId);
-  const setSelectedChatId = useChatStore((state) => state.selectConversation);
+  const [conversations, setConversations] = useState<ChatConversation[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showArchived, setShowArchived] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize on mount
+  // Typing indicator
+  const { isOtherUserTyping, onTypingStart, onTypingStop } = useTypingIndicator({
+    connectionId: selectedId,
+    userId: user?.id ?? '',
+  });
+
+  // Load conversations
   useEffect(() => {
-    chatService.loadConversations();
+    if (!user) return;
+    setIsLoading(true);
+    getChatConversations()
+      .then(setConversations)
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, [user]);
 
-    // Cleanup on unmount
-    return () => {
-      const store = useChatStore.getState();
-      store.reset();
-    };
-  }, []);
-
-  // Responsive design detection
+  // Subscribe to new messages for all conversations
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    if (!user) return;
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    const unsub = subscribeToAllMessages(user.id, (msg) => {
+      // Add to messages if viewing this conversation
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
 
-  // Handle route changes
+      // Update conversation list
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.connectionId === msg.connectionId
+            ? { ...conv, lastMessage: msg, unreadCount: conv.unreadCount + 1, updatedAt: msg.createdAt }
+            : conv
+        ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      );
+    });
+
+    return unsub;
+  }, [user]);
+
+  // Handle connection param from URL
   useEffect(() => {
-    const conversationId = searchParams.get('conversation');
-    if (conversationId && conversationId !== selectedChatId) {
-      setSelectedChatId(conversationId);
-      setIsMobileMenuOpen(false);
+    const connId = searchParams.get('connection');
+    if (connId && connId !== selectedId) {
+      setSelectedId(connId);
     }
-  }, [searchParams, selectedChatId]);
+  }, [searchParams]);
 
-  // Calculate total unread count
-  const totalUnreadCount = useMemo(() => {
-    return conversations
-      .filter(chat => !chat.isArchived)
-      .reduce((total, chat) => total + chat.unreadCount, 0);
-  }, [conversations]);
+  // Load messages when selecting a conversation
+  useEffect(() => {
+    if (!selectedId) return;
 
-  // Get selected chat
-  const selectedChat = useMemo(() => {
-    return conversations.find(chat => chat.id === selectedChatId) || null;
-  }, [conversations, selectedChatId]);
+    getMessages(selectedId)
+      .then(setMessages)
+      .catch(console.error);
 
-  // Handle chat selection
-  const handleChatSelect = useCallback((conversation: Conversation) => {
-    setSelectedChatId(conversation.id);
+    // Subscribe to new messages in this conversation
+    const unsub = subscribeToMessages(selectedId, (msg) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+    });
 
-    // Update URL without triggering navigation
-    const url = new URL(window.location.href);
-    url.searchParams.set('conversation', conversation.id);
-    window.history.replaceState({}, '', url.toString());
+    // Mark as read
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.connectionId === selectedId
+          ? { ...conv, unreadCount: 0 }
+          : conv
+      )
+    );
 
-    // Load messages via chatService
-    chatService.syncConversation(conversation.id);
+    return unsub;
+  }, [selectedId]);
 
-    // Close mobile menu
-    if (isMobile) {
-      setIsMobileMenuOpen(false);
-    }
-  }, [isMobile, setSelectedChatId]);
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  // Quick actions using store
-  const archiveConversation = useChatStore((state) => state.archiveConversation);
-  const deleteConversation = useChatStore((state) => state.deleteConversation);
-
-  const handleArchiveChat = useCallback(async (chatId: string) => {
+  const handleSend = useCallback(async () => {
+    if (!selectedId || !messageText.trim()) return;
+    const text = messageText.trim();
+    setMessageText('');
+    // Clear typing indicator immediately on send
+    onTypingStop();
+    setIsSending(true);
     try {
-      await archiveConversation(chatId);
-      showSuccess("Chat archived", "Chat has been moved to archived conversations.");
-    } catch (error) {
-      showError("Archive failed", "Failed to archive conversation.");
+      const msg = await sendMessage(selectedId, text);
+      setMessages((prev) => [...prev, msg]);
+    } catch (err) {
+      console.error('Failed to send message:', err);
+      setMessageText(text);
+    } finally {
+      setIsSending(false);
     }
-  }, [archiveConversation, showSuccess, showError]);
+  }, [selectedId, messageText, onTypingStop]);
 
-  const handleDeleteChat = useCallback(async (chatId: string) => {
-    try {
-      await deleteConversation(chatId);
-
-      if (selectedChatId === chatId) {
-        setSelectedChatId(null);
-        router.push('/chat');
-      }
-
-      showSuccess("Chat deleted", "Chat has been permanently deleted.");
-    } catch (error) {
-      showError("Delete failed", "Failed to delete conversation.");
+  const handleInputChange = useCallback((value: string) => {
+    setMessageText(value);
+    // Broadcast typing on keystroke
+    if (value.trim()) {
+      onTypingStart();
     }
-  }, [deleteConversation, selectedChatId, setSelectedChatId, router, showSuccess, showError]);
+  }, [onTypingStart]);
 
-  const handleBlockUser = useCallback((chatId: string) => {
-    const chat = conversations.find(c => c.id === chatId);
-    if (chat?.type === 'direct') {
-      showSuccess("User blocked", "You will no longer receive messages from this user.");
-    }
-  }, [conversations, showSuccess]);
+  const selectedConversation = conversations.find((c) => c.connectionId === selectedId);
 
-  const handleNewChat = useCallback(() => {
-    router.push('/chat/new');
-  }, [router]);
+  const filteredConversations = searchQuery
+    ? conversations.filter((c) => {
+        const name = c.otherUser.displayName ?? c.otherUser.username ?? '';
+        return name.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+    : conversations;
 
-  // Connection status indicator
-  const ConnectionStatus = () => (
-    <div className={clsx(
-      "flex items-center gap-2 px-3 py-2 text-xs",
-      isConnected ? "text-green-600" : "text-yellow-600"
-    )}>
-      <div className={clsx(
-        "w-2 h-2 rounded-full",
-        isConnected ? "bg-green-500" : "bg-yellow-500 animate-pulse"
-      )} />
-      {isConnected ? "Connected" : "Reconnecting..."}
-    </div>
-  );
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
-  // Mobile header
-  const MobileHeader = () => (
-    <div className="lg:hidden border-b border-border bg-card/95 backdrop-blur-sm">
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-          <MessageSquare className="w-6 h-6 text-primary" />
-          <h1 className="text-lg font-semibold">
-            {selectedChat ? selectedChat.name : 'Messages'}
-          </h1>
+  // Get the display name for typing indicator
+  const otherUserName = selectedConversation
+    ? (selectedConversation.otherUser.displayName ?? selectedConversation.otherUser.username ?? 'Traveler')
+    : '';
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Card className="p-8 text-center">
+          <p className="text-lg text-muted-foreground mb-4">Please log in to access messages.</p>
+          <Button onClick={() => router.push('/sign-in')}>Go to Login</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen flex bg-white">
+      {/* Sidebar - Conversation List */}
+      <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 flex flex-col ${selectedId ? 'hidden md:flex' : 'flex'}`}>
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-blue-600" />
+              <h1 className="text-lg font-bold">Messages</h1>
+              {totalUnread > 0 && (
+                <Badge variant="destructive" className="text-xs">{totalUnread}</Badge>
+              )}
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => router.push('/discover')}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {totalUnreadCount > 0 && (
-            <Badge variant="destructive" className="text-xs">
-              {totalUnreadCount}
-            </Badge>
+        {/* Conversations */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="p-4 space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 animate-pulse">
+                  <div className="h-12 w-12 bg-gray-200 rounded-full" />
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
+                    <div className="h-3 bg-gray-200 rounded w-36" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredConversations.length === 0 ? (
+            <div className="p-8 text-center">
+              <MessageSquare className="mx-auto mb-3 h-12 w-12 text-gray-400" />
+              <h3 className="text-lg font-semibold text-gray-700 mb-1">No messages yet</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Connect with travelers to start chatting
+              </p>
+              <Button onClick={() => router.push('/discover')}>
+                Discover Travelers
+              </Button>
+            </div>
+          ) : (
+            filteredConversations.map((conv) => {
+              const name = conv.otherUser.displayName ?? conv.otherUser.username ?? 'Traveler';
+              const isSelected = conv.connectionId === selectedId;
+              return (
+                <button
+                  key={conv.connectionId}
+                  onClick={() => {
+                    setSelectedId(conv.connectionId);
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('connection', conv.connectionId);
+                    window.history.replaceState({}, '', url.toString());
+                  }}
+                  className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors text-left ${
+                    isSelected ? 'bg-blue-50 border-r-2 border-blue-600' : ''
+                  }`}
+                >
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                    {conv.otherUser.avatarUrl ? (
+                      <img
+                        src={conv.otherUser.avatarUrl}
+                        alt={name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-sm truncate">{name}</h3>
+                      {conv.lastMessage && (
+                        <span className="text-xs text-gray-400 flex-shrink-0">
+                          {formatTime(conv.lastMessage.createdAt)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500 truncate">
+                        {conv.lastMessage?.content ?? 'No messages yet'}
+                      </p>
+                      {conv.unreadCount > 0 && (
+                        <Badge variant="destructive" className="text-[10px] ml-2 flex-shrink-0">
+                          {conv.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNewChat}
-          >
-            <Plus className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-      <ConnectionStatus />
-    </div>
-  );
-
-  // Chat list sidebar
-  const ChatListSidebar = () => (
-    <div className="flex flex-col h-full bg-card border-r border-border">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold">Messages</h2>
-          {totalUnreadCount > 0 && (
-            <Badge variant="destructive" className="text-xs">
-              {totalUnreadCount}
-            </Badge>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNewChat}
-            title="New chat"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="p-4 border-b border-border">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search conversations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4"
-          />
-        </div>
-      </div>
-
-      {/* Archive toggle */}
-      <div className="px-4 py-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowArchived(!showArchived)}
-          className="w-full justify-start text-xs"
-        >
-          <Archive className="w-3 h-3 mr-2" />
-          {showArchived ? 'Hide Archived' : 'Show Archived'}
-        </Button>
-      </div>
-
-      {/* Connection status */}
-      <ConnectionStatus />
-
-      {/* Chat list */}
-      <div className="flex-1 min-h-0">
-        <ChatList
-          currentUserId="user1"
-          onChatSelect={handleChatSelect}
-          selectedChatId={selectedChatId || undefined}
-          searchQuery={searchQuery}
-          showArchived={showArchived}
-          height={400}
-        />
-      </div>
-    </div>
-  );
-
-  // Mobile overlay menu
-  const MobileOverlay = () => (
-    <AnimatePresence>
-      {isMobileMenuOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <motion.div
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'tween', duration: 0.2 }}
-            className="fixed left-0 top-0 bottom-0 w-80 bg-card z-50 lg:hidden"
-          >
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="font-semibold">Messages</h2>
+      {/* Chat Area */}
+      <div className={`flex-1 flex flex-col ${selectedId ? 'flex' : 'hidden md:flex'}`}>
+        {selectedConversation ? (
+          <>
+            {/* Chat Header */}
+            <div className="flex items-center gap-3 p-4 border-b border-gray-200">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsMobileMenuOpen(false)}
+                className="md:hidden"
+                onClick={() => {
+                  setSelectedId(null);
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete('connection');
+                  window.history.replaceState({}, '', url.toString());
+                }}
               >
-                <X className="w-5 h-5" />
+                <ArrowLeft className="h-5 w-5" />
               </Button>
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                {selectedConversation.otherUser.avatarUrl ? (
+                  <img
+                    src={selectedConversation.otherUser.avatarUrl}
+                    alt={selectedConversation.otherUser.displayName ?? ''}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  (selectedConversation.otherUser.displayName ?? '?').charAt(0).toUpperCase()
+                )}
+              </div>
+              <div>
+                <h2 className="font-semibold">
+                  {selectedConversation.otherUser.displayName ?? selectedConversation.otherUser.username ?? 'Traveler'}
+                </h2>
+                {selectedConversation.otherUser.bio && (
+                  <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                    {selectedConversation.otherUser.bio}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="h-full overflow-hidden">
-              <ChatListSidebar />
+
+            {/* Typing Indicator */}
+            {isOtherUserTyping && <TypingIndicator name={otherUserName} />}
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {messages.length === 0 && (
+                <div className="text-center py-12">
+                  <MessageSquare className="mx-auto mb-3 h-10 w-10 text-gray-400" />
+                  <p className="text-gray-500">Start the conversation!</p>
+                </div>
+              )}
+              {messages.map((msg) => {
+                const isMine = msg.senderId === user?.id;
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                        isMine
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                      <p className={`text-[10px] mt-1 ${isMine ? 'text-blue-200' : 'text-gray-400'}`}>
+                        {formatTime(msg.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
 
-  // Chat content area
-  const ChatContent = () => {
-    if (!selectedChat) {
-      return (
-        <div className="flex-1 flex items-center justify-center bg-muted/30">
-          <div className="text-center p-8">
-            <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-muted-foreground mb-2">
-              No conversation selected
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Choose a conversation from the sidebar to start messaging
-            </p>
-            <Button onClick={handleNewChat}>
-              <Plus className="w-4 h-4 mr-2" />
-              Start New Chat
-            </Button>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex-1 flex flex-col min-h-0">
-        <ChatWindow
-          chat={selectedChat}
-          currentUserId="user1"
-          conversationId={selectedChat.id}
-          onLoadMore={() => {}}
-          height={isMobile ? window.innerHeight - 200 : 600}
-        />
-      </div>
-    );
-  };
-
-  return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      {/* Mobile header */}
-      <MobileHeader />
-
-      {/* Mobile overlay */}
-      <MobileOverlay />
-
-      {/* Main content */}
-      <div className="flex-1 min-h-0">
-        {isMobile ? (
-          // Mobile: Stacked layout
-          <div className="h-full">
-            <ChatContent />
-          </div>
+            {/* Message Input */}
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Type a message..."
+                  value={messageText}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  disabled={isSending}
+                />
+                <Button onClick={handleSend} disabled={isSending || !messageText.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </>
         ) : (
-          // Desktop: Split view with Allotment
-          <Allotment defaultSizes={[300, 700]} minSize={250}>
-            <Allotment.Pane minSize={250} maxSize={500}>
-              <ChatListSidebar />
-            </Allotment.Pane>
-            <Allotment.Pane>
-              <ChatContent />
-            </Allotment.Pane>
-          </Allotment>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <MessageSquare className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+              <h3 className="text-lg font-medium text-gray-500 mb-2">Select a conversation</h3>
+              <p className="text-sm text-gray-400">
+                Choose a conversation from the sidebar to start messaging
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>
+  );
+}
+
+function formatTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  if (days === 0) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense>
+      <ChatPageContent />
+    </Suspense>
   );
 }

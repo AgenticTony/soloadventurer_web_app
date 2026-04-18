@@ -3,6 +3,9 @@
 import { Suspense } from 'react';
 import { UserSearch, UserGrid } from '@/components/users';
 import { useUserSearch } from '@/hooks/useUserSearch';
+import { NearbyTravelersSection } from '@/components/features/matching/NearbyTravelersSection';
+
+// ── Page Content ───────────────────────────────────────────────
 
 function DiscoverPageContent() {
   const {
@@ -34,6 +37,9 @@ function DiscoverPageContent() {
             Find fellow adventurers, connect with locals, and discover travel companions
           </p>
         </div>
+
+        {/* Nearby Travelers */}
+        <NearbyTravelersSection />
 
         {/* Search Component */}
         <UserSearch

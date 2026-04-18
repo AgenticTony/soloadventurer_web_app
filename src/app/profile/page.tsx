@@ -25,6 +25,7 @@ import {
 import { WorldMap } from '@/components/features/profile/WorldMap'
 import { AchievementGrid } from '@/components/features/profile/AchievementGrid'
 import { ProfileCompletionTracker } from '@/components/features/profile/ProfileCompletionTracker'
+import { ActivitySelector } from '@/components/features/matching/ActivitySelector'
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -256,6 +257,11 @@ export default function ProfilePage() {
         </div>
         {/* Profile Completion Tracker */}
         <ProfileCompletionTracker />
+
+        {/* Activity Interests */}
+        <div className="mb-16">
+          <ActivitySelector />
+        </div>
 
         {/* Stats Grid */}
         <div className="mb-16 grid grid-cols-2 gap-4 md:grid-cols-4">

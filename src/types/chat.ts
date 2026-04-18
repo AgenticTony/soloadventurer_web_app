@@ -57,7 +57,7 @@ export type MessageContent =
   | {
       type: 'system';
       systemMessageType: 'user_joined' | 'user_left' | 'conversation_created' | 'name_changed';
-      metadata?: Record<string, any>;
+      metadata?: Record<string, unknown>;
     };
 
 /**
@@ -110,7 +110,7 @@ export interface Message {
   reactions?: MessageReaction[];
 
   // Metadata
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   isEdited: boolean;
   isDeleted: boolean;
 }
@@ -152,7 +152,7 @@ export interface Conversation {
   updatedAt: Date;
 
   // Metadata
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -236,7 +236,7 @@ export interface SendMessageInput {
   conversationId: string;
   content: MessageContent;
   replyToMessageId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   senderId?: string; // Optional for tests
 }
 
@@ -259,7 +259,7 @@ export interface CreateConversationInput {
   name?: string; // Required for group conversations
   description?: string;
   avatar?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -271,7 +271,7 @@ export interface UpdateConversationInput {
   name?: string;
   description?: string;
   avatar?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -460,8 +460,8 @@ export interface ChatActions {
   clearError: () => void;
 
   // Test utility actions
-  setConversations: (conversations: any[]) => void;
-  addMessage: (message: any) => void;
+  setConversations: (conversations: Conversation[]) => void;
+  addMessage: (message: Message) => void;
   updateMessageStatus: (messageId: string, status: string) => void;
 }
 
@@ -491,7 +491,7 @@ export const isFileMessage = (content: MessageContent): content is { type: 'file
   return content.type === 'file';
 };
 
-export const isSystemMessage = (content: MessageContent): content is { type: 'system'; systemMessageType: 'user_joined' | 'user_left' | 'conversation_created' | 'name_changed'; metadata?: Record<string, any> } => {
+export const isSystemMessage = (content: MessageContent): content is { type: 'system'; systemMessageType: 'user_joined' | 'user_left' | 'conversation_created' | 'name_changed'; metadata?: Record<string, unknown> } => {
   return content.type === 'system';
 };
 

@@ -17,11 +17,9 @@ import {
   Bell,
   Menu,
   X,
-  Waves
+  Users
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useConnectionStatus } from '@/hooks/useWebSocket'
-import { ConnectionDot } from '@/components/websocket/ConnectionStatus'
 import { clsx } from 'clsx'
 
 interface HeaderProps {
@@ -32,7 +30,6 @@ interface HeaderProps {
 export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
-  const { isConnected: wsConnected, statusColor } = useConnectionStatus()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -136,18 +133,21 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                   className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group"
                   aria-label="Connections"
                 >
-                  <Waves className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
-                  <ConnectionDot className="absolute bottom-0 right-0 border-2 border-white" />
+                  <Users className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                 </Link>
               )}
 
               {/* Messages */}
-              <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Messages">
+              <Link
+                href="/chat"
+                className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group"
+                aria-label="Messages"
+              >
                 <MessageCircle className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                 {isAuthenticated && (
                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse" aria-hidden="true"></span>
                 )}
-              </button>
+              </Link>
 
               {/* Notifications */}
               <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Notifications">
@@ -212,7 +212,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <Waves className="w-4 h-4" />
+                        <Users className="w-4 h-4" />
                         <span>Connections</span>
                       </Link>
                       

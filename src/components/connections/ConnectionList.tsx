@@ -285,7 +285,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
           {connection.metadata?.requestMessage && (
             <div className="mt-2 p-2 bg-muted rounded-md">
               <p className="text-xs text-muted-foreground italic">
-                "{connection.metadata.requestMessage}"
+                &quot;{connection.metadata.requestMessage}&quot;
               </p>
             </div>
           )}

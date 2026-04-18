@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { moderationAPI, ModerationError } from '@/lib/api/moderation';
+import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 
 export type LocationSharingLevel = 'off' | 'friends' | 'everyone';
@@ -147,11 +147,17 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
         hideFromUsers: [...new Set([...prev.hideFromUsers, userId])],
       }));
 
-      // Call API to persist the block
-      await moderationAPI.blockUser({
-        targetUserId: userId,
-        reason: reason
-      });
+      // Persist to Supabase
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { error } = await supabase.from('blocked_users').insert({
+          blocker_id: session.user.id,
+          blocked_id: userId,
+          reason: reason ?? null,
+        });
+        if (error && error.code !== '23505') throw error; // ignore duplicate
+      }
 
       showSuccess('User Blocked', 'The user has been blocked successfully.');
 
@@ -165,11 +171,8 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
         hideFromUsers: prev.hideFromUsers.filter(id => id !== userId),
       }));
 
-      if (error instanceof ModerationError) {
-        showError('Failed to Block User', error.message);
-      } else {
-        showError('Failed to Block User', 'Please try again later.');
-      }
+      const message = error instanceof Error ? error.message : 'Please try again later.';
+      showError('Failed to Block User', message);
     } finally {
       setIsLoading(false);
     }
@@ -188,10 +191,17 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
         blockedUsers: prev.blockedUsers.filter(id => id !== userId),
       }));
 
-      // Call API to persist the unblock
-      await moderationAPI.unblockUser({
-        targetUserId: userId
-      });
+      // Persist to Supabase
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { error } = await supabase
+          .from('blocked_users')
+          .delete()
+          .eq('blocker_id', session.user.id)
+          .eq('blocked_id', userId);
+        if (error) throw error;
+      }
 
       showSuccess('User Unblocked', 'The user has been unblocked successfully.');
 
@@ -204,11 +214,8 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
         blockedUsers: [...new Set([...prev.blockedUsers, userId])],
       }));
 
-      if (error instanceof ModerationError) {
-        showError('Failed to Unblock User', error.message);
-      } else {
-        showError('Failed to Unblock User', 'Please try again later.');
-      }
+      const message = error instanceof Error ? error.message : 'Please try again later.';
+      showError('Failed to Unblock User', message);
     } finally {
       setIsLoading(false);
     }
@@ -255,10 +262,19 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
 
     try {
       setIsLoading(true);
-      const response = await moderationAPI.getBlockedUsers();
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const { data, error } = await supabase
+        .from('blocked_users')
+        .select('blocked_id')
+        .eq('blocker_id', session.user.id);
+
+      if (error) throw error;
 
       // Update local state with server data
-      const serverBlockedUserIds = response.blockedUsers.map(user => user.id);
+      const serverBlockedUserIds = (data || []).map(row => row.blocked_id);
       setSettings(prev => ({
         ...prev,
         blockedUsers: serverBlockedUserIds,

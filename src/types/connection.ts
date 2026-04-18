@@ -288,7 +288,7 @@ export interface ConnectionOptimisticState {
 export interface ConnectionError {
   code: 'ALREADY_CONNECTED' | 'USER_NOT_FOUND' | 'REQUEST_BLOCKED' | 'RATE_LIMITED' | 'NETWORK_ERROR' | 'VALIDATION_ERROR';
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /**
