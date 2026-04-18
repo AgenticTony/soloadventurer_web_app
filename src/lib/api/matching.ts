@@ -35,9 +35,11 @@ async function getAuthContext() {
 export async function findPotentialMatches(): Promise<CompositeMatch[]> {
   const { userId } = await getAuthContext();
 
-  // Tier 1: Semantic edge function
-  const semantic = await trySemanticMatch(userId);
-  if (semantic) return semantic;
+  // Tier 1: Semantic edge function (only if explicitly enabled)
+  if (process.env.NEXT_PUBLIC_SEMANTIC_MATCHING_ENABLED === 'true') {
+    const semantic = await trySemanticMatch(userId);
+    if (semantic) return semantic;
+  }
 
   // Tier 2: Geographic RPC fallback
   const geographic = await tryGeographicRpc(userId);
@@ -384,28 +386,23 @@ export async function requestConnection(recipientId: string, message?: string): 
   const { userId: _requesterId } = await getAuthContext();
   void _requesterId;
 
-  // Primary: call edge function for validated connection request
-  const { data, error } = await invokeEdgeFunction<Record<string, unknown>>(
-    'request-connection',
-    { recipient_id: recipientId, message: message ?? null },
-  );
+  // Use edge function only if semantic matching is explicitly enabled
+  if (process.env.NEXT_PUBLIC_SEMANTIC_MATCHING_ENABLED === 'true') {
+    const { data, error } = await invokeEdgeFunction<Record<string, unknown>>(
+      'request-connection',
+      { recipient_id: recipientId, message: message ?? null },
+    );
 
-  if (error) {
-    // If edge function is unavailable (5xx/network), fall back to direct insert
-    if (!error.status || error.status >= 500 || error.code === 'TIMEOUT' || error.code === 'FETCH_ERROR') {
-      console.warn('[matching] request-connection edge function unavailable, falling back to direct insert:', error.message);
-      return requestConnectionFallback(recipientId, message);
+    if (error) {
+      if (!error.status || error.status >= 500 || error.code === 'TIMEOUT' || error.code === 'FETCH_ERROR') {
+        return requestConnectionFallback(recipientId, message);
+      }
+      throw mapConnectionError(error);
     }
 
-    // 4xx client errors — map to user-friendly messages
-    throw mapConnectionError(error);
+    if (data) return mapConnection(data);
   }
 
-  if (data) {
-    return mapConnection(data);
-  }
-
-  // Edge function returned null data without error — fall back
   return requestConnectionFallback(recipientId, message);
 }
 
@@ -463,35 +460,31 @@ async function requestConnectionFallback(recipientId: string, message?: string):
 }
 
 export async function respondToConnection(connectionId: string, accept: boolean): Promise<void> {
-  // Primary: call edge function — creates initial chat message on accept
-  const { data, error } = await invokeEdgeFunction<Record<string, unknown>>(
-    'respond-connection',
-    { connection_id: connectionId, accept },
-  );
+  // Use edge function only if semantic matching is explicitly enabled
+  if (process.env.NEXT_PUBLIC_SEMANTIC_MATCHING_ENABLED === 'true') {
+    const { data, error } = await invokeEdgeFunction<Record<string, unknown>>(
+      'respond-connection',
+      { connection_id: connectionId, accept },
+    );
 
-  if (error) {
-    // If edge function is unavailable (5xx/network), fall back to direct update
-    if (!error.status || error.status >= 500 || error.code === 'TIMEOUT' || error.code === 'FETCH_ERROR') {
-      console.warn('[matching] respond-connection edge function unavailable, falling back to direct update:', error.message);
-      return respondToConnectionFallback(connectionId, accept);
+    if (error) {
+      if (!error.status || error.status >= 500 || error.code === 'TIMEOUT' || error.code === 'FETCH_ERROR') {
+        return respondToConnectionFallback(connectionId, accept);
+      }
+      const msg = error.message.toLowerCase();
+      if (msg.includes('already') && msg.includes('accept')) {
+        throw new AppError('Connection has already been accepted', 409);
+      }
+      if (msg.includes('not found') || msg.includes('connection')) {
+        throw new AppError('Connection request no longer exists', 404);
+      }
+      throw new AppError(error.message || 'Failed to respond to connection', error.status);
     }
 
-    // 4xx client errors — check specific patterns before generic ones
-    const msg = error.message.toLowerCase();
-    if (msg.includes('already') && msg.includes('accept')) {
-      throw new AppError('Connection has already been accepted', 409);
-    }
-    if (msg.includes('not found') || msg.includes('connection')) {
-      throw new AppError('Connection request no longer exists', 404);
-    }
-    throw new AppError(error.message || 'Failed to respond to connection', error.status);
+    if (data) return;
   }
 
-  // Edge function returned successfully (may include created chat data)
-  if (!data) {
-    // Edge function returned null without error — fall back
-    return respondToConnectionFallback(connectionId, accept);
-  }
+  return respondToConnectionFallback(connectionId, accept);
 }
 
 /** Fallback: direct table update (Sprint 7 baseline) */

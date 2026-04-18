@@ -33,7 +33,6 @@ export async function invokeEdgeFunction<T = unknown>(
   params: Record<string, unknown>,
   options?: { timeoutMs?: number },
 ): Promise<EdgeFunctionResult<T>> {
-  const supabase = createClient();
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   let lastError: EdgeFunctionResult<T>['error'];
 
@@ -42,44 +41,38 @@ export async function invokeEdgeFunction<T = unknown>(
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const { data, error } = await supabase.functions.invoke<T>(functionName, {
-        body: params,
+      // Route through Next.js API proxy to avoid CORS issues from browser
+      const res = await fetch(`/api/edge/${functionName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
 
-      if (error) {
-        // Extract status from Supabase FunctionsError shape safely
-        const ctx = (error as Record<string, unknown>)?.context;
-        const status =
-          typeof ctx === 'object' && ctx !== null
-            ? (ctx as Record<string, unknown>)?.status
-            : undefined;
-        const message =
-          typeof error === 'object' && error !== null && 'message' in error
-            ? String((error as { message: unknown }).message)
-            : 'Edge function error';
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const message = (body as Record<string, unknown>)?.error
+          ? String((body as Record<string, unknown>).error)
+          : `Edge function "${functionName}" returned ${res.status}`;
+        const status = res.status;
 
         // 4xx = client error — do not retry
-        if (typeof status === 'number' && status >= 400 && status < 500) {
-          return {
-            data: null,
-            error: { message, status, code: String(status) },
-          };
+        if (status >= 400 && status < 500) {
+          return { data: null, error: { message, status, code: String(status) } };
         }
 
-        lastError = { message, status: typeof status === 'number' ? status : undefined };
-        // 5xx / relay / fetch errors — retry with backoff
+        lastError = { message, status };
         if (attempt < MAX_RETRIES) {
           await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt);
           continue;
         }
-        // Retries exhausted — return the last server error
         return { data: null, error: lastError };
       }
 
-      return { data: data ?? null, error: null };
+      const data = (await res.json()) as T;
+      return { data, error: null };
     } catch (err) {
       clearTimeout(timeoutId);
 
@@ -93,12 +86,10 @@ export async function invokeEdgeFunction<T = unknown>(
         code: isAbort ? 'TIMEOUT' : 'FETCH_ERROR',
       };
 
-      // Timeout or network error — retry
       if (attempt < MAX_RETRIES) {
         await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt);
         continue;
       }
-      // Retries exhausted — return the last network error
       return { data: null, error: lastError };
     }
   }

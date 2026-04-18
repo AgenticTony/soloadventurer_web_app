@@ -30,9 +30,21 @@ const AUTHED_SESSION = {
   data: { session: { user: { id: 'current-user' } } },
 };
 
+let originalEnv: string | undefined;
+
 beforeEach(() => {
   jest.clearAllMocks();
+  mockFrom.mockReset();
+  mockRpc.mockReset();
   mockGetSession.mockResolvedValue(AUTHED_SESSION);
+  // Enable edge function calls so Tier 1/requestConnection/respondToConnection
+  // actually invoke the mocked invokeEdgeFunction
+  originalEnv = process.env.NEXT_PUBLIC_SEMANTIC_MATCHING_ENABLED;
+  process.env.NEXT_PUBLIC_SEMANTIC_MATCHING_ENABLED = 'true';
+});
+
+afterEach(() => {
+  process.env.NEXT_PUBLIC_SEMANTIC_MATCHING_ENABLED = originalEnv;
 });
 
 // ── findPotentialMatches — 3-tier fallback ────────────────────
