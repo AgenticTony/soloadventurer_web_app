@@ -22,7 +22,7 @@ const sizeStyles: Record<UserCardSize, {
     container: 'p-3',
     contentGap: 'gap-2',
     nameText: 'text-sm font-semibold',
-    bioText: 'text-xs text-gray-600',
+    bioText: 'text-xs text-muted-foreground',
     avatarSize: 'sm',
     statsSize: 'small',
   },
@@ -30,7 +30,7 @@ const sizeStyles: Record<UserCardSize, {
     container: 'p-4',
     contentGap: 'gap-3',
     nameText: 'text-base font-semibold',
-    bioText: 'text-sm text-gray-600',
+    bioText: 'text-sm text-muted-foreground',
     avatarSize: 'md',
     statsSize: 'medium',
   },
@@ -38,7 +38,7 @@ const sizeStyles: Record<UserCardSize, {
     container: 'p-6',
     contentGap: 'gap-4',
     nameText: 'text-lg font-semibold',
-    bioText: 'text-base text-gray-600',
+    bioText: 'text-base text-muted-foreground',
     avatarSize: 'lg',
     statsSize: 'large',
   },
@@ -64,7 +64,7 @@ export function UserCard({
 
   return (
     <div
-      className={`bg-white rounded-lg border border-gray-200 ${styles.container} ${className}`}
+      className={`bg-card rounded-2xl border border-border ${styles.container} ${className}`}
       role="article"
       aria-labelledby={`user-card-${user.id}`}
     >
@@ -84,20 +84,20 @@ export function UserCard({
           <div className={`flex items-center ${styles.contentGap.replace('gap-', 'gap-x-')}`}>
             <h3
               id={`user-card-${user.id}`}
-              className={`${styles.nameText} text-gray-900 truncate`}
+              className={`${styles.nameText} text-foreground truncate`}
             >
               {user.name}
             </h3>
             <div className="flex items-center gap-2">
               {user.isVerified && (
                 <div
-                  className="flex-shrink-0 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center"
+                  className="badge-trust flex-shrink-0 w-4 h-4 flex items-center justify-center"
                   role="img"
-                  aria-label="Verified user"
-                  title="Verified user"
+                  aria-label="Verified traveler"
+                  title="Verified traveler"
                 >
                   <svg
-                    className="w-2.5 h-2.5 text-white"
+                    className="w-2.5 h-2.5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     aria-hidden="true"
@@ -128,7 +128,7 @@ export function UserCard({
           )}
 
           {user.lastSeen && !user.isOnline && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Last seen {user.lastSeen}
             </p>
           )}
@@ -137,7 +137,7 @@ export function UserCard({
 
       {/* Stats section */}
       {showStats && user.stats && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-border">
           <UserStats
             stats={user.stats}
             size={styles.statsSize}
@@ -147,13 +147,13 @@ export function UserCard({
 
       {/* Actions section */}
       {showActions && currentUser && currentUser.id !== user.id && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-border">
           <div className="flex items-center justify-end">
             <div className="flex gap-2">
               {connected ? (
                 <button
                   onClick={() => router.push(`/chat`)}
-                  className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium text-brand bg-brand/10 rounded-xl hover:bg-brand/20 transition-colors"
                 >
                   Message
                 </button>
@@ -172,9 +172,9 @@ export function UserCard({
                     }
                   }}
                   disabled={isConnecting}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  className="btn-connection px-3 py-1.5 text-xs font-medium rounded-xl disabled:opacity-50"
                 >
-                  {isConnecting ? 'Connecting...' : 'Connect'}
+                  {isConnecting ? 'Connecting...' : 'Say hi'}
                 </button>
               )}
             </div>
@@ -195,12 +195,11 @@ export function UserCardSkeleton({
 
   return (
     <div
-      className={`bg-white rounded-lg border border-gray-200 ${styles.container} ${className}`}
+      className={`bg-card rounded-2xl border border-border ${styles.container} ${className}`}
       role="article"
       aria-hidden="true"
     >
       <div className={`flex items-start ${styles.contentGap}`}>
-        {/* Avatar skeleton */}
         <div className="flex-shrink-0">
           <UserAvatarSkeleton
             size={styles.avatarSize}
@@ -208,40 +207,37 @@ export function UserCardSkeleton({
           />
         </div>
 
-        {/* Content skeleton */}
         <div className="flex-1 min-w-0">
           <div className={`flex items-center ${styles.contentGap.replace('gap-', 'gap-x-')}`}>
-            <div className={`${styles.nameText} bg-gray-200 rounded animate-pulse`}>
+            <div className={`${styles.nameText} bg-muted rounded animate-pulse`}>
               <span className="opacity-0">John Doe</span>
             </div>
-            <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse" />
+            <div className="w-4 h-4 bg-muted rounded-full animate-pulse" />
           </div>
 
-          <div className={`${styles.bioText} bg-gray-200 rounded animate-pulse mt-1`}>
+          <div className={`${styles.bioText} bg-muted rounded animate-pulse mt-1`}>
             <span className="opacity-0">This is a sample bio text that might span multiple lines</span>
           </div>
 
-          <div className="text-xs bg-gray-200 rounded animate-pulse mt-1 w-24">
+          <div className="text-xs bg-muted rounded animate-pulse mt-1 w-24">
             <span className="opacity-0">Last seen 2h ago</span>
           </div>
         </div>
       </div>
 
-      {/* Stats skeleton */}
       {showStats && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-border">
           <UserStatsSkeleton size={styles.statsSize} />
         </div>
       )}
 
-      {/* Actions skeleton */}
       {showActions && (
-        <div className="mt-3 pt-3 border-t border-gray-100 flex justify-center">
+        <div className="mt-3 pt-3 border-t border-border flex justify-center">
           <div className="flex gap-2">
-            <div className="px-3 py-1.5 text-xs bg-gray-200 rounded-md animate-pulse">
-              <span className="opacity-0">Follow</span>
+            <div className="px-3 py-1.5 text-xs bg-muted rounded-xl animate-pulse">
+              <span className="opacity-0">Say hi</span>
             </div>
-            <div className="px-3 py-1.5 text-xs bg-gray-200 rounded-md animate-pulse">
+            <div className="px-3 py-1.5 text-xs bg-muted rounded-xl animate-pulse">
               <span className="opacity-0">Message</span>
             </div>
           </div>

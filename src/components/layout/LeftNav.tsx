@@ -3,15 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Home,
-  Users,
+  Compass,
+  Plane,
+  MessageCircle,
   Calendar,
   Bookmark,
   Settings,
   HelpCircle,
   MapPin,
-  MessageCircle,
-  Plane
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Badge } from '@/components/ui/badge'
@@ -42,33 +41,25 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   const pathname = usePathname()
   const [realTimeUnreadCount, setRealTimeUnreadCount] = useState(unreadChatCount)
 
-  // Update real-time unread count when props change
   useEffect(() => {
     setRealTimeUnreadCount(unreadChatCount)
   }, [unreadChatCount])
 
-  // WebSocket message listener for real-time updates
   useEffect(() => {
-    // In a real implementation, listen for WebSocket messages
-    // and update unread count accordingly
     const handleNewMessage = (event: unknown) => {
       if (event && typeof event === 'object' && 'type' in event && event.type === 'new_message' && 'isRead' in event && !event.isRead) {
         setRealTimeUnreadCount(prev => prev + 1)
       }
     }
-
-    // This would be implemented with actual WebSocket listeners
-    // window.addEventListener('websocket-message', handleNewMessage)
-    // return () => window.removeEventListener('websocket-message', handleNewMessage)
+    // Placeholder for WebSocket listener
+    void handleNewMessage
   }, [])
-  
+
   const navItems: NavItem[] = [
-    { id: 'feed', label: 'Feed', icon: Home, href: '/' },
+    { id: 'discover', label: 'Discover', icon: Compass, href: '/discover' },
     { id: 'trips', label: 'Trips', icon: Plane, href: '/trips' },
-    { id: 'cities', label: 'City Hubs', icon: MapPin, href: '/cities' },
     { id: 'messages', label: 'Messages', icon: MessageCircle, href: '/chat' },
-    { id: 'groups', label: 'Groups', icon: Users, href: '/groups' },
-    { id: 'events', label: 'Events & Trips', icon: Calendar, href: '/events' },
+    { id: 'meetups', label: 'Meetups', icon: Calendar, href: '/meetups' },
     { id: 'saved', label: 'Saved', icon: Bookmark, href: '/saved' },
   ]
 
@@ -78,7 +69,8 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   ]
 
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/'
+    if (href === '/discover') return pathname === '/' || pathname === '/discover' || pathname === '/feed'
+    if (href === '/meetups') return pathname === '/meetups' || pathname === '/groups' || pathname === '/events'
     return pathname.startsWith(href)
   }
 
@@ -105,7 +97,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                   )}
                 </div>
               </div>
-              
+
               {user.stats && (
                 <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border">
                   <div className="text-center">
@@ -126,7 +118,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
           </div>
         )}
 
-        {/* Main Navigation */}
+        {/* Main Navigation — 5 primary items */}
         <nav className="space-y-1">
           {navItems.map((item) => {
             const active = isActive(item.href)
@@ -135,29 +127,32 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                 key={item.id}
                 href={item.href}
                 className={clsx(
-                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
+                  "relative flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
                   active
-                    ? "bg-primary/10 text-primary dark:bg-primary/20"
+                    ? "bg-brand/10 text-brand font-semibold"
                     : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
+                {/* Left border accent for active state */}
+                {active && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand rounded-r-full" />
+                )}
                 <item.icon className={clsx(
                   "w-5 h-5 transition-transform group-hover:scale-110",
-                  active && "text-primary"
+                  active ? "text-brand" : ""
                 )} />
                 <span className="font-medium">{item.label}</span>
                 {item.id === 'messages' && (
                   <div className="ml-auto flex items-center gap-2">
                     {realTimeUnreadCount > 0 && (
                       <Badge
-                        variant="destructive"
-                        className="text-xs min-w-[1.25rem] h-5 flex items-center justify-center px-1.5"
+                        className="text-xs min-w-[1.25rem] h-5 flex items-center justify-center px-1.5 bg-connection text-connection-foreground border-0"
                       >
                         {realTimeUnreadCount > 99 ? '99+' : realTimeUnreadCount}
                       </Badge>
                     )}
                     {!realTimeUnreadCount && (
-                      <div className="w-2 h-2 bg-green-500 rounded-full" title="Connected" />
+                      <div className="w-2 h-2 bg-brand rounded-full" title="Connected" />
                     )}
                   </div>
                 )}
@@ -184,11 +179,11 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
 
         {/* Create Trip CTA */}
         <div className="card-base p-4">
-          <h4 className="font-semibold text-foreground mb-2">Ready to explore?</h4>
+          <h4 className="font-semibold text-foreground mb-2">Where are you headed next?</h4>
           <p className="text-sm text-muted-foreground mb-4">
             Plan your next solo adventure
           </p>
-          <button className="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-2xl hover:bg-primary/90 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
+          <button className="w-full px-4 py-2.5 bg-brand text-brand-foreground rounded-2xl hover:bg-brand/90 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
             Create Trip
           </button>
         </div>

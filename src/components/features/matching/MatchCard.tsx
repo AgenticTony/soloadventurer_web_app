@@ -13,8 +13,6 @@ import type { CompositeMatch, MatchConfidence, PotentialMatch } from '@/types/ma
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
-// Map activity names and database icon_name values to Lucide React icons
-// Covers both user-facing activity names and DB icon_name column values
 const activityIconMap: Record<string, LucideIcon> = {
   hiking: Mountain,
   photography: Camera,
@@ -48,15 +46,15 @@ interface MatchCardProps {
 }
 
 const matchTypeConfig: Record<string, { label: string; color: string }> = {
-  geographic_overlap: { label: 'Same Destination', color: 'bg-blue-100 text-blue-700' },
-  activity_match: { label: 'Shared Interests', color: 'bg-purple-100 text-purple-700' },
-  combined_match: { label: 'Perfect Match', color: 'bg-green-100 text-green-700' },
+  geographic_overlap: { label: 'Same Destination', color: 'bg-brand/10 text-brand' },
+  activity_match: { label: 'Shared Interests', color: 'bg-trust/10 text-trust' },
+  combined_match: { label: 'Perfect Match', color: 'bg-connection/10 text-connection' },
 };
 
 const confidenceConfig: Record<MatchConfidence, { label: string; color: string }> = {
-  high: { label: 'High', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  medium: { label: 'Medium', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  low: { label: 'Low', color: 'bg-gray-100 text-gray-600 border-gray-200' },
+  high: { label: 'High', color: 'bg-brand/10 text-brand border-brand/20' },
+  medium: { label: 'Medium', color: 'bg-trust/10 text-trust border-trust/20' },
+  low: { label: 'Low', color: 'bg-muted text-muted-foreground border-border' },
 };
 
 function isCompositeMatch(match: PotentialMatch): match is CompositeMatch {
@@ -71,7 +69,6 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
   const config = matchTypeConfig[match.matchType] ?? matchTypeConfig.geographic_overlap;
   const initials = match.displayName.charAt(0).toUpperCase();
 
-  // Determine if activities contributed meaningfully to match score
   const activityScored = composite ? composite.factors.activities >= 0.2 : match.matchType === 'activity_match' || match.matchType === 'combined_match';
 
   async function handleConnect() {
@@ -89,10 +86,10 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-card-hover transition-shadow">
       {/* Header: Avatar + Name + Match Badge */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg">
+        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-ocean-sunset flex items-center justify-center text-white font-semibold text-lg">
           {match.avatarUrl ? (
             <img
               src={match.avatarUrl}
@@ -123,19 +120,18 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
         </div>
       </div>
 
-      {/* Match Percentage — composite score display */}
+      {/* Match Percentage */}
       {composite && (
-        <div className="mb-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 p-3">
+        <div className="mb-4 rounded-xl bg-brand/5 border border-brand/10 p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Match Score</span>
+              <TrendingUp className="h-4 w-4 text-brand" />
+              <span className="text-sm font-medium text-foreground">Match Score</span>
             </div>
-            <span className="text-lg font-bold text-blue-700">
+            <span className="text-lg font-bold text-brand">
               {Math.round(composite.matchPercentage)}%
             </span>
           </div>
-          {/* Factor breakdown */}
           <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
             <FactorBar label="Interests" value={composite.factors.semantic} />
             <FactorBar label="Dates" value={composite.factors.dateOverlap} />
@@ -188,8 +184,8 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
                 key={activity}
                 className={`inline-flex items-center gap-1 text-xs rounded-full px-2 py-1 ${
                   isScored
-                    ? 'bg-purple-100 text-purple-700 ring-1 ring-purple-200'
-                    : 'bg-primary/10 text-primary'
+                    ? 'bg-connection/10 text-connection ring-1 ring-connection/20'
+                    : 'bg-brand/10 text-brand'
                 }`}
               >
                 <Icon className="h-3 w-3" />
@@ -205,7 +201,7 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
         </div>
       )}
 
-      {/* Action */}
+      {/* Action — connection CTA in coral */}
       <div className="flex justify-end">
         {connected ? (
           <Button variant="outline" size="sm" disabled>
@@ -213,30 +209,28 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
             Request Sent
           </Button>
         ) : (
-          <Button
-            size="sm"
+          <button
             onClick={handleConnect}
             disabled={isConnecting}
+            className="btn-connection px-4 py-2 text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50"
           >
-            <Users className="h-4 w-4 mr-1" />
+            <Users className="h-4 w-4" />
             {isConnecting ? 'Connecting...' : 'Connect'}
-          </Button>
+          </button>
         )}
       </div>
     </div>
   );
 }
 
-// ── Sub-components ─────────────────────────────────────────────
-
 function FactorBar({ label, value }: { label: string; value: number }) {
   const pct = Math.round(value * 100);
   return (
     <div className="flex items-center gap-1.5">
       <span className="text-xs text-muted-foreground w-16 truncate">{label}</span>
-      <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
         <div
-          className="h-full bg-blue-500 rounded-full transition-all"
+          className="h-full bg-brand rounded-full transition-all"
           style={{ width: `${pct}%` }}
         />
       </div>

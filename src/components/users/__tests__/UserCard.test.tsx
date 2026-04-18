@@ -71,7 +71,7 @@ describe('UserCard', () => {
     expect(screen.getByRole('article')).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText(mockUser.bio!)).toBeInTheDocument();
-    expect(screen.getByLabelText('Verified user')).toBeInTheDocument();
+    expect(screen.getByLabelText('Verified traveler')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument(); // trips count
     expect(screen.getByText('345')).toBeInTheDocument(); // followers count
   });
@@ -97,7 +97,7 @@ describe('UserCard', () => {
     render(<UserCard user={unverifiedUser} />);
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Verified user')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Verified traveler')).not.toBeInTheDocument();
   });
 
   it('should show last seen for offline user', () => {
@@ -148,7 +148,7 @@ describe('UserCard', () => {
     it('shows Connect button when showActions=true and viewing another user', () => {
       render(<UserCard user={mockUser} showActions={true} />);
 
-      expect(screen.getByText('Connect')).toBeInTheDocument();
+      expect(screen.getByText('Say hi')).toBeInTheDocument();
     });
 
     it('shows toast.error when connection request fails', async () => {
@@ -156,7 +156,7 @@ describe('UserCard', () => {
 
       render(<UserCard user={mockUser} showActions={true} />);
 
-      const connectButton = screen.getByText('Connect');
+      const connectButton = screen.getByText('Say hi');
       fireEvent.click(connectButton);
 
       await waitFor(() => {
@@ -169,7 +169,7 @@ describe('UserCard', () => {
 
       render(<UserCard user={mockUser} showActions={true} />);
 
-      const connectButton = screen.getByText('Connect');
+      const connectButton = screen.getByText('Say hi');
       fireEvent.click(connectButton);
 
       await waitFor(() => {
@@ -182,13 +182,13 @@ describe('UserCard', () => {
 
       render(<UserCard user={mockUser} showActions={true} />);
 
-      const connectButton = screen.getByText('Connect');
+      const connectButton = screen.getByText('Say hi');
       fireEvent.click(connectButton);
 
       await waitFor(() => {
         expect(screen.getByText('Message')).toBeInTheDocument();
       });
-      expect(screen.queryByText('Connect')).not.toBeInTheDocument();
+      expect(screen.queryByText('Say hi')).not.toBeInTheDocument();
     });
 
     it('shows Connecting... while request is in flight', async () => {
@@ -199,7 +199,7 @@ describe('UserCard', () => {
 
       render(<UserCard user={mockUser} showActions={true} />);
 
-      const connectButton = screen.getByText('Connect');
+      const connectButton = screen.getByText('Say hi');
       fireEvent.click(connectButton);
 
       await waitFor(() => {

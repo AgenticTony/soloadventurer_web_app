@@ -15,6 +15,8 @@ jest.mock('react-hot-toast', () => ({
   default: { error: jest.fn(), success: jest.fn() },
 }));
 
+import toast from 'react-hot-toast';
+
 const mockRequestConnection = matchingApi.requestConnection as jest.MockedFunction<typeof matchingApi.requestConnection>;
 
 // ── Fixtures ───────────────────────────────────────────────────
@@ -125,10 +127,10 @@ describe('MatchCard', () => {
       expect(svgElements.length).toBeGreaterThan(0);
     });
 
-    it('highlights scored activities with purple ring when activity factor is high', () => {
+    it('highlights scored activities with connection ring when activity factor is high', () => {
       const { container } = render(<MatchCard match={compositeMatch} />);
       // Activities are scored when factors.activities >= 0.2 (compositeMatch has 0.6)
-      const chips = container.querySelectorAll('.ring-purple-200');
+      const chips = container.querySelectorAll('[class*="ring-connection"]');
       expect(chips.length).toBeGreaterThan(0);
     });
 
@@ -140,7 +142,7 @@ describe('MatchCard', () => {
       };
       const { container } = render(<MatchCard match={match} />);
       // geographic_overlap without composite data → activityScored = false
-      const highlighted = container.querySelectorAll('.ring-purple-200');
+      const highlighted = container.querySelectorAll('[class*="ring-connection"]');
       expect(highlighted.length).toBe(0);
     });
   });
@@ -197,7 +199,6 @@ describe('MatchCard', () => {
     });
 
     it('shows error toast on connection failure', async () => {
-      const toast = jest.requireActual('react-hot-toast').default;
       mockRequestConnection.mockRejectedValue(new Error('Already connected'));
 
       render(<MatchCard match={baseMatch} />);

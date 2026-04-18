@@ -4,115 +4,220 @@
 
 @layer base {
   :root {
-    /* SoloAdventurer Light Theme */
-    --background: 0 0% 100%;
-    --foreground: 222 84% 5%; /* ink-900 */
-    
-    --card: 0 0% 100%;
-    --card-foreground: 222 84% 5%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 84% 5%;
-    
-    --primary: 174 42% 40%; /* brand-500 */
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 84% 5%;
-    
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    
-    --accent: 33 90% 50%; /* sun-500 */
-    --accent-foreground: 222 84% 5%;
-    
-    --destructive: 0 84.2% 60.2%;
+    /* ─── SoloAdventurer Light Theme ─── */
+
+    /* Semantic color channels */
+    --color-brand: 174 82% 35%; /* #0EA5A4 Deep Teal-Ocean */
+    --color-brand-foreground: 0 0% 100%;
+    --color-connection: 2 93% 68%; /* #F97066 Warm Coral-Sunset */
+    --color-connection-foreground: 0 0% 100%;
+    --color-trust: 35 88% 70%; /* #F5B971 Golden Sand */
+    --color-trust-foreground: 26 60% 12%;
+    --color-success: 142 71% 45%;
+    --color-warning: 38 92% 50%;
+    --color-error: 0 84% 60%;
+
+    /* Surface tokens — warm-tinted neutrals (light) */
+    --surface-background: 48 44% 97%; /* #FAFAF7 */
+    --surface-elevated: 0 0% 100%; /* #FFFFFF */
+    --surface-sunken: 40 12% 95%; /* slightly darker surface */
+    --surface-border: 36 13% 89%; /* #E7E5E0 */
+
+    /* Text tokens */
+    --text-primary: 210 6% 11%; /* #1A1D1F */
+    --text-secondary: 210 5% 30%;
+    --text-muted: 210 4% 45%; /* #6B7178 */
+    --text-inverse: 0 0% 100%;
+
+    /* Shadcn/ui compatibility layer */
+    --background: var(--surface-background);
+    --foreground: var(--text-primary);
+
+    --card: var(--surface-elevated);
+    --card-foreground: var(--text-primary);
+
+    --popover: var(--surface-elevated);
+    --popover-foreground: var(--text-primary);
+
+    --primary: var(--color-brand);
+    --primary-foreground: var(--color-brand-foreground);
+
+    --secondary: 40 12% 93%;
+    --secondary-foreground: var(--text-primary);
+
+    --muted: 40 12% 93%;
+    --muted-foreground: var(--text-muted);
+
+    --accent: var(--color-trust);
+    --accent-foreground: var(--color-trust-foreground);
+
+    --destructive: var(--color-error);
     --destructive-foreground: 0 0% 98%;
-    
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 174 42% 40%; /* brand-500 */
-    
-    --radius: 1.5rem; /* 2xl radius */
-    
-    /* Brand Colors */
+
+    --border: var(--surface-border);
+    --input: var(--surface-border);
+    --ring: var(--color-brand);
+
+    --radius: 1.5rem;
+
+    /* Raw color scales — kept for backwards compatibility */
     --brand-50: 187 100% 96%;
     --brand-100: 186 94% 90%;
     --brand-200: 184 85% 81%;
     --brand-300: 180 77% 66%;
-    --brand-400: 186 90% 53%;
-    --brand-500: 174 42% 40%;
+    --brand-400: 174 82% 44%;
+    --brand-500: 174 82% 35%; /* #0EA5A4 */
     --brand-600: 176 48% 30%;
     --brand-700: 175 44% 23%;
     --brand-800: 175 39% 19%;
     --brand-900: 176 58% 11%;
-    
-    /* Accent Colors */
-    --sun-500: 33 90% 50%;
-    --coral-500: 350 83% 71%;
+
+    --coral-50: 2 100% 96%;
+    --coral-100: 2 96% 90%;
+    --coral-200: 2 92% 82%;
+    --coral-300: 2 90% 74%;
+    --coral-400: 2 93% 64%; /* warm coral mid */
+    --coral-500: 2 93% 68%; /* #F97066 */
+    --coral-600: 348 83% 60%; /* #FB7185 */
+    --coral-700: 346 77% 50%;
+    --coral-800: 345 70% 40%;
+    --coral-900: 344 65% 30%;
+
+    --sun-50: 48 100% 96%;
+    --sun-100: 48 96% 89%;
+    --sun-200: 44 93% 79%;
+    --sun-300: 40 90% 68%;
+    --sun-400: 36 90% 60%;
+    --sun-500: 35 88% 70%; /* #F5B971 */
+    --sun-600: 38 92% 50%;
+    --sun-700: 36 80% 42%;
+    --sun-800: 34 70% 34%;
+    --sun-900: 32 60% 26%;
+
     --sky-500: 199 89% 49%;
-    
-    /* Neutral Colors */
-    --ink-50: 210 40% 98%;
-    --ink-100: 210 40% 96.1%;
-    --ink-200: 214.3 31.8% 91.4%;
-    --ink-300: 213.7 26.8% 83.9%;
-    --ink-400: 215 20.2% 65.1%;
-    --ink-500: 215.4 16.3% 46.9%;
-    --ink-600: 215.3 19.3% 34.5%;
-    --ink-700: 215.3 25% 26.7%;
-    --ink-800: 217.2 32.6% 17.5%;
-    --ink-900: 222.2 84% 4.9%;
-    
+
+    /* Neutral scales — warm-tinted */
+    --ink-50: 48 44% 97%; /* #FAFAF7 */
+    --ink-100: 40 12% 95%;
+    --ink-200: 36 13% 89%; /* #E7E5E0 */
+    --ink-300: 32 8% 78%;
+    --ink-400: 210 4% 60%; /* #8A949C muted */
+    --ink-500: 210 5% 45%; /* #6B7178 */
+    --ink-600: 210 6% 30%;
+    --ink-700: 210 6% 20%;
+    --ink-800: 200 18% 13%; /* #1A1D1F */
+    --ink-900: 200 20% 8%;
+
     /* Shadows */
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+    --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.06);
   }
-  
+
   .dark {
-    /* SoloAdventurer Dark Theme */
-    --background: 222 47% 7%; /* #0b1220 */
-    --foreground: 210 40% 98%;
-    
-    --card: 222 84% 5%; /* #0f172a */
-    --card-foreground: 210 40% 98%;
-    
-    --popover: 222 84% 5%;
-    --popover-foreground: 210 40% 98%;
-    
-    --primary: 186 90% 53%; /* brand-400 bright aqua */
-    --primary-foreground: 222 84% 5%;
-    
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    
-    --accent: 33 90% 50%; /* sun-500 */
-    --accent-foreground: 210 40% 98%;
-    
+    /* ─── SoloAdventurer Dark Theme ─── */
+
+    /* Semantic color channels */
+    --color-brand: 174 63% 52%; /* #2DD4BF */
+    --color-brand-foreground: 200 20% 8%;
+    --color-connection: 348 83% 60%; /* #FB7185 */
+    --color-connection-foreground: 0 0% 100%;
+    --color-trust: 45 93% 47%; /* #FBBF24 */
+    --color-trust-foreground: 26 60% 12%;
+    --color-success: 142 71% 45%;
+    --color-warning: 38 92% 50%;
+    --color-error: 0 84% 60%;
+
+    /* Surface tokens — warm-tinted neutrals (dark) */
+    --surface-background: 200 20% 5%; /* #0B1012 */
+    --surface-elevated: 205 18% 10%; /* #141A1E */
+    --surface-sunken: 200 15% 7%;
+    --surface-border: 200 15% 15%; /* #1F272C */
+
+    /* Text tokens */
+    --text-primary: 210 5% 91%; /* #E6E8EB */
+    --text-secondary: 210 5% 70%;
+    --text-muted: 210 4% 58%; /* #8A949C */
+    --text-inverse: 200 20% 5%;
+
+    /* Shadcn/ui compatibility layer */
+    --background: var(--surface-background);
+    --foreground: var(--text-primary);
+
+    --card: var(--surface-elevated);
+    --card-foreground: var(--text-primary);
+
+    --popover: var(--surface-elevated);
+    --popover-foreground: var(--text-primary);
+
+    --primary: var(--color-brand);
+    --primary-foreground: var(--color-brand-foreground);
+
+    --secondary: 200 15% 15%;
+    --secondary-foreground: var(--text-primary);
+
+    --muted: 200 15% 15%;
+    --muted-foreground: var(--text-muted);
+
+    --accent: var(--color-trust);
+    --accent-foreground: var(--color-trust-foreground);
+
     --destructive: 0 63% 30%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 186 90% 53%;
-    
-    /* Dark mode brand colors */
+    --destructive-foreground: var(--text-primary);
+
+    --border: var(--surface-border);
+    --input: var(--surface-border);
+    --ring: var(--color-brand);
+
+    /* Dark mode brand scales (inverted for proper contrast) */
     --brand-50: 176 58% 11%;
     --brand-100: 175 39% 19%;
     --brand-200: 175 44% 23%;
     --brand-300: 176 48% 30%;
-    --brand-400: 186 90% 53%;
+    --brand-400: 174 63% 52%; /* #2DD4BF */
     --brand-500: 180 77% 66%;
     --brand-600: 184 85% 81%;
     --brand-700: 186 94% 90%;
     --brand-800: 187 100% 96%;
     --brand-900: 187 100% 98%;
-    
-    /* Dark mode shadows */
+
+    --coral-50: 345 70% 40%;
+    --coral-100: 346 77% 50%;
+    --coral-200: 348 83% 60%;
+    --coral-300: 2 93% 68%;
+    --coral-400: 2 93% 74%;
+    --coral-500: 2 90% 80%;
+    --coral-600: 2 92% 85%;
+    --coral-700: 2 96% 90%;
+    --coral-800: 2 100% 95%;
+    --coral-900: 2 100% 98%;
+
+    --sun-50: 32 60% 26%;
+    --sun-100: 34 70% 34%;
+    --sun-200: 36 80% 42%;
+    --sun-300: 45 93% 47%; /* #FBBF24 */
+    --sun-400: 35 88% 60%;
+    --sun-500: 40 90% 68%;
+    --sun-600: 44 93% 79%;
+    --sun-700: 48 96% 89%;
+    --sun-800: 48 100% 95%;
+    --sun-900: 48 100% 98%;
+
+    --sky-500: 199 89% 49%;
+
+    /* Dark neutral scales */
+    --ink-50: 200 20% 5%; /* #0B1012 */
+    --ink-100: 200 15% 7%;
+    --ink-200: 200 15% 15%; /* #1F272C */
+    --ink-300: 210 5% 28%;
+    --ink-400: 210 5% 45%;
+    --ink-500: 210 4% 58%; /* #8A949C */
+    --ink-600: 210 5% 70%;
+    --ink-700: 210 5% 82%;
+    --ink-800: 210 5% 91%; /* #E6E8EB */
+    --ink-900: 48 44% 97%;
+
+    /* Shadows */
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
     --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
     --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.3);
@@ -123,12 +228,12 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
+
   /* Focus styles */
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
@@ -147,21 +252,21 @@
   .skip-link {
     @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md;
   }
-  
+
   /* Scrollbar styles */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
-  
+
   ::-webkit-scrollbar-track {
     @apply bg-muted;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/30 rounded-md;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/50;
   }
@@ -172,40 +277,62 @@
   .card-base {
     @apply bg-card text-card-foreground rounded-2xl shadow-card;
   }
-  
+
   .card-interactive {
     @apply card-base transition-all duration-200 hover:shadow-card-hover;
   }
-  
+
   /* Button variants */
   .btn-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
-  
+
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
   }
-  
+
+  /* Connection CTA — coral for social actions */
+  .btn-connection {
+    @apply bg-connection text-connection-foreground hover:bg-connection/90 rounded-2xl font-medium transition-all duration-200;
+  }
+
+  /* Trust/achievement — gold accent */
+  .badge-trust {
+    @apply bg-trust/20 text-trust border border-trust/30 rounded-full;
+  }
+
   /* Text styles */
   .text-muted {
     @apply text-muted-foreground;
   }
-  
+
   .text-link {
     @apply text-primary hover:text-primary/80 transition-colors;
   }
 }
 
 @layer utilities {
+  /* Signature gradient — teal → coral, hero moments only */
+  .bg-gradient-ocean-sunset {
+    background: linear-gradient(135deg, hsl(var(--color-brand)), hsl(var(--color-connection)));
+  }
+
+  .text-gradient-ocean-sunset {
+    background: linear-gradient(135deg, hsl(var(--color-brand)), hsl(var(--color-connection)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   /* Animation utilities */
   .animate-in {
     animation: animateIn 0.2s ease-out;
   }
-  
+
   .animate-out {
     animation: animateOut 0.15s ease-in forwards;
   }
-  
+
   @keyframes animateIn {
     from {
       opacity: 0;
@@ -216,7 +343,7 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes animateOut {
     from {
       opacity: 1;
@@ -227,12 +354,12 @@
       transform: translateY(4px);
     }
   }
-  
+
   /* Hide scrollbar utility */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

@@ -2,7 +2,7 @@
 
 **SoloAdventurer Web App - Sprint 7.2**
 **Duration**: 3-5 days
-**Status**: 📋 Planned
+**Status**: ✅ Complete
 **Dependencies**: Sprint 7.1 (clean working tree, passing build)
 
 ---
@@ -39,77 +39,77 @@ Signature gradient: Teal → Coral (`bg-gradient-ocean-sunset`) — hero moments
 
 ### Design Tokens
 
-- [ ] **Create semantic CSS custom properties**
-  - [ ] `globals.css`: add `:root` (light) and `.dark` tokens: `--color-brand`, `--color-connection`, `--color-trust`, `--surface-background`, `--surface-elevated`, `--surface-border`, `--text-primary`, `--text-muted`, `--color-success`, `--color-warning`, `--color-error`
-  - [ ] Update `tailwind.config.ts` to map semantic names to tokens
-  - [ ] Existing `brand`, `coral`, `sun`, `ink` palettes stay as raw scales
-  - [ ] **Test:** All components render identically after migration
+- [x] **Create semantic CSS custom properties**
+  - [x] `globals.css`: add `:root` (light) and `.dark` tokens: `--color-brand`, `--color-connection`, `--color-trust`, `--surface-background`, `--surface-elevated`, `--surface-border`, `--text-primary`, `--text-muted`, `--color-success`, `--color-warning`, `--color-error`
+  - [x] Update `tailwind.config.ts` to map semantic names to tokens
+  - [x] Existing `brand`, `coral`, `sun`, `ink` palettes stay as raw scales
+  - [x] **Test:** All components render identically after migration
 
-- [ ] **Replace pure grey neutrals with warm-tinted neutrals**
-  - [ ] Dark mode: bg `#0B1012`, surfaces `#141A1E`, borders `#1F272C`, muted `#8A949C`
-  - [ ] Light mode tokens in `:root`: bg `#FAFAF7`, surfaces `#FFFFFF`, borders `#E7E5E0`, muted `#6B7178`
-  - [ ] **Test:** Surfaces feel warm, not sterile
+- [x] **Replace pure grey neutrals with warm-tinted neutrals**
+  - [x] Dark mode: bg `#0B1012`, surfaces `#141A1E`, borders `#1F272C`, muted `#8A949C`
+  - [x] Light mode tokens in `:root`: bg `#FAFAF7`, surfaces `#FFFFFF`, borders `#E7E5E0`, muted `#6B7178`
+  - [x] **Test:** Surfaces feel warm, not sterile
 
-- [ ] **Wire coral as connection action color**
-  - [ ] "Say hi" / "Connect" / "Invite" buttons → coral
-  - [ ] New-message dots → coral, match highlight borders → coral
-  - [ ] Adjust existing `coral` palette to warm coral `#F97066` / `#FB7185`
-  - [ ] **Test:** Connection CTAs are visually distinct from nav (teal) and trust (gold)
+- [x] **Wire coral as connection action color**
+  - [x] "Say hi" / "Connect" / "Invite" buttons → coral
+  - [x] New-message dots → coral, match highlight borders → coral
+  - [x] Adjust existing `coral` palette to warm coral `#F97066` / `#FB7185`
+  - [x] **Test:** Connection CTAs are visually distinct from nav (teal) and trust (gold)
 
-- [ ] **Wire gold as trust/achievement color**
-  - [ ] Verification badges → gold, achievements → gold accent, premium → gold
-  - [ ] Reserved exclusively for earned/verified
-  - [ ] **Test:** Gold appears only on trust/achievement elements
+- [x] **Wire gold as trust/achievement color**
+  - [x] Verification badges → gold, achievements → gold accent, premium → gold
+  - [x] Reserved exclusively for earned/verified
+  - [x] **Test:** Gold appears only on trust/achievement elements
 
-- [ ] **Add signature gradient utility**
-  - [ ] `bg-gradient-ocean-sunset` (teal → coral)
-  - [ ] Hero moments only (max 3 locations)
-  - [ ] Replace arbitrary gradients with this or travel photos
-  - [ ] **Test:** Gradient appears on hero moments only
+- [x] **Add signature gradient utility**
+  - [x] `bg-gradient-ocean-sunset` (teal → coral)
+  - [x] Hero moments only (max 3 locations)
+  - [x] Replace arbitrary gradients with this or travel photos
+  - [x] **Test:** Gradient appears on hero moments only
 
-- [ ] **Audit hardcoded hex values**
-  - [ ] Grep for `bg-[#`, `text-[#`, `border-[#` in components
-  - [ ] Replace with semantic tokens or Tailwind classes
-  - [ ] **Test:** No hardcoded hex in component files
+- [x] **Audit hardcoded hex values**
+  - [x] Grep for `bg-[#`, `text-[#`, `border-[#` in components
+  - [x] Replace with semantic tokens or Tailwind classes
+  - [x] **Test:** No hardcoded hex in component files
 
 - [ ] **Implement light mode theme (stretch goal)**
-  - [ ] Add light mode CSS variables under `:root`
+  - [x] Add light mode CSS variables under `:root`
   - [ ] Auto-detect via `prefers-color-scheme`
   - [ ] Add "Auto (follow system)" option in settings
   - [ ] Defer full QA if time-boxed — tokens must be in place
-  - [ ] **Test:** Light/dark toggle flips all surfaces
+  - [x] **Test:** Light/dark toggle flips all surfaces
 
 ### Navigation
 
-- [ ] **Consolidate left nav to 5 primary items**
-  - [ ] New nav: **Discover** (compass) → `/discover`, **Trips** (plane) → `/trips`, **Messages** (chat) → `/chat`, **Meetups** (calendar) → `/meetups`, **Saved** (bookmark) → `/saved`
-  - [ ] Remove: Feed (→ Discover tab), City Hubs (→ Discover), Groups (→ Discover), Events & Trips (→ Meetups)
-  - [ ] Keep Settings and Help as secondary links
-  - [ ] Strengthen active state: filled background + left border accent in teal
-  - [ ] **Test:** All 5 nav items navigate correctly, no 404s
+- [x] **Consolidate left nav to 5 primary items**
+  - [x] New nav: **Discover** (compass) → `/discover`, **Trips** (plane) → `/trips`, **Messages** (chat) → `/chat`, **Meetups** (calendar) → `/meetups`, **Saved** (bookmark) → `/saved`
+  - [x] Remove: Feed (→ Discover tab), City Hubs (→ Discover), Groups (→ Discover), Events & Trips (→ Meetups)
+  - [x] Keep Settings and Help as secondary links
+  - [x] Strengthen active state: filled background + left border accent in teal
+  - [x] **Test:** All 5 nav items navigate correctly, no 404s
 
-- [ ] **Create placeholder pages for new routes**
-  - [ ] `/meetups` — stub page with "Coming Soon"
-  - [ ] Remove `/groups` and `/events` routes (redirect to `/meetups`)
-  - [ ] **Test:** No nav link returns 404
+- [x] **Create placeholder pages for new routes**
+  - [x] `/meetups` — stub page with "Coming Soon"
+  - [x] Remove `/groups` and `/events` routes (redirect to `/meetups`)
+  - [x] **Test:** No nav link returns 404
 
-- [ ] **Update Next.js redirects**
-  - [ ] `/` → `/discover`, `/feed` → `/discover`, `/groups` → `/meetups`, `/events` → `/meetups`
-  - [ ] **Test:** All redirects work
+- [x] **Update Next.js redirects**
+  - [x] `/` → `/discover`, `/feed` → `/discover`, `/groups` → `/meetups`, `/events` → `/meetups`
+  - [x] **Test:** All redirects work
 
 ### Copy + CTA Verbs
 
-- [ ] **Update CTA verbs**
-  - [ ] Primary CTA on traveler cards: "Say hi" or "Connect" (replaces "Follow")
-  - [ ] "Follow" as secondary action in overflow
-  - [ ] Update UserCard, MatchCard, NearbyTravelers
-  - [ ] **Test:** All traveler-facing CTAs use connection verbs
+- [x] **Update CTA verbs**
+  - [x] Primary CTA on traveler cards: "Say hi" or "Connect" (replaces "Follow")
+  - [x] "Follow" as secondary action in overflow
+  - [x] Update UserCard, MatchCard, NearbyTravelers
+  - [x] **Test:** All traveler-facing CTAs use connection verbs
 
-- [ ] **Update copy to wanderlust voice**
-  - [ ] Replace generic SaaS copy with warm, travel-specific alternatives
-  - [ ] "Discover stories from fellow travelers" → "See who else just landed in [city]"
-  - [ ] "Plan and track your adventures" → "Where are you headed next?"
-  - [ ] **Test:** Copy reads warm and specific
+- [x] **Update copy to wanderlust voice**
+  - [x] Replace generic SaaS copy with warm, travel-specific alternatives
+  - [x] "Discover stories from fellow travelers" → "See who else just landed in [city]"
+  - [x] "Plan and track your adventures" → "Where are you headed next?"
+  - [x] **Test:** Copy reads warm and specific
 
 ## Verification
 

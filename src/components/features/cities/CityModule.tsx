@@ -157,8 +157,8 @@ export function CityModule({ city, onViewCity }: CityModuleProps) {
                       <p className="text-xs text-muted-foreground">Exploring now</p>
                     </div>
                   </div>
-                  <Button size="sm" variant="ghost" className="text-xs">
-                    Follow
+                  <Button size="sm" variant="ghost" className="text-xs text-connection hover:text-connection/80">
+                    Say hi
                   </Button>
                 </div>
               ))}

@@ -9,8 +9,6 @@ import type { Activity, CompositeMatch, PotentialMatch } from '@/types/matching'
 import { Plane, Compass, RefreshCw, Star, Sparkles, Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// ── Helpers ────────────────────────────────────────────────────
-
 function isCompositeMatch(m: PotentialMatch): m is CompositeMatch {
   return 'compositeScore' in m && 'confidence' in m;
 }
@@ -18,8 +16,6 @@ function isCompositeMatch(m: PotentialMatch): m is CompositeMatch {
 function hasSemanticResults(matches: PotentialMatch[]): boolean {
   return matches.length > 0 && matches.some(isCompositeMatch);
 }
-
-// ── Nearby Travelers Section ────────────────────────────────────
 
 export function NearbyTravelersSection() {
   const { user } = useAuth();
@@ -58,9 +54,7 @@ export function NearbyTravelersSection() {
   useEffect(() => {
     getActivities()
       .then(setActivities)
-      .catch(() => {
-        // Non-critical: filter chips just won't appear
-      });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -78,7 +72,6 @@ export function NearbyTravelersSection() {
     fetchMatches();
   };
 
-  // Filter matches by selected activities
   const filteredMatches = useMemo(() => {
     if (selectedActivityIds.size === 0) return matches;
 
@@ -115,23 +108,23 @@ export function NearbyTravelersSection() {
     <section className="mb-10">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
             {isSemantic ? (
-              <Sparkles className="h-5 w-5 text-blue-600" />
+              <Sparkles className="h-5 w-5 text-brand" />
             ) : (
-              <Plane className="h-5 w-5 text-blue-600" />
+              <Plane className="h-5 w-5 text-brand" />
             )}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              {isSemantic ? 'AI-Matched Travelers' : 'Nearby Travelers'}
+            <h2 className="text-xl font-bold text-foreground">
+              {isSemantic ? 'AI-Matched Travelers' : 'Travelers Near You'}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {filteredMatches.length > 0
-                ? `${filteredMatches.length} traveler${filteredMatches.length !== 1 ? 's' : ''}${selectedActivityIds.size > 0 ? ' matching your filter' : ' heading your way'}`
+                ? `${filteredMatches.length} traveler${filteredMatches.length !== 1 ? 's' : ''}${selectedActivityIds.size > 0 ? ' matching your interests' : ' heading your way'}`
                 : selectedActivityIds.size > 0
                   ? 'No travelers match the selected activities'
-                  : 'Travelers with overlapping trips will appear here'}
+                  : 'See who else just landed nearby'}
             </p>
           </div>
         </div>
@@ -141,7 +134,6 @@ export function NearbyTravelersSection() {
         </Button>
       </div>
 
-      {/* Activity Filter Chips */}
       {activities.length > 0 && (
         <ActivityFilterBar
           activities={activities}
@@ -154,23 +146,23 @@ export function NearbyTravelersSection() {
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-56 rounded-2xl bg-white border border-gray-200 animate-pulse" />
+            <div key={i} className="h-56 rounded-2xl bg-card border border-border animate-pulse" />
           ))}
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
+        <div className="rounded-xl border border-connection/20 bg-connection/5 p-6 text-center">
+          <p className="text-connection mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={handleRefresh}>Try Again</Button>
         </div>
       ) : filteredMatches.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
-          <Compass className="mx-auto mb-3 h-10 w-10 text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-1">
-            {selectedActivityIds.size > 0 ? 'No matches for selected activities' : 'No matches yet'}
+        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
+          <Compass className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="text-lg font-semibold text-foreground mb-1">
+            {selectedActivityIds.size > 0 ? 'No matches for selected activities' : 'No travelers nearby yet'}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {selectedActivityIds.size > 0
-              ? 'Try removing some activity filters or refresh for new results'
+              ? 'Try removing some filters or refresh for new results'
               : 'Create a trip to discover travelers heading to the same destination'}
           </p>
           {selectedActivityIds.size > 0 && (
@@ -192,8 +184,6 @@ export function NearbyTravelersSection() {
   );
 }
 
-// ── Activity Filter Bar ────────────────────────────────────────
-
 function ActivityFilterBar({
   activities,
   selectedIds,
@@ -209,7 +199,7 @@ function ActivityFilterBar({
 
   return (
     <div className="mb-4 flex items-center gap-2 flex-wrap">
-      <div className="flex items-center gap-1 text-sm text-gray-500 mr-1">
+      <div className="flex items-center gap-1 text-sm text-muted-foreground mr-1">
         <Filter className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Filter:</span>
       </div>
@@ -222,8 +212,8 @@ function ActivityFilterBar({
             onClick={() => onToggle(activity.id)}
             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-all ${
               isSelected
-                ? 'bg-blue-100 text-blue-700 border-blue-300'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ? 'bg-brand/10 text-brand border-brand/20'
+                : 'bg-card text-muted-foreground border-border hover:bg-muted'
             }`}
             aria-pressed={isSelected}
           >
@@ -235,7 +225,7 @@ function ActivityFilterBar({
         <button
           type="button"
           onClick={onClear}
-          className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-2 py-1 text-xs text-gray-500 hover:bg-gray-50 transition-all"
+          className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted transition-all"
           aria-label="Clear all activity filters"
         >
           <X className="h-3 w-3" />
@@ -245,8 +235,6 @@ function ActivityFilterBar({
     </div>
   );
 }
-
-// ── Grouped match display (semantic results) ────────────────────
 
 function MatchGroupList({
   bestMatches,
@@ -260,13 +248,13 @@ function MatchGroupList({
   return (
     <div className="space-y-8">
       {bestMatches.length > 0 && (
-        <MatchGroup title="Best Matches" icon={<Star className="h-4 w-4 text-emerald-600" />} matches={bestMatches} />
+        <MatchGroup title="Best Matches" icon={<Star className="h-4 w-4 text-trust" />} matches={bestMatches} />
       )}
       {goodMatches.length > 0 && (
-        <MatchGroup title="Good Matches" icon={<Sparkles className="h-4 w-4 text-blue-600" />} matches={goodMatches} />
+        <MatchGroup title="Good Matches" icon={<Sparkles className="h-4 w-4 text-brand" />} matches={goodMatches} />
       )}
       {otherMatches.length > 0 && (
-        <MatchGroup title="More Travelers" icon={<Plane className="h-4 w-4 text-gray-500" />} matches={otherMatches} />
+        <MatchGroup title="More Travelers" icon={<Plane className="h-4 w-4 text-muted-foreground" />} matches={otherMatches} />
       )}
     </div>
   );
@@ -277,8 +265,8 @@ function MatchGroup({ title, icon, matches }: { title: string; icon: React.React
     <div>
       <div className="flex items-center gap-2 mb-3">
         {icon}
-        <h3 className="text-base font-semibold text-gray-800">{title}</h3>
-        <span className="text-xs text-gray-500">({matches.length})</span>
+        <h3 className="text-base font-semibold text-foreground">{title}</h3>
+        <span className="text-xs text-muted-foreground">({matches.length})</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {matches.map((match) => (
@@ -288,8 +276,6 @@ function MatchGroup({ title, icon, matches }: { title: string; icon: React.React
     </div>
   );
 }
-
-// ── Match grouping hook ────────────────────────────────────────
 
 function useMatchGroups(matches: PotentialMatch[]) {
   return useMemo(() => {

@@ -29,13 +29,28 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/dashboard',
-        destination: '/feed',
+        source: '/',
+        destination: '/discover',
         permanent: false,
       },
       {
-        source: '/',
-        destination: '/feed',
+        source: '/dashboard',
+        destination: '/discover',
+        permanent: false,
+      },
+      {
+        source: '/feed',
+        destination: '/discover',
+        permanent: false,
+      },
+      {
+        source: '/groups',
+        destination: '/meetups',
+        permanent: false,
+      },
+      {
+        source: '/events',
+        destination: '/meetups',
         permanent: false,
       },
     ]

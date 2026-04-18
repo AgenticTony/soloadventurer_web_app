@@ -34,11 +34,11 @@ export default function TripsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Trips</h1>
-            <p className="text-muted-foreground">Plan and track your adventures</p>
+            <p className="text-muted-foreground">Where are you headed next?</p>
           </div>
           <button
             onClick={() => router.push('/trips/new')}
-            className="flex items-center space-x-2 px-4 py-2 bg-brand-500 text-white rounded-xl hover:bg-brand-600 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-brand text-brand-foreground rounded-xl hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>New Trip</span>

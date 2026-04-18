@@ -124,7 +124,7 @@ export function useToastOperations() {
     
     // Info messages
     newMessage: (sender: string) => showInfo(`New message from ${sender}`),
-    newFollower: (follower: string) => showInfo(`${follower} started following you`),
+    newConnection: (traveler: string) => showInfo(`${traveler} wants to connect!`),
     newLike: () => showInfo('Someone liked your post'),
     newComment: () => showInfo('New comment on your post'),
     

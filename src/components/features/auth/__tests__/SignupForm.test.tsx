@@ -8,6 +8,11 @@ jest.mock('@/contexts/AuthContext', () => ({
   useAuth: jest.fn()
 }))
 
+const mockPush = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+}))
+
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
 
 describe('SignupForm', () => {
@@ -203,21 +208,12 @@ describe('SignupForm', () => {
   })
 
   test('navigates to login page when login link is clicked', () => {
-    const mockRouter = {
-      push: jest.fn()
-    }
-    jest.mock('next/navigation', () => ({
-      useRouter() {
-        return mockRouter
-      }
-    }))
-
     render(<SignupForm />)
-    
-    const loginLink = screen.getByText(/already have an account/i)
-    fireEvent.click(loginLink)
-    
-    expect(mockRouter.push).toHaveBeenCalledWith('/login')
+
+    const signInButton = screen.getByRole('button', { name: /sign in/i })
+    fireEvent.click(signInButton)
+
+    expect(mockPush).toHaveBeenCalledWith('/login')
   })
 
   test('form has proper password input types', () => {

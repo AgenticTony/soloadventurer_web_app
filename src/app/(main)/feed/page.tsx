@@ -33,8 +33,8 @@ function FeedContent() {
     return (
       <div className="space-y-8">
         <div className="border-b border-border pb-4">
-          <h1 className="text-2xl font-bold text-foreground">Your Feed</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Discover stories from fellow travelers</p>
+          <h1 className="text-2xl font-bold text-foreground">Traveler Stories</h1>
+          <p className="mt-1 text-sm text-muted-foreground">See what fellow adventurers are up to</p>
         </div>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -52,13 +52,13 @@ function FeedContent() {
     return (
       <div className="space-y-8">
         <div className="border-b border-border pb-4">
-          <h1 className="text-2xl font-bold text-foreground">Your Feed</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Discover stories from fellow travelers</p>
+          <h1 className="text-2xl font-bold text-foreground">Traveler Stories</h1>
+          <p className="mt-1 text-sm text-muted-foreground">See what fellow adventurers are up to</p>
         </div>
         <div className="card-base p-6 text-center">
-          <h3 className="text-lg font-semibold text-destructive mb-2">Unable to load feed</h3>
+          <h3 className="text-lg font-semibold text-destructive mb-2">Unable to load stories</h3>
           <p className="text-muted-foreground">
-            There was an error loading your feed. Please try again later.
+            Something went wrong. Please try again later.
           </p>
         </div>
       </div>
@@ -69,8 +69,8 @@ function FeedContent() {
     <div className="space-y-8">
       {/* Page Header */}
       <div className="border-b border-border pb-4">
-        <h1 className="text-2xl font-bold text-foreground">Your Feed</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Discover stories from fellow travelers</p>
+        <h1 className="text-2xl font-bold text-foreground">Traveler Stories</h1>
+        <p className="mt-1 text-sm text-muted-foreground">See what fellow adventurers are up to</p>
       </div>
 
       {/* Post Composer */}
@@ -81,9 +81,9 @@ function FeedContent() {
         {feedItems.length === 0 ? (
           <div className="card-base p-8 text-center">
             <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No posts in your feed yet</h3>
+            <h3 className="text-lg font-semibold mb-2">No stories yet</h3>
             <p className="text-muted-foreground">
-              Start following travelers or create your first post to see content here!
+              Connect with travelers or share your own adventure to get started!
             </p>
           </div>
         ) : (
@@ -106,7 +106,7 @@ function FeedContent() {
 
 export default function FeedPage() {
   return (
-    <Suspense fallback={<div>Loading feed...</div>}>
+    <Suspense fallback={<div>Loading stories...</div>}>
       <FeedContent />
     </Suspense>
   )

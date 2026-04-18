@@ -12,6 +12,19 @@ mockIntersectionObserver.mockReturnValue({
 });
 window.IntersectionObserver = mockIntersectionObserver;
 
+// Mock auth context (required by UserCard for connection actions)
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'test-user' } }),
+}));
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
+
+jest.mock('@/lib/api/matching', () => ({
+  requestConnection: jest.fn().mockResolvedValue({ id: 'conn-1' }),
+}));
+
 describe('UserGrid', () => {
   const mockUsers: UserProfile[] = [
     {

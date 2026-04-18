@@ -34,7 +34,10 @@ jest.mock('react-hot-toast', () => ({
 
 const mockFindPotentialMatches = matchingApi.findPotentialMatches as jest.MockedFunction<typeof matchingApi.findPotentialMatches>;
 const mockGetActivities = activitiesApi.getActivities as jest.MockedFunction<typeof activitiesApi.getActivities>;
-const mockUseAuth = jest.requireActual('@/contexts/AuthContext').useAuth as jest.Mock;
+
+// Get reference to the mocked useAuth
+import { useAuth } from '@/contexts/AuthContext';
+const mockUseAuth = useAuth as jest.Mock;
 
 // ── Fixtures ───────────────────────────────────────────────────
 
@@ -222,7 +225,7 @@ describe('NearbyTravelersSection', () => {
       fireEvent.click(cookingButton!);
 
       await waitFor(() => {
-        expect(screen.getByText(/1 traveler matching your filter/)).toBeInTheDocument();
+        expect(screen.getByText(/1 traveler matching your interests/)).toBeInTheDocument();
       });
     });
 
@@ -265,7 +268,7 @@ describe('NearbyTravelersSection', () => {
       render(<NearbyTravelersSection />);
 
       await waitFor(() => {
-        expect(screen.getByText('No matches yet')).toBeInTheDocument();
+        expect(screen.getByText('No travelers nearby yet')).toBeInTheDocument();
       });
     });
 
