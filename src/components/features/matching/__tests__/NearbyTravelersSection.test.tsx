@@ -112,7 +112,7 @@ describe('NearbyTravelersSection', () => {
   // ── Basic rendering ───────────────────────────────────────
 
   it('renders match cards for all matches', async () => {
-    render(<NearbyTravelersSection />);
+    render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('match-card-match-1')).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('NearbyTravelersSection', () => {
   });
 
   it('shows traveler count in subtitle', async () => {
-    render(<NearbyTravelersSection />);
+    render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByText(/3 travelers heading your way/)).toBeInTheDocument();
@@ -131,32 +131,36 @@ describe('NearbyTravelersSection', () => {
 
   // ── Activity filter chips ─────────────────────────────────
 
+  /** Helper: find activity chip button by name (collapsed quick chips) */
+  function findActivityChip(name: string) {
+    return screen.getAllByRole('button').find(
+      (b) => b.textContent?.trim() === name,
+    );
+  }
+
   describe('activity filter chips', () => {
     it('renders filter chips from activities', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
-        // Activity filter chips are rendered as buttons with aria-pressed
-        const buttons = screen.getAllByRole('button');
-        const filterButtons = buttons.filter((b) =>
-          ['Hiking', 'Photography', 'Cooking', 'Surfing'].includes(b.textContent ?? ''),
-        );
-        expect(filterButtons.length).toBe(4);
+        // Collapsed view shows top 4 activity chips
+        expect(findActivityChip('Hiking')).toBeDefined();
+        expect(findActivityChip('Photography')).toBeDefined();
+        expect(findActivityChip('Cooking')).toBeDefined();
+        expect(findActivityChip('Surfing')).toBeDefined();
       });
     });
 
     it('filters matches when an activity chip is selected', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       // Wait for initial load
       await waitFor(() => {
         expect(screen.getByTestId('match-card-match-1')).toBeInTheDocument();
       });
 
-      // Click "Cooking" filter — only Bob has Cooking
-      const cookingButton = screen.getAllByRole('button').find(
-        (b) => b.textContent === 'Cooking' && b.getAttribute('aria-pressed') !== null,
-      );
+      // Click "Cooking" chip — only Bob has Cooking
+      const cookingButton = findActivityChip('Cooking');
       expect(cookingButton).toBeDefined();
       fireEvent.click(cookingButton!);
 
@@ -168,32 +172,42 @@ describe('NearbyTravelersSection', () => {
     });
 
     it('shows "Clear" button when filters are active', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('match-card-match-1')).toBeInTheDocument();
       });
 
-      const cookingButton = screen.getAllByRole('button').find(
-        (b) => b.textContent === 'Cooking' && b.getAttribute('aria-pressed') !== null,
-      );
+      const cookingButton = findActivityChip('Cooking');
       fireEvent.click(cookingButton!);
 
+      // Open filter panel to see the clear button
+      const filtersButton = screen.getAllByRole('button').find(
+        (b) => b.textContent?.includes('Filters'),
+      );
+      fireEvent.click(filtersButton!);
+
       await waitFor(() => {
-        expect(screen.getByLabelText('Clear all activity filters')).toBeInTheDocument();
+        expect(screen.getByText(/Clear all filters/)).toBeInTheDocument();
       });
     });
 
     it('clears all filters when Clear button is clicked', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('match-card-match-1')).toBeInTheDocument();
       });
 
-      // Select "Cooking" filter
+      // Open filter panel first
+      const filtersButton = screen.getAllByRole('button').find(
+        (b) => b.textContent?.includes('Filters'),
+      );
+      fireEvent.click(filtersButton!);
+
+      // Select "Cooking" filter from expanded panel
       const cookingButton = screen.getAllByRole('button').find(
-        (b) => b.textContent === 'Cooking' && b.getAttribute('aria-pressed') !== null,
+        (b) => b.textContent?.trim() === 'Cooking',
       );
       fireEvent.click(cookingButton!);
 
@@ -201,8 +215,8 @@ describe('NearbyTravelersSection', () => {
         expect(screen.queryByTestId('match-card-match-1')).not.toBeInTheDocument();
       });
 
-      // Click Clear
-      const clearButton = screen.getByLabelText('Clear all activity filters');
+      // Click Clear all filters
+      const clearButton = screen.getByText(/Clear all filters/);
       fireEvent.click(clearButton);
 
       await waitFor(() => {
@@ -213,15 +227,13 @@ describe('NearbyTravelersSection', () => {
     });
 
     it('shows "matching your filter" subtitle when filters active', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText(/3 travelers heading your way/)).toBeInTheDocument();
       });
 
-      const cookingButton = screen.getAllByRole('button').find(
-        (b) => b.textContent === 'Cooking' && b.getAttribute('aria-pressed') !== null,
-      );
+      const cookingButton = findActivityChip('Cooking');
       fireEvent.click(cookingButton!);
 
       await waitFor(() => {
@@ -241,15 +253,21 @@ describe('NearbyTravelersSection', () => {
       ];
       mockFindPotentialMatches.mockResolvedValue(noMatchData);
 
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('match-card-match-x')).toBeInTheDocument();
       });
 
+      // Open full filter panel to access Surfing (5th activity)
+      const filtersButton = screen.getAllByRole('button').find(
+        (b) => b.textContent?.includes('Filters'),
+      );
+      fireEvent.click(filtersButton!);
+
       // Select "Surfing" — Dave doesn't have it
       const surfingButton = screen.getAllByRole('button').find(
-        (b) => b.textContent === 'Surfing' && b.getAttribute('aria-pressed') !== null,
+        (b) => b.textContent?.trim() === 'Surfing',
       );
       fireEvent.click(surfingButton!);
 
@@ -265,7 +283,7 @@ describe('NearbyTravelersSection', () => {
   describe('empty and error states', () => {
     it('shows empty state when no matches found', async () => {
       mockFindPotentialMatches.mockResolvedValue([]);
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('No travelers nearby yet')).toBeInTheDocument();
@@ -274,7 +292,7 @@ describe('NearbyTravelersSection', () => {
 
     it('shows error state on fetch failure', async () => {
       mockFindPotentialMatches.mockRejectedValue(new Error('Network error'));
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument();
@@ -284,7 +302,7 @@ describe('NearbyTravelersSection', () => {
 
     it('returns null when user is not authenticated', () => {
       mockUseAuth.mockReturnValue({ user: null });
-      const { container } = render(<NearbyTravelersSection />);
+      const { container } = render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
       expect(container.innerHTML).toBe('');
     });
   });
@@ -293,7 +311,7 @@ describe('NearbyTravelersSection', () => {
 
   describe('refresh', () => {
     it('calls findPotentialMatches again on refresh', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(mockFindPotentialMatches).toHaveBeenCalledTimes(1);

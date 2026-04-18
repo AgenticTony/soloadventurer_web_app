@@ -66,6 +66,8 @@ export interface PotentialMatch {
   matchType: MatchType;
   matchScore: number | null;
   sharedActivities: string[];
+  emailVerified?: boolean;
+  isOnline?: boolean;
 }
 
 // ── Semantic / Composite Matching (Sprint 8) ───────────────────

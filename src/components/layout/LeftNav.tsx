@@ -11,6 +11,8 @@ import {
   Settings,
   HelpCircle,
   MapPin,
+  Navigation,
+  Sparkles,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +30,8 @@ interface LeftNavProps {
     name: string
     avatar?: string
     location?: string
+    bio?: string
+    emailVerified?: boolean
     stats?: {
       trips: number
       connections: number
@@ -35,6 +39,17 @@ interface LeftNavProps {
     }
   }
   unreadChatCount?: number
+}
+
+function calculateProfileSteps(u: NonNullable<LeftNavProps['user']>): { completed: number; total: number; steps: { label: string; done: boolean }[] } {
+  const steps = [
+    { label: 'Add your name', done: !!u.name && !u.name.includes('@') },
+    { label: 'Set location', done: !!u.location },
+    { label: 'Add a photo', done: !!u.avatar },
+    { label: 'Write a bio', done: !!u.bio && u.bio.length > 10 },
+    { label: 'Verify email', done: !!u.emailVerified },
+  ]
+  return { completed: steps.filter(s => s.done).length, total: steps.length, steps }
 }
 
 export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
@@ -51,7 +66,6 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
         setRealTimeUnreadCount(prev => prev + 1)
       }
     }
-    // Placeholder for WebSocket listener
     void handleNewMessage
   }, [])
 
@@ -74,6 +88,21 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
     return pathname.startsWith(href)
   }
 
+  const profileComplete = user ? calculateProfileSteps(user) : null
+  const isProfileComplete = profileComplete ? profileComplete.completed === profileComplete.total : false
+  const hasTrips = (user?.stats?.trips ?? 0) > 0
+  const tripCount = user?.stats?.trips ?? 0
+
+  const tripCTA = hasTrips
+    ? tripCount >= 3
+      ? 'Plan another adventure — you\'re a pro!'
+      : 'Add your next trip'
+    : 'Where are you headed next?'
+
+  const tripDescription = hasTrips
+    ? `${tripCount} trip${tripCount !== 1 ? 's' : ''} planned`
+    : 'Plan your first solo adventure'
+
   return (
     <aside className="hidden lg:block w-[280px] sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar">
       <div className="p-4 space-y-6">
@@ -89,33 +118,73 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-foreground truncate">{user.name}</h3>
-                  {user.location && (
+                  {user.location ? (
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
                       {user.location}
                     </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Set your location</p>
                   )}
                 </div>
               </div>
 
-              {user.stats && (
-                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border">
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground">{user.stats.trips}</p>
-                    <p className="text-xs text-muted-foreground">Trips</p>
+              {/* Profile Progress or Mini Stats */}
+              <div className="pt-3 border-t border-border">
+                {isProfileComplete && user.stats ? (
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-lg font-bold text-foreground">{user.stats.trips}</p>
+                      <p className="text-xs text-muted-foreground">Trips</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-foreground">{user.stats.connections}</p>
+                      <p className="text-xs text-muted-foreground">Buddies</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-foreground">{user.stats.posts}</p>
+                      <p className="text-xs text-muted-foreground">Posts</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground">{user.stats.connections}</p>
-                    <p className="text-xs text-muted-foreground">Buddies</p>
+                ) : profileComplete && profileComplete.completed > 0 ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-medium text-foreground">Profile</span>
+                      <span className="text-xs font-semibold text-brand">
+                        {profileComplete.completed} of {profileComplete.total}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand rounded-full transition-all duration-500"
+                        style={{ width: `${(profileComplete.completed / profileComplete.total) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      {profileComplete.steps.find(s => !s.done)?.label} to unlock matches
+                    </p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground">{user.stats.posts}</p>
-                    <p className="text-xs text-muted-foreground">Posts</p>
-                  </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center">
+                    Complete your profile to unlock matches
+                  </p>
+                )}
+              </div>
             </Link>
           </div>
+        )}
+
+        {/* Location CTA — prominent when no location set */}
+        {user && !user.location && (
+          <button className="w-full flex items-center gap-3 p-4 rounded-2xl bg-brand/5 border-2 border-dashed border-brand/20 hover:border-brand/40 hover:bg-brand/10 transition-all group">
+            <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand/20 transition-colors">
+              <Navigation className="w-5 h-5 text-brand" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-brand">Set your location</p>
+              <p className="text-xs text-muted-foreground">Find travelers near you</p>
+            </div>
+          </button>
         )}
 
         {/* Main Navigation — 5 primary items */}
@@ -133,7 +202,6 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                     : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
-                {/* Left border accent for active state */}
                 {active && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand rounded-r-full" />
                 )}
@@ -177,15 +245,21 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
           </div>
         </div>
 
-        {/* Create Trip CTA */}
+        {/* Create Trip CTA — contextual text */}
         <div className="card-base p-4">
-          <h4 className="font-semibold text-foreground mb-2">Where are you headed next?</h4>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-4 w-4 text-trust" />
+            <h4 className="font-semibold text-foreground">{tripCTA}</h4>
+          </div>
           <p className="text-sm text-muted-foreground mb-4">
-            Plan your next solo adventure
+            {tripDescription}
           </p>
-          <button className="w-full px-4 py-2.5 bg-brand text-brand-foreground rounded-2xl hover:bg-brand/90 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
-            Create Trip
-          </button>
+          <Link
+            href="/trips/new"
+            className="block w-full px-4 py-2.5 bg-brand text-brand-foreground rounded-2xl hover:bg-brand/90 transition-all duration-200 font-medium shadow-sm hover:shadow-md text-center"
+          >
+            {hasTrips ? 'Add Trip' : 'Create Trip'}
+          </Link>
         </div>
       </div>
     </aside>

@@ -6,7 +6,7 @@ import { LeftNav } from './LeftNav'
 import { RightRail } from './RightRail'
 import { BottomTabBar } from './BottomTabBar'
 import { useAuth } from '@/contexts/AuthContext'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -15,6 +15,7 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   const { user, isAuthenticated } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
 
@@ -38,19 +39,30 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   // Get active tab from pathname
   const getActiveTab = () => {
-    if (pathname === '/') return 'feed'
+    if (pathname === '/' || pathname.startsWith('/discover') || pathname === '/feed') return 'discover'
     if (pathname.startsWith('/trips')) return 'trips'
     if (pathname.startsWith('/cities')) return 'cities'
-    if (pathname.startsWith('/messages')) return 'messages'
-    if (pathname.startsWith('/groups')) return 'groups'
-    if (pathname.startsWith('/events')) return 'events'
+    if (pathname.startsWith('/messages') || pathname.startsWith('/chat')) return 'messages'
+    if (pathname.startsWith('/groups') || pathname.startsWith('/events') || pathname.startsWith('/meetups')) return 'meetups'
     if (pathname.startsWith('/saved')) return 'saved'
-    return 'feed'
+    return 'discover'
+  }
+
+  const tabRoutes: Record<string, string> = {
+    discover: '/discover',
+    feed: '/discover',
+    trips: '/trips',
+    cities: '/discover',
+    messages: '/chat',
+    meetups: '/meetups',
+    groups: '/meetups',
+    events: '/meetups',
+    saved: '/saved',
   }
 
   const handleTabChange = (tab: string) => {
-    // This would be handled by navigation in a real app
-    console.log('Navigate to:', tab)
+    const route = tabRoutes[tab]
+    if (route) router.push(route)
   }
 
   const handleCreatePost = () => {
@@ -62,7 +74,10 @@ export function MainLayout({ children }: MainLayoutProps) {
   const userData = isAuthenticated
     ? {
         name: user?.name || 'Traveler',
-        location: user?.location || 'Location not set',
+        location: user?.location || '',
+        bio: user?.bio || '',
+        emailVerified: user?.emailVerified ?? false,
+        avatar: user?.avatar,
         stats: {
           trips: 0,
           connections: 0,

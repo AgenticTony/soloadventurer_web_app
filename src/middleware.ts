@@ -22,9 +22,9 @@ export async function middleware(request: NextRequest) {
 
   const authRoutes = ['/sign-in', '/signup', '/forgot-password', '/confirm-email']
 
-  // Authenticated users on auth pages → redirect to feed
+  // Authenticated users on auth pages → redirect to discover
   if (user && authRoutes.some((r) => pathname.startsWith(r))) {
-    return NextResponse.redirect(new URL('/feed', request.url))
+    return NextResponse.redirect(new URL('/discover', request.url))
   }
 
   // Unauthenticated users on protected routes → redirect to sign-in
@@ -32,9 +32,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
-  // Root route: authenticated → feed, unauthenticated → landing
+  // Root route: authenticated → discover, unauthenticated → landing
   if (pathname === '/' && user) {
-    return NextResponse.redirect(new URL('/feed', request.url))
+    return NextResponse.redirect(new URL('/discover', request.url))
   }
 
   return response

@@ -71,8 +71,39 @@ jest.mock('@/components/features/trips/TripList', () => ({
   TripList: () => <div data-testid="trip-list" />,
 }));
 
-jest.mock('@/components/features/trips/TripFilters', () => ({
-  TripFilters: () => <div data-testid="trip-filters" />,
+jest.mock('@/components/features/discover/DiscoverTabBar', () => ({
+  DiscoverTabBar: ({ activeTab }: { activeTab: string }) => (
+    <div data-testid="discover-tab-bar">
+      <button>Near You</button>
+      <button>People</button>
+      <span>Active: {activeTab}</span>
+    </div>
+  ),
+}));
+
+jest.mock('@/components/features/discover/NearYouTab', () => ({
+  NearYouTab: () => (
+    <div data-testid="near-you-tab">
+      <span>234 travelers nearby</span>
+      <span>Set your location</span>
+    </div>
+  ),
+}));
+
+jest.mock('@/components/features/discover/PeopleTab', () => ({
+  PeopleTab: () => <div data-testid="people-tab" />,
+}));
+
+jest.mock('@/components/features/discover/FeedTab', () => ({
+  FeedTab: () => <div data-testid="feed-tab" />,
+}));
+
+jest.mock('@/components/features/discover/MeetupsTab', () => ({
+  MeetupsTab: () => <div data-testid="meetups-tab" />,
+}));
+
+jest.mock('@/hooks/useUserLocation', () => ({
+  useUserLocation: () => ({ location: null, permission: 'prompt', loading: false, requestLocation: jest.fn() }),
 }));
 
 const mockFindPotentialMatches = matchingApi.findPotentialMatches as jest.Mock;
@@ -108,32 +139,33 @@ describe('Wanderlust Voice — Copy Tests', () => {
   });
 
   describe('Discover page copy', () => {
-    it('uses "Discover" heading', () => {
+    it('renders DiscoverTabBar for tab navigation', () => {
       render(<DiscoverPage />);
-      expect(screen.getByRole('heading', { level: 1, name: 'Discover' })).toBeInTheDocument();
+      // The tab bar renders with tab buttons including "Near You"
+      expect(screen.getByText('Near You')).toBeInTheDocument();
     });
 
-    it('uses wanderlust subtitle about landing in city', () => {
+    it('renders city hero card with traveler count', () => {
       render(<DiscoverPage />);
-      expect(screen.getByText(/See who else just landed in your city/)).toBeInTheDocument();
+      expect(screen.getByText(/travelers nearby/)).toBeInTheDocument();
     });
 
-    it('mentions "travel buddy" in subtitle', () => {
+    it('renders "Set your location" CTA when no location', () => {
       render(<DiscoverPage />);
-      expect(screen.getByText(/travel buddy/)).toBeInTheDocument();
+      expect(screen.getByText('Set your location')).toBeInTheDocument();
     });
   });
 
   describe('NearbyTravelersSection copy', () => {
     it('uses "Travelers Near You" heading', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
       await waitFor(() => {
         expect(screen.getByText('Travelers Near You')).toBeInTheDocument();
       });
     });
 
     it('uses "heading your way" for match subtitle', async () => {
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
       await waitFor(() => {
         expect(screen.getByText(/heading your way/)).toBeInTheDocument();
       });
@@ -143,7 +175,7 @@ describe('Wanderlust Voice — Copy Tests', () => {
       mockGetActivities.mockResolvedValue([
         { id: 'a1', name: 'Hiking', description: null, category: 'outdoor', iconName: 'hiking', isActive: true, isLocationSpecific: false, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
       ]);
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText(/Hiking/)).toBeInTheDocument();
@@ -161,7 +193,7 @@ describe('Wanderlust Voice — Copy Tests', () => {
 
     it('uses "See who else just landed nearby" for empty state', async () => {
       mockFindPotentialMatches.mockResolvedValue([]);
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
       await waitFor(() => {
         expect(screen.getByText('See who else just landed nearby')).toBeInTheDocument();
       });
@@ -169,7 +201,7 @@ describe('Wanderlust Voice — Copy Tests', () => {
 
     it('uses "No travelers nearby yet" for empty heading', async () => {
       mockFindPotentialMatches.mockResolvedValue([]);
-      render(<NearbyTravelersSection />);
+      render(<NearbyTravelersSection onRequestLocation={jest.fn()} />);
       await waitFor(() => {
         expect(screen.getByText('No travelers nearby yet')).toBeInTheDocument();
       });

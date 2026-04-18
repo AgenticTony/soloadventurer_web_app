@@ -1,5 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { TripEditForm } from '../TripEditForm'
+import { tripService } from '@/services/trips/tripService'
+import { TripsApiError } from '@/lib/api'
 
 // Mock Supabase client for auth
 jest.mock('@/lib/supabase/client', () => ({
@@ -17,6 +19,12 @@ jest.mock('@/services/trips/tripService', () => ({
   tripService: {
     updateTrip: jest.fn().mockResolvedValue({ success: true })
   }
+}))
+
+// Mock the API module for TripsApiError
+jest.mock('@/lib/api', () => ({
+  ...jest.requireActual('@/lib/api'),
+  TripsApiError: class TripsApiError extends Error { constructor(m: string) { super(m) } },
 }))
 
 // Mock the unsaved changes hook
@@ -68,8 +76,7 @@ describe('TripEditForm', () => {
   })
 
   it('should submit the form successfully when valid', async () => {
-    const { tripService } = require('@/services/trips/tripService')
-    tripService.updateTrip.mockResolvedValueOnce({ ...mockTrip, title: 'Paris Adventure' })
+    ;(tripService.updateTrip as jest.Mock).mockResolvedValueOnce({ ...mockTrip, title: 'Paris Adventure' })
 
     const mockOnSave = jest.fn()
     render(<TripEditForm trip={mockTrip} onCancel={mockOnCancel} onSave={mockOnSave} />)
@@ -88,10 +95,8 @@ describe('TripEditForm', () => {
   })
 
   it('should show API error when update fails', async () => {
-    const { tripService } = require('@/services/trips/tripService')
-    const { TripsApiError } = require('@/lib/api')
     const error = new TripsApiError('Server error occurred')
-    tripService.updateTrip.mockRejectedValueOnce(error)
+    ;(tripService.updateTrip as jest.Mock).mockRejectedValueOnce(error)
 
     render(<TripEditForm trip={mockTrip} onCancel={mockOnCancel} />)
 
@@ -104,8 +109,7 @@ describe('TripEditForm', () => {
   })
 
   it('should show generic error when non-API error occurs', async () => {
-    const { tripService } = require('@/services/trips/tripService')
-    tripService.updateTrip.mockRejectedValueOnce(new Error('Network failure'))
+    ;(tripService.updateTrip as jest.Mock).mockRejectedValueOnce(new Error('Network failure'))
 
     render(<TripEditForm trip={mockTrip} onCancel={mockOnCancel} />)
 

@@ -89,20 +89,33 @@ export function MatchCard({ match, onConnect }: MatchCardProps) {
     <div className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-card-hover transition-shadow">
       {/* Header: Avatar + Name + Match Badge */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-ocean-sunset flex items-center justify-center text-white font-semibold text-lg">
-          {match.avatarUrl ? (
-            <img
-              src={match.avatarUrl}
-              alt={match.displayName}
-              className="w-full h-full rounded-full object-cover"
+        <div className="relative flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-gradient-ocean-sunset flex items-center justify-center text-white font-semibold text-lg">
+            {match.avatarUrl ? (
+              <img
+                src={match.avatarUrl}
+                alt={match.displayName}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              initials
+            )}
+          </div>
+          {match.isOnline && (
+            <div
+              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-card"
+              title="Online now"
             />
-          ) : (
-            initials
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <h3 className="font-semibold text-foreground truncate">{match.displayName}</h3>
+            {match.emailVerified && (
+              <svg className="w-4 h-4 text-brand flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-label="Email verified">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            )}
           </div>
           {match.homeCountry && (
             <p className="text-sm text-muted-foreground">{match.homeCountry}</p>

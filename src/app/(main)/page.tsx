@@ -3,5 +3,5 @@
 import { redirect } from 'next/navigation'
 
 export default function MainPage() {
-  redirect('/feed')
+  redirect('/discover')
 }
