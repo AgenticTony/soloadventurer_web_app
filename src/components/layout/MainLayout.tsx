@@ -96,7 +96,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main Content Area */}
       <div className="mx-auto max-w-[1920px]">
-        <div className="flex gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_minmax(680px,1fr)] xl:grid-cols-[240px_minmax(680px,1fr)_300px] gap-6">
           {/* Mobile Menu Overlay */}
           {isMobileMenuOpen && (
             <>
@@ -113,17 +113,17 @@ export function MainLayout({ children }: MainLayoutProps) {
           )}
 
           {/* Left Navigation (Desktop) */}
-          <div className="hidden w-[280px] flex-shrink-0 lg:block">
+          <div className="hidden lg:block">
             <LeftNav user={userData} />
           </div>
 
-          {/* Center Content - Feed Area */}
-          <main id="main-content" className="mx-auto min-w-0 max-w-2xl flex-1 border-x border-border">
+          {/* Center Content */}
+          <main id="main-content" className="min-w-0 w-full border-x border-border">
             <div className="p-4 pb-20 lg:pb-4">{children}</div>
           </main>
 
           {/* Right Rail (Desktop) */}
-          <div className="hidden w-[320px] flex-shrink-0 xl:block">
+          <div className="hidden xl:block">
             <RightRail />
           </div>
         </div>

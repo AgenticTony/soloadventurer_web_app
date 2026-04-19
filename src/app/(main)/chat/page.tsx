@@ -173,15 +173,15 @@ function ChatPageContent() {
   }
 
   return (
-    <div className="h-screen flex bg-white">
+    <div className="h-screen flex bg-background">
       {/* Sidebar - Conversation List */}
-      <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 flex flex-col ${selectedId ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-80 lg:w-96 border-r border-border flex flex-col ${selectedId ? 'hidden md:flex' : 'flex'}`}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-blue-600" />
-              <h1 className="text-lg font-bold">Messages</h1>
+              <MessageSquare className="h-5 w-5 text-brand" />
+              <h1 className="text-lg font-bold text-foreground">Messages</h1>
               {totalUnread > 0 && (
                 <Badge variant="destructive" className="text-xs">{totalUnread}</Badge>
               )}
@@ -191,7 +191,7 @@ function ChatPageContent() {
             </Button>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search conversations..."
               value={searchQuery}
@@ -207,19 +207,19 @@ function ChatPageContent() {
             <div className="p-4 space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 animate-pulse">
-                  <div className="h-12 w-12 bg-gray-200 rounded-full" />
+                  <div className="h-12 w-12 bg-muted rounded-full" />
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
-                    <div className="h-3 bg-gray-200 rounded w-36" />
+                    <div className="h-4 bg-muted rounded w-24 mb-2" />
+                    <div className="h-3 bg-muted rounded w-36" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="p-8 text-center">
-              <MessageSquare className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-1">No messages yet</h3>
-              <p className="text-sm text-gray-500 mb-4">
+              <MessageSquare className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground mb-1">No messages yet</h3>
+              <p className="text-sm text-muted-foreground mb-4">
                 Connect with travelers to start chatting
               </p>
               <Button onClick={() => router.push('/discover')}>
@@ -239,11 +239,11 @@ function ChatPageContent() {
                     url.searchParams.set('connection', conv.connectionId);
                     window.history.replaceState({}, '', url.toString());
                   }}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors text-left ${
-                    isSelected ? 'bg-blue-50 border-r-2 border-blue-600' : ''
+                  className={`w-full flex items-center gap-3 p-4 hover:bg-muted transition-colors text-left ${
+                    isSelected ? 'bg-brand/10 border-r-2 border-brand' : ''
                   }`}
                 >
-                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gradient-to-br from-brand to-connection flex items-center justify-center text-white font-semibold">
                     {conv.otherUser.avatarUrl ? (
                       <img
                         src={conv.otherUser.avatarUrl}
@@ -256,15 +256,15 @@ function ChatPageContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-sm truncate">{name}</h3>
+                      <h3 className="font-medium text-sm text-foreground truncate">{name}</h3>
                       {conv.lastMessage && (
-                        <span className="text-xs text-gray-400 flex-shrink-0">
+                        <span className="text-xs text-muted-foreground flex-shrink-0">
                           {formatTime(conv.lastMessage.createdAt)}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {conv.lastMessage?.content ?? 'No messages yet'}
                       </p>
                       {conv.unreadCount > 0 && (
@@ -286,7 +286,7 @@ function ChatPageContent() {
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="flex items-center gap-3 p-4 border-b border-gray-200">
+            <div className="flex items-center gap-3 p-4 border-b border-border">
               <Button
                 variant="ghost"
                 size="sm"
@@ -300,7 +300,7 @@ function ChatPageContent() {
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-brand to-connection flex items-center justify-center text-white font-semibold">
                 {selectedConversation.otherUser.avatarUrl ? (
                   <img
                     src={selectedConversation.otherUser.avatarUrl}
@@ -312,11 +312,11 @@ function ChatPageContent() {
                 )}
               </div>
               <div>
-                <h2 className="font-semibold">
+                <h2 className="font-semibold text-foreground">
                   {selectedConversation.otherUser.displayName ?? selectedConversation.otherUser.username ?? 'Traveler'}
                 </h2>
                 {selectedConversation.otherUser.bio && (
-                  <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                  <p className="text-xs text-muted-foreground truncate max-w-[200px]">
                     {selectedConversation.otherUser.bio}
                   </p>
                 )}
@@ -330,8 +330,8 @@ function ChatPageContent() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 && (
                 <div className="text-center py-12">
-                  <MessageSquare className="mx-auto mb-3 h-10 w-10 text-gray-400" />
-                  <p className="text-gray-500">Start the conversation!</p>
+                  <MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+                  <p className="text-muted-foreground">Start the conversation!</p>
                 </div>
               )}
               {messages.map((msg) => {
@@ -344,12 +344,12 @@ function ChatPageContent() {
                     <div
                       className={`max-w-[70%] rounded-2xl px-4 py-2 ${
                         isMine
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          ? 'bg-brand text-brand-foreground'
+                          : 'bg-muted text-foreground'
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                      <p className={`text-[10px] mt-1 ${isMine ? 'text-blue-200' : 'text-gray-400'}`}>
+                      <p className={`text-[10px] mt-1 ${isMine ? 'text-brand-foreground/60' : 'text-muted-foreground'}`}>
                         {formatTime(msg.createdAt)}
                       </p>
                     </div>
@@ -360,7 +360,7 @@ function ChatPageContent() {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-border">
               <div className="flex gap-2">
                 <Input
                   placeholder="Type a message..."
@@ -383,9 +383,9 @@ function ChatPageContent() {
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <MessageSquare className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-              <h3 className="text-lg font-medium text-gray-500 mb-2">Select a conversation</h3>
-              <p className="text-sm text-gray-400">
+              <MessageSquare className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
+              <h3 className="text-lg font-medium text-muted-foreground mb-2">Select a conversation</h3>
+              <p className="text-sm text-muted-foreground">
                 Choose a conversation from the sidebar to start messaging
               </p>
             </div>

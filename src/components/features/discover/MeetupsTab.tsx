@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, MapPin, Users, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Users, ChevronRight, Mountain, UtensilsCrossed, Camera, Coffee, Heart, Drama } from 'lucide-react';
 import { clsx } from 'clsx';
 import Link from 'next/link';
 import type { MeetupPreview } from '@/types/discover';
@@ -24,6 +24,15 @@ const CATEGORY_COLORS: Record<string, string> = {
   Social: 'bg-brand/10 text-brand',
   Wellness: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
   Cultural: 'bg-trust/10 text-trust',
+};
+
+const CATEGORY_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  Outdoors: Mountain,
+  Food: UtensilsCrossed,
+  Photography: Camera,
+  Social: Coffee,
+  Wellness: Heart,
+  Cultural: Drama,
 };
 
 export function MeetupsTab() {
@@ -57,23 +66,29 @@ export function MeetupsTab() {
       <div className="space-y-3">
         {filtered.map((meetup) => (
           <div key={meetup.id} className="card-interactive p-5 group cursor-pointer">
-            <div className="flex items-start justify-between mb-3">
-              <span className={clsx(
-                'text-xs font-medium px-2.5 py-1 rounded-full',
-                CATEGORY_COLORS[meetup.category] || 'bg-muted text-muted-foreground'
-              )}>
-                {meetup.category}
-              </span>
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {meetup.date}
-              </span>
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-connection/10 flex items-center justify-center flex-shrink-0 text-connection">
+                {(() => { const Icon = CATEGORY_ICON[meetup.category] || Calendar; return <Icon className="h-5 w-5" />; })()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between mb-1">
+                  <span className={clsx(
+                    'text-xs font-medium px-2.5 py-1 rounded-full',
+                    CATEGORY_COLORS[meetup.category] || 'bg-muted text-muted-foreground'
+                  )}>
+                    {meetup.category}
+                  </span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {meetup.date}
+                  </span>
+                </div>
+                <h4 className="text-base font-semibold text-foreground mb-1 group-hover:text-brand transition-colors">
+                  {meetup.title}
+                </h4>
+                <p className="text-sm text-muted-foreground mb-3">{meetup.description}</p>
+              </div>
             </div>
-
-            <h4 className="text-base font-semibold text-foreground mb-1 group-hover:text-brand transition-colors">
-              {meetup.title}
-            </h4>
-            <p className="text-sm text-muted-foreground mb-3">{meetup.description}</p>
 
             <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
               <span className="flex items-center gap-1">
@@ -94,7 +109,7 @@ export function MeetupsTab() {
                 <span className="text-xs text-muted-foreground">Hosted by {meetup.host.name}</span>
               </div>
               <button className="btn-connection px-4 py-2 text-sm font-medium">
-                Join
+                View details
               </button>
             </div>
           </div>

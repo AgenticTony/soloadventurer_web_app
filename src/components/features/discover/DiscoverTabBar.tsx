@@ -5,7 +5,7 @@ import { clsx } from 'clsx';
 import type { DiscoverTabId } from '@/types/discover';
 
 const tabs: { id: DiscoverTabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'near-you', label: 'Near You', icon: MapPin },
+  { id: 'near-you', label: 'Discover', icon: MapPin },
   { id: 'people', label: 'People', icon: Users },
   { id: 'feed', label: 'Feed', icon: Rss },
   { id: 'meetups', label: 'Meetups', icon: Calendar },

@@ -11,7 +11,6 @@ import {
   Settings,
   HelpCircle,
   MapPin,
-  Navigation,
   Sparkles,
 } from 'lucide-react'
 import { clsx } from 'clsx'
@@ -103,8 +102,24 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
     ? `${tripCount} trip${tripCount !== 1 ? 's' : ''} planned`
     : 'Plan your first solo adventure'
 
+  // Contextual CTA based on current page
+  const isDiscover = pathname === '/' || pathname === '/discover' || pathname === '/feed'
+  const isMeetups = pathname === '/meetups'
+  const ctaTitle = isMeetups
+    ? 'Join a meetup'
+    : isDiscover
+      ? 'Find travelers near you'
+      : tripCTA
+  const ctaDescription = isMeetups
+    ? 'Meet fellow explorers in person'
+    : isDiscover
+      ? 'Set your location to get started'
+      : tripDescription
+  const ctaHref = isMeetups ? '/meetups' : isDiscover ? '/discover' : '/trips/new'
+  const ctaLabel = isMeetups ? 'Browse Meetups' : isDiscover ? 'Get Started' : (hasTrips ? 'Add Trip' : 'Create Trip')
+
   return (
-    <aside className="hidden lg:block w-[280px] sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar">
+    <aside className="hidden lg:block sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar">
       <div className="p-4 space-y-6">
         {/* User Mini Card */}
         {user && (
@@ -124,7 +139,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                       {user.location}
                     </p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">Set your location</p>
+                    <p className="text-sm text-muted-foreground">Explorer</p>
                   )}
                 </div>
               </div>
@@ -172,19 +187,6 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
               </div>
             </Link>
           </div>
-        )}
-
-        {/* Location CTA — prominent when no location set */}
-        {user && !user.location && (
-          <button className="w-full flex items-center gap-3 p-4 rounded-2xl bg-brand/5 border-2 border-dashed border-brand/20 hover:border-brand/40 hover:bg-brand/10 transition-all group">
-            <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand/20 transition-colors">
-              <Navigation className="w-5 h-5 text-brand" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-semibold text-brand">Set your location</p>
-              <p className="text-xs text-muted-foreground">Find travelers near you</p>
-            </div>
-          </button>
         )}
 
         {/* Main Navigation — 5 primary items */}
@@ -245,20 +247,20 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
           </div>
         </div>
 
-        {/* Create Trip CTA — contextual text */}
+        {/* Contextual CTA */}
         <div className="card-base p-4">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-trust" />
-            <h4 className="font-semibold text-foreground">{tripCTA}</h4>
+            <h4 className="font-semibold text-foreground">{ctaTitle}</h4>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            {tripDescription}
+            {ctaDescription}
           </p>
           <Link
-            href="/trips/new"
+            href={ctaHref}
             className="block w-full px-4 py-2.5 bg-brand text-brand-foreground rounded-2xl hover:bg-brand/90 transition-all duration-200 font-medium shadow-sm hover:shadow-md text-center"
           >
-            {hasTrips ? 'Add Trip' : 'Create Trip'}
+            {ctaLabel}
           </Link>
         </div>
       </div>

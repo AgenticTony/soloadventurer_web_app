@@ -105,13 +105,13 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Connections</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-3xl font-bold text-foreground">Connections</h1>
+            <p className="text-muted-foreground mt-1">
               Manage your travel connections and meet fellow adventurers
             </p>
           </div>
@@ -125,33 +125,33 @@ export default function ConnectionsPage() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                <Users className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-connection/10">
+                <Users className="h-5 w-5 text-connection" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{accepted.length}</p>
+                <p className="text-2xl font-bold text-foreground">{accepted.length}</p>
                 <p className="text-xs text-muted-foreground">Connected</p>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                <UserPlus className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-trust/10">
+                <UserPlus className="h-5 w-5 text-trust" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{pendingIncoming.length}</p>
+                <p className="text-2xl font-bold text-foreground">{pendingIncoming.length}</p>
                 <p className="text-xs text-muted-foreground">Pending Requests</p>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                <Clock className="h-5 w-5 text-purple-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
+                <Clock className="h-5 w-5 text-brand" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{pendingOutgoing.length}</p>
+                <p className="text-2xl font-bold text-foreground">{pendingOutgoing.length}</p>
                 <p className="text-xs text-muted-foreground">Sent Requests</p>
               </div>
             </CardContent>
@@ -192,9 +192,9 @@ export default function ConnectionsPage() {
 
         {/* Content */}
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 mb-6 flex items-center gap-3">
-            <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-            <p className="text-sm text-red-700 flex-1">{error}</p>
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 mb-6 flex items-center gap-3">
+            <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+            <p className="text-sm text-destructive flex-1">{error}</p>
             <Button variant="outline" size="sm" onClick={loadConnections}>
               Retry
             </Button>
@@ -204,20 +204,20 @@ export default function ConnectionsPage() {
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-28 rounded-2xl bg-white border border-gray-200 animate-pulse" />
+              <div key={i} className="h-28 rounded-2xl bg-card border border-border animate-pulse" />
             ))}
           </div>
         ) : filteredConnections.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12 text-center">
-            <Users className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-1">
+          <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
+            <Users className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+            <h3 className="text-lg font-semibold text-foreground mb-1">
               {activeTab === 'pending'
                 ? 'No pending requests'
                 : activeTab === 'accepted'
                   ? 'No connections yet'
                   : 'No connections yet'}
             </h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {activeTab === 'pending'
                 ? "You&apos;re all caught up!"
                 : 'Discover travelers and send connection requests'}
@@ -238,11 +238,11 @@ export default function ConnectionsPage() {
               return (
                 <div
                   key={conn.id}
-                  className="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-sm transition-shadow"
+                  className="bg-card rounded-2xl border border-border p-4 hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-brand to-connection flex items-center justify-center text-white font-semibold text-lg">
                       {otherProfile?.avatarUrl ? (
                         <img
                           src={otherProfile.avatarUrl}
@@ -262,12 +262,12 @@ export default function ConnectionsPage() {
                         </h3>
                         <ConnectionStatusBadge status={conn.status} />
                         {isPending && isIncoming && (
-                          <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">
+                          <Badge variant="outline" className="text-xs border-trust/40 text-trust bg-trust/10">
                             Incoming
                           </Badge>
                         )}
                         {isPending && !isIncoming && (
-                          <Badge variant="outline" className="text-xs border-blue-300 text-blue-700 bg-blue-50">
+                          <Badge variant="outline" className="text-xs border-brand/40 text-brand bg-brand/10">
                             Outgoing
                           </Badge>
                         )}
@@ -333,10 +333,10 @@ export default function ConnectionsPage() {
 
 function ConnectionStatusBadge({ status }: { status: ConnectionStatus }) {
   const config: Record<ConnectionStatus, { label: string; className: string }> = {
-    pending: { label: 'Pending', className: 'bg-amber-100 text-amber-700' },
-    accepted: { label: 'Connected', className: 'bg-green-100 text-green-700' },
-    declined: { label: 'Declined', className: 'bg-red-100 text-red-700' },
-    blocked: { label: 'Blocked', className: 'bg-gray-100 text-gray-700' },
+    pending: { label: 'Pending', className: 'bg-trust/10 text-trust' },
+    accepted: { label: 'Connected', className: 'bg-connection/10 text-connection' },
+    declined: { label: 'Declined', className: 'bg-destructive/10 text-destructive' },
+    blocked: { label: 'Blocked', className: 'bg-muted text-muted-foreground' },
   };
   const { label, className } = config[status];
   return (

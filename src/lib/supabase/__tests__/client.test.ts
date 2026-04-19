@@ -1,27 +1,19 @@
 import { invokeEdgeFunction } from '../client';
 import type { EdgeFunctionResult } from '../client';
 
-// ── Mock @supabase/ssr at the module level ──────────────────────
-// This ensures createBrowserClient returns a stub even when the real
-// invokeEdgeFunction calls createClient() internally via its closure.
-
-const mockInvoke = jest.fn();
-
-jest.mock('@supabase/ssr', () => ({
-  createBrowserClient: jest.fn(() => ({
-    functions: { invoke: mockInvoke },
-  })),
-}));
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// ── Happy path ────────────────────────────────────────────────
-
 describe('invokeEdgeFunction', () => {
   it('returns data on successful invocation', async () => {
-    mockInvoke.mockResolvedValue({ data: { matches: [] }, error: null });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ matches: [] }),
+    });
 
     const result = await invokeEdgeFunction('test-fn', { user_id: 'u1' });
 
@@ -29,14 +21,19 @@ describe('invokeEdgeFunction', () => {
       data: { matches: [] },
       error: null,
     });
-    expect(mockInvoke).toHaveBeenCalledWith('test-fn', {
-      body: { user_id: 'u1' },
+    expect(mockFetch).toHaveBeenCalledWith('/api/edge/test-fn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: 'u1' }),
       signal: expect.any(AbortSignal),
     });
   });
 
   it('returns data as null when edge function returns null', async () => {
-    mockInvoke.mockResolvedValue({ data: null, error: null });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(null),
+    });
 
     const result = await invokeEdgeFunction('test-fn', {});
 
@@ -47,9 +44,10 @@ describe('invokeEdgeFunction', () => {
   // ── 4xx client errors — no retry ────────────────────────────
 
   it('returns immediately on 4xx client error without retrying', async () => {
-    mockInvoke.mockResolvedValue({
-      data: null,
-      error: { message: 'Bad Request', context: { status: 400 } },
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: () => Promise.resolve({ error: 'Bad Request' }),
     });
 
     const result = await invokeEdgeFunction('test-fn', {});
@@ -59,53 +57,76 @@ describe('invokeEdgeFunction', () => {
       status: 400,
       code: '400',
     });
-    expect(mockInvoke).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
   it('returns immediately on 404 without retrying', async () => {
-    mockInvoke.mockResolvedValue({
-      data: null,
-      error: { message: 'Not Found', context: { status: 404 } },
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 404,
+      json: () => Promise.resolve({ error: 'Not Found' }),
     });
 
     const result = await invokeEdgeFunction('test-fn', {});
 
     expect(result.error?.status).toBe(404);
-    expect(mockInvoke).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
   // ── 5xx server errors — retries with backoff ────────────────
 
-  it('retries on 5xx server error', async () => {
-    mockInvoke
-      .mockRejectedValueOnce(new Error('Network failure'))
-      .mockResolvedValueOnce({ data: { ok: true }, error: null });
+  it('retries on 5xx server error and succeeds', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({}),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ ok: true }),
+      });
 
     const result = await invokeEdgeFunction('test-fn', {});
 
     expect(result.data).toEqual({ ok: true });
     expect(result.error).toBeNull();
-    expect(mockInvoke).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries on network failure and succeeds', async () => {
+    mockFetch
+      .mockRejectedValueOnce(new Error('Network failure'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ ok: true }),
+      });
+
+    const result = await invokeEdgeFunction('test-fn', {});
+
+    expect(result.data).toEqual({ ok: true });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it('returns last error after exhausting retries', async () => {
-    mockInvoke.mockResolvedValue({
-      data: null,
-      error: { message: 'Internal Server Error', context: { status: 500 } },
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: () => Promise.resolve({}),
     });
 
     const result = await invokeEdgeFunction('test-fn', {});
 
-    expect(result.error?.message).toBe('Internal Server Error');
+    expect(result.error?.status).toBe(500);
     // MAX_RETRIES = 2, so 3 attempts total (0, 1, 2)
-    expect(mockInvoke).toHaveBeenCalledTimes(3);
+    expect(mockFetch).toHaveBeenCalledTimes(3);
   });
 
-  // ── Network / timeout errors ────────────────────────────────
+  // ── Network / timeout errors ───────────────────────────────
 
   it('handles AbortError as timeout', async () => {
     const abortError = new DOMException('The operation was aborted', 'AbortError');
-    mockInvoke.mockRejectedValue(abortError);
+    mockFetch.mockRejectedValue(abortError);
 
     const result = await invokeEdgeFunction('test-fn', {}, { timeoutMs: 5000 });
 
@@ -114,7 +135,7 @@ describe('invokeEdgeFunction', () => {
   });
 
   it('handles generic network errors', async () => {
-    mockInvoke.mockRejectedValue(new Error('Connection refused'));
+    mockFetch.mockRejectedValue(new Error('Connection refused'));
 
     const result = await invokeEdgeFunction('test-fn', {});
 
@@ -122,12 +143,13 @@ describe('invokeEdgeFunction', () => {
     expect(result.error?.code).toBe('FETCH_ERROR');
   });
 
-  // ── Error message extraction ────────────────────────────────
+  // ── Error response body extraction ─────────────────────────
 
-  it('extracts message from error objects with message property', async () => {
-    mockInvoke.mockResolvedValue({
-      data: null,
-      error: { message: 'Custom error text' },
+  it('extracts message from error response body', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: () => Promise.resolve({ error: 'Custom error text' }),
     });
 
     const result = await invokeEdgeFunction('test-fn', {});
@@ -135,33 +157,29 @@ describe('invokeEdgeFunction', () => {
     expect(result.error?.message).toBe('Custom error text');
   });
 
-  it('returns default message for errors without message property', async () => {
-    mockInvoke.mockResolvedValue({
-      data: null,
-      error: 'string-error',
+  it('falls back to status-based message when body has no error field', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: () => Promise.resolve({}),
     });
 
     const result = await invokeEdgeFunction('test-fn', {});
 
-    expect(result.error?.message).toBe('Edge function error');
+    expect(result.error?.message).toContain('returned 500');
   });
 
-  // ── Custom timeout ──────────────────────────────────────────
+  // ── Custom timeout ─────────────────────────────────────────
 
-  it('uses default 30s timeout when no options provided', async () => {
-    mockInvoke.mockResolvedValue({ data: 'ok', error: null });
+  it('passes AbortSignal to fetch', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve('ok'),
+    });
 
     await invokeEdgeFunction('test-fn', {});
 
-    const signal = mockInvoke.mock.calls[0][1].signal;
-    expect(signal).toBeInstanceOf(AbortSignal);
-  });
-
-  it('uses custom timeout when provided', async () => {
-    mockInvoke.mockResolvedValue({ data: 'ok', error: null });
-
-    await invokeEdgeFunction('test-fn', {}, { timeoutMs: 5000 });
-
-    expect(mockInvoke).toHaveBeenCalled();
+    const opts = mockFetch.mock.calls[0][1];
+    expect(opts.signal).toBeInstanceOf(AbortSignal);
   });
 });

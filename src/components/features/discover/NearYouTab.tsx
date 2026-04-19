@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   MapPin, Users, Navigation, ChevronRight, TrendingUp,
-  Calendar, Sparkles, Sun, Cloud, CloudRain, Compass,
+  Calendar, Sparkles, Sun, Cloud, CloudRain,
+  Mountain, UtensilsCrossed, Camera, Coffee, Heart, Drama,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { MatchCard } from '@/components/features/matching/MatchCard';
@@ -36,7 +37,7 @@ const STUB_MEETUPS: MeetupPreview[] = [
 const QUICK_FILTERS: DiscoverFilter[] = [
   { id: 'arriving-week', label: 'Arriving this week' },
   { id: 'food', label: 'Food lovers' },
-  { id: 'solo-female', label: 'Solo female' },
+  { id: 'female-travelers', label: 'Women travelers' },
   { id: 'photography', label: 'Photography' },
 ];
 
@@ -95,6 +96,7 @@ export function NearYouTab({ userLocation, onRequestLocation }: NearYouTabProps)
 
   const hereNow = matches.slice(0, 6);
   const city = STUB_CITY;
+  const hasLocation = !!userLocation;
 
   return (
     <div className="space-y-8">
@@ -106,23 +108,28 @@ export function NearYouTab({ userLocation, onRequestLocation }: NearYouTabProps)
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <MapPin className="h-5 w-5 text-white/80" />
-                <span className="text-sm font-medium text-white/80">{city.country}</span>
+                <span className="text-sm font-medium text-white/80">{hasLocation ? city.name : 'Your city'}</span>
               </div>
-              <h2 className="text-3xl font-bold text-white tracking-tight">{city.name}</h2>
+              <h2 className="text-3xl font-bold text-white tracking-tight">
+                {hasLocation ? city.name : 'Explore the World'}
+              </h2>
             </div>
-            <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2">
-              <WeatherIcon condition={city.weather.condition} />
-              <span className="text-lg font-semibold text-white">{city.weather.temp}°F</span>
-            </div>
+            {hasLocation && (
+              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2">
+                <WeatherIcon condition={city.weather.condition} />
+                <span className="text-lg font-semibold text-white">{city.weather.temp}°F</span>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
-            <button className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white font-semibold px-5 py-3 rounded-xl">
-              <Users className="h-5 w-5" />
-              {city.travelerCount.toLocaleString()} travelers nearby
-              <ChevronRight className="h-4 w-4" />
-            </button>
-            {!userLocation && (
+            {hasLocation ? (
+              <button className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white font-semibold px-5 py-3 rounded-xl">
+                <Users className="h-5 w-5" />
+                {city.travelerCount.toLocaleString()} travelers nearby
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            ) : (
               <button
                 onClick={onRequestLocation}
                 className="inline-flex items-center gap-2 bg-white text-brand font-semibold px-5 py-3 rounded-xl hover:bg-white/90 transition-colors"
@@ -137,6 +144,7 @@ export function NearYouTab({ userLocation, onRequestLocation }: NearYouTabProps)
 
       {/* ── Quick Filters ── */}
       <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-medium text-muted-foreground mr-1">Filter:</span>
         {QUICK_FILTERS.map((filter) => {
           const isActive = activeFilters.has(filter.id);
           return (
@@ -218,7 +226,7 @@ export function NearYouTab({ userLocation, onRequestLocation }: NearYouTabProps)
             ))}
           </div>
         ) : (
-          <EmptyNearbyState onRequestLocation={onRequestLocation} />
+          <PopularCitiesFallback />
         )}
       </div>
 
@@ -288,52 +296,80 @@ function ArrivingSoonCard({ traveler }: { traveler: PotentialMatch }) {
   );
 }
 
+const CATEGORY_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  Outdoors: Mountain,
+  Food: UtensilsCrossed,
+  Photography: Camera,
+  Social: Coffee,
+  Wellness: Heart,
+  Cultural: Drama,
+};
+
 function MeetupPreviewCard({ meetup }: { meetup: MeetupPreview }) {
   return (
     <div className="card-interactive p-4 group cursor-pointer">
-      <div className="flex items-start justify-between mb-2">
-        <span className="text-xs font-medium text-connection bg-connection/10 px-2 py-0.5 rounded-full">
-          {meetup.category}
-        </span>
-        <span className="text-xs text-muted-foreground">{meetup.date}</span>
-      </div>
-      <h4 className="text-sm font-semibold text-foreground mb-1.5 group-hover:text-brand transition-colors">
-        {meetup.title}
-      </h4>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="h-3 w-3" />
-          {meetup.location}
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-connection/10 flex items-center justify-center flex-shrink-0 text-connection">
+          {(() => { const Icon = CATEGORY_ICON[meetup.category] || Calendar; return <Icon className="h-5 w-5" />; })()}
         </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Users className="h-3 w-3" />
-          {meetup.attendeeCount}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-1">
+            <span className="text-xs font-medium text-connection bg-connection/10 px-2 py-0.5 rounded-full">
+              {meetup.category}
+            </span>
+            <span className="text-xs text-muted-foreground">{meetup.date}</span>
+          </div>
+          <h4 className="text-sm font-semibold text-foreground mb-1 group-hover:text-brand transition-colors">
+            {meetup.title}
+          </h4>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              {meetup.location}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Users className="h-3 w-3" />
+              {meetup.attendeeCount}
+            </div>
+          </div>
         </div>
       </div>
       <button className="mt-3 w-full py-2 rounded-xl text-sm font-medium bg-brand/10 text-brand hover:bg-brand/20 transition-colors">
-        Join
+        View details
       </button>
     </div>
   );
 }
 
-function EmptyNearbyState({ onRequestLocation }: { onRequestLocation: () => void }) {
+function PopularCitiesFallback() {
+  const cities = [
+    { name: 'Tokyo', icon: 'Tower', travelers: '1.2k' },
+    { name: 'Barcelona', icon: 'Castle', travelers: '894' },
+    { name: 'Bali', icon: 'Palm', travelers: '756' },
+    { name: 'Lisbon', icon: 'Bridge', travelers: '623' },
+    { name: 'Bangkok', icon: 'Temple', travelers: '589' },
+    { name: 'Mexico City', icon: 'Taco', travelers: '412' },
+  ];
+
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-brand/10 flex items-center justify-center">
-        <Compass className="h-8 w-8 text-brand" />
-      </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">Find travelers near you</h3>
-      <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
-        Share your location to see who else is exploring right now
+    <div>
+      <p className="text-sm text-muted-foreground mb-3">
+        Popular cities for solo travelers — tap to explore
       </p>
-      <button
-        onClick={onRequestLocation}
-        className="inline-flex items-center gap-2 bg-brand text-brand-foreground px-5 py-2.5 rounded-2xl font-medium hover:bg-brand/90 transition-colors"
-      >
-        <Navigation className="h-4 w-4" />
-        Enable Location
-      </button>
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        {cities.map((city) => (
+          <button
+            key={city.name}
+            className="flex-shrink-0 w-36 bg-card border border-border rounded-2xl p-4 text-center hover:border-brand/30 hover:shadow-card-hover transition-all group"
+          >
+            <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-brand/10 flex items-center justify-center">
+              <MapPin className="h-5 w-5 text-brand" />
+            </div>
+            <p className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">{city.name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{city.travelers} travelers</p>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

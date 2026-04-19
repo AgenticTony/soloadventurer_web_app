@@ -1,9 +1,32 @@
 import '../styles/globals.css'
-import { Inter } from 'next/font/google'
+import { DM_Sans, Playfair_Display, Instrument_Serif, Geist } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 
-const inter = Inter({ subsets: ['latin'] })
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  variable: '--font-instrument-serif',
+  display: 'swap',
+  weight: '400',
+})
+
+const geist = Geist({
+  subsets: ['latin'],
+  variable: '--font-geist',
+  display: 'swap',
+})
 
 export const metadata = {
   title: 'SoloAdventurer - Connect with Solo Travelers',
@@ -16,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className} suppressHydrationWarning>
+    <html lang="en" className={`${dmSans.variable} ${playfair.variable} ${instrumentSerif.variable} ${geist.variable}`}>
+      <body className="font-sans" suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
