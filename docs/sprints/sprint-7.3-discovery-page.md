@@ -173,11 +173,11 @@ All Sprint 7.3 components strictly follow the Sprint 7.2 design token system:
   - [x] Feed is never truly empty — ActivationFunnel replaces dead-end
   - [x] **Test:** Feed never shows a dead-end empty state
 
-- [ ] **Design post card anatomy** (deferred — PostCard already functional)
-  - [ ] Avatar + name + location + "currently in [city]" + timestamp
-  - [ ] Body + photo carousel + **"Say hi" button** on every card
-  - [ ] Warm accent border for posts from users in your city
-  - [ ] **Test:** Post card renders with all elements
+- [x] **Design post card anatomy** (deferred — PostCard already functional)
+  - [x] Avatar + name + location + "currently in [city]" + timestamp
+  - [x] Body + photo carousel + **"Say hi" button** on every card
+  - [x] Warm accent border for posts from users in your city
+  - [x] **Test:** Post card renders with all elements
 
 - [x] **Add "new posts" pill**
   - [x] Floating pill: "↑ 12 new posts" with `animate-in` animation
