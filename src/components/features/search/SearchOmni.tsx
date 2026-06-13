@@ -34,7 +34,7 @@ export function SearchOmni({
   onSearch,
   onSelect,
   className = '',
-  shortcut = ['⌘', 'K']
+  shortcut = ['⌘', 'K'],
 }: SearchOmniProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -52,11 +52,14 @@ export function SearchOmni({
     setSelectedIndex(0)
   }
 
-  const handleSelectResult = useCallback((result: SearchResult) => {
-    onSelect?.(result)
-    router.push(result.url)
-    handleClose()
-  }, [onSelect, router])
+  const handleSelectResult = useCallback(
+    (result: SearchResult) => {
+      onSelect?.(result)
+      router.push(result.url)
+      handleClose()
+    },
+    [onSelect, router]
+  )
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -110,7 +113,7 @@ export function SearchOmni({
 
       setIsLoading(true)
       try {
-        const searchResults = await onSearch?.(query) || []
+        const searchResults = (await onSearch?.(query)) || []
         setResults(searchResults)
         setSelectedIndex(0)
       } catch (error) {
@@ -149,17 +152,17 @@ export function SearchOmni({
   const getResultIcon = (type: SearchResult['type']) => {
     switch (type) {
       case 'user':
-        return <Users className="w-4 h-4 text-sky-500" />
+        return <Users className="h-4 w-4 text-sky-500" />
       case 'city':
-        return <MapPin className="w-4 h-4 text-brand-500" />
+        return <MapPin className="h-4 w-4 text-brand-500" />
       case 'trip':
-        return <Calendar className="w-4 h-4 text-sun-500" />
+        return <Calendar className="h-4 w-4 text-sun-500" />
       case 'post':
-        return <Hash className="w-4 h-4 text-coral-500" />
+        return <Hash className="h-4 w-4 text-coral-500" />
       case 'activity':
-        return <Star className="w-4 h-4 text-emerald-500" />
+        return <Star className="h-4 w-4 text-emerald-500" />
       default:
-        return <Search className="w-4 h-4 text-muted-foreground" />
+        return <Search className="h-4 w-4 text-muted-foreground" />
     }
   }
 
@@ -188,7 +191,7 @@ export function SearchOmni({
       subtitle: '@sarahchen',
       description: 'Adventure seeker and solo traveler',
       url: '/profile/sarahchen',
-      metadata: { location: 'San Francisco, CA', followers: 89 }
+      metadata: { location: 'San Francisco, CA', followers: 89 },
     },
     {
       id: 'recent-2',
@@ -197,7 +200,7 @@ export function SearchOmni({
       subtitle: 'Japan',
       description: 'Vibrant metropolis blending tradition and modernity',
       url: '/cities/tokyo',
-      metadata: { rating: 4.8 }
+      metadata: { rating: 4.8 },
     },
     {
       id: 'recent-3',
@@ -206,8 +209,8 @@ export function SearchOmni({
       subtitle: 'Apr 1-15, 2024',
       description: 'Exploring rainforests, beaches, and volcanoes',
       url: '/trips/costa-rica-adventure',
-      metadata: { date: 'Upcoming' }
-    }
+      metadata: { date: 'Upcoming' },
+    },
   ]
 
   const displayResults = query.trim() ? results : defaultResults
@@ -218,17 +221,15 @@ export function SearchOmni({
       <div className="relative">
         <button
           onClick={handleOpen}
-          className="w-full flex items-center space-x-3 px-4 py-2 bg-muted border border-border rounded-xl hover:bg-muted/80 transition-colors text-left"
+          className="flex w-full items-center space-x-3 rounded-xl border border-border bg-muted px-4 py-2 text-left transition-colors hover:bg-muted/80"
         >
-          <Search className="w-4 h-4 text-muted-foreground" />
-          <span className="flex-1 text-muted-foreground">
-            {placeholder}
-          </span>
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <span className="flex-1 text-muted-foreground">{placeholder}</span>
           <div className="flex items-center space-x-1">
             {shortcut.map((key, index) => (
               <kbd
                 key={index}
-                className="px-1.5 py-0.5 bg-background border border-border rounded text-xs font-medium text-muted-foreground"
+                className="rounded border border-border bg-background px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
               >
                 {key}
               </kbd>
@@ -241,35 +242,32 @@ export function SearchOmni({
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]">
           {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={handleClose}
-          />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
 
           {/* Search Container */}
-          <div className="relative w-full max-w-2xl mx-4 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative mx-4 w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
             {/* Search Bar */}
-            <div className="flex items-center space-x-3 p-4 border-b border-border">
-              <Search className="w-5 h-5 text-muted-foreground" />
+            <div className="flex items-center space-x-3 border-b border-border p-4">
+              <Search className="h-5 w-5 text-muted-foreground" />
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={e => setQuery(e.target.value)}
                 placeholder={placeholder}
-                className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                className="flex-1 border-none bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
                 autoFocus
               />
               {query && (
                 <button
                   onClick={() => setQuery('')}
-                  className="p-1 hover:bg-muted rounded-lg transition-colors"
+                  className="rounded-lg p-1 transition-colors hover:bg-muted"
                 >
-                  <X className="w-4 h-4 text-muted-foreground" />
+                  <X className="h-4 w-4 text-muted-foreground" />
                 </button>
               )}
               <div className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-medium text-muted-foreground">
+                <kbd className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                   ESC
                 </kbd>
               </div>
@@ -279,7 +277,7 @@ export function SearchOmni({
             <div ref={resultsRef} className="max-h-96 overflow-y-auto">
               {isLoading ? (
                 <div className="p-8 text-center">
-                  <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
                   <p className="text-muted-foreground">Searching...</p>
                 </div>
               ) : displayResults.length > 0 ? (
@@ -288,59 +286,55 @@ export function SearchOmni({
                     <button
                       key={result.id}
                       onClick={() => handleSelectResult(result)}
-                      className={`w-full p-4 text-left hover:bg-muted transition-colors ${
+                      className={`w-full p-4 text-left transition-colors hover:bg-muted ${
                         index === selectedIndex ? 'bg-muted' : ''
                       }`}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 mt-1">
-                          {getResultIcon(result.type)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-semibold text-foreground truncate">
+                        <div className="mt-1 flex-shrink-0">{getResultIcon(result.type)}</div>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1 flex items-center justify-between">
+                            <h3 className="truncate font-semibold text-foreground">
                               {result.title}
                             </h3>
-                            <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded">
+                            <span className="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
                               {getTypeLabel(result.type)}
                             </span>
                           </div>
-                          
+
                           {result.subtitle && (
-                            <p className="text-sm text-muted-foreground mb-1">
-                              {result.subtitle}
-                            </p>
+                            <p className="mb-1 text-sm text-muted-foreground">{result.subtitle}</p>
                           )}
-                          
+
                           {result.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                            <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                               {result.description}
                             </p>
                           )}
-                          
+
                           {result.metadata && (
                             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                               {result.metadata.location && (
                                 <div className="flex items-center space-x-1">
-                                  <MapPin className="w-3 h-3" />
+                                  <MapPin className="h-3 w-3" />
                                   <span>{result.metadata.location}</span>
                                 </div>
                               )}
                               {result.metadata.date && (
                                 <div className="flex items-center space-x-1">
-                                  <Calendar className="w-3 h-3" />
+                                  <Calendar className="h-3 w-3" />
                                   <span>{result.metadata.date}</span>
                                 </div>
                               )}
                               {result.metadata.followers !== undefined && (
                                 <div className="flex items-center space-x-1">
-                                  <Users className="w-3 h-3" />
+                                  <Users className="h-3 w-3" />
                                   <span>{result.metadata.followers} followers</span>
                                 </div>
                               )}
                               {result.metadata.rating && (
                                 <div className="flex items-center space-x-1">
-                                  <Star className="w-3 h-3" />
+                                  <Star className="h-3 w-3" />
                                   <span>{result.metadata.rating}</span>
                                 </div>
                               )}
@@ -353,34 +347,28 @@ export function SearchOmni({
                 </div>
               ) : query.trim() ? (
                 <div className="p-8 text-center">
-                  <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    No results found
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Try searching for something else
-                  </p>
+                  <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                  <h3 className="mb-2 text-lg font-semibold text-foreground">No results found</h3>
+                  <p className="text-muted-foreground">Try searching for something else</p>
                 </div>
               ) : (
                 <div className="p-8">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">
-                    Quick Access
-                  </h3>
+                  <h3 className="mb-4 text-lg font-semibold text-foreground">Quick Access</h3>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <kbd className="px-2 py-1 bg-muted rounded">↑</kbd>
+                      <kbd className="rounded bg-muted px-2 py-1">↑</kbd>
                       <span>Navigate up</span>
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <kbd className="px-2 py-1 bg-muted rounded">↓</kbd>
+                      <kbd className="rounded bg-muted px-2 py-1">↓</kbd>
                       <span>Navigate down</span>
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <kbd className="px-2 py-1 bg-muted rounded">↵</kbd>
+                      <kbd className="rounded bg-muted px-2 py-1">↵</kbd>
                       <span>Select result</span>
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <kbd className="px-2 py-1 bg-muted rounded">ESC</kbd>
+                      <kbd className="rounded bg-muted px-2 py-1">ESC</kbd>
                       <span>Close search</span>
                     </div>
                   </div>
@@ -389,8 +377,8 @@ export function SearchOmni({
             </div>
 
             {/* Footer */}
-            <div className="p-3 bg-muted border-t border-border">
-              <p className="text-xs text-muted-foreground text-center">
+            <div className="border-t border-border bg-muted p-3">
+              <p className="text-center text-xs text-muted-foreground">
                 Search across travelers, cities, trips, posts, and activities
               </p>
             </div>
@@ -414,7 +402,7 @@ SearchOmni.defaultProps = {
         subtitle: '@sarahchen',
         description: 'Adventure seeker and solo traveler',
         url: '/profile/sarahchen',
-        metadata: { location: 'San Francisco, CA', followers: 89 }
+        metadata: { location: 'San Francisco, CA', followers: 89 },
       },
       {
         id: '2',
@@ -423,13 +411,14 @@ SearchOmni.defaultProps = {
         subtitle: 'Japan',
         description: 'Vibrant metropolis blending tradition and modernity',
         url: '/cities/tokyo',
-        metadata: { rating: 4.8 }
-      }
+        metadata: { rating: 4.8 },
+      },
     ]
-    
-    return mockResults.filter(result =>
-      result.title.toLowerCase().includes(query.toLowerCase()) ||
-      result.description?.toLowerCase().includes(query.toLowerCase())
+
+    return mockResults.filter(
+      result =>
+        result.title.toLowerCase().includes(query.toLowerCase()) ||
+        result.description?.toLowerCase().includes(query.toLowerCase())
     )
-  }
+  },
 }

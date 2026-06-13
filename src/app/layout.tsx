@@ -30,24 +30,22 @@ const geist = Geist({
 
 export const metadata = {
   title: 'SoloAdventurer - Connect with Solo Travelers',
-  description: 'A social platform designed specifically for solo travelers to connect, share experiences, and find travel companions.',
+  description:
+    'A social platform designed specifically for solo travelers to connect, share experiences, and find travel companions.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${playfair.variable} ${instrumentSerif.variable} ${geist.variable}`}>
+    <html
+      lang="en"
+      className={`${dmSans.variable} ${playfair.variable} ${instrumentSerif.variable} ${geist.variable}`}
+    >
       <body className="font-sans" suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
         <AuthProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
+          <ToastProvider>{children}</ToastProvider>
         </AuthProvider>
       </body>
     </html>

@@ -67,30 +67,32 @@ export function RightRail({
             </Link>
           </div>
 
-          <p className="text-sm text-muted-foreground mb-3">{currentCity.country}</p>
+          <p className="mb-3 text-sm text-muted-foreground">{currentCity.country}</p>
 
           <Link
             href="/discover"
-            className="flex items-center gap-2 text-sm font-medium text-brand hover:text-brand/80 transition-colors group"
+            className="group flex items-center gap-2 text-sm font-medium text-brand transition-colors hover:text-brand/80"
           >
             <Users className="h-4 w-4" />
             <span>{currentCity.travelersCount} travelers nearby</span>
-            <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ChevronRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
           </Link>
         </div>
 
         {/* Connect With */}
         <div className="card-base p-4">
-          <div className="mb-3 rounded-xl bg-brand/5 border border-brand/10 px-3 py-2 text-xs text-brand text-center">
+          <div className="mb-3 rounded-xl border border-brand/10 bg-brand/5 px-3 py-2 text-center text-xs text-brand">
             All travelers verified with photo check
           </div>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-semibold text-foreground flex items-center gap-1.5">
+            <h3 className="flex items-center gap-1.5 font-semibold text-foreground">
               <Sparkles className="h-4 w-4 text-connection" />
               Connect With
             </h3>
             <Link href="/discover">
-              <span className="text-xs font-medium text-primary hover:text-primary/80">See All</span>
+              <span className="text-xs font-medium text-primary hover:text-primary/80">
+                See All
+              </span>
             </Link>
           </div>
 
@@ -100,7 +102,10 @@ export function RightRail({
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-connection/10 ring-1 ring-connection/20">
                     <span className="text-xs font-medium text-connection">
-                      {traveler.name.split(' ').map(n => n[0]).join('')}
+                      {traveler.name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')}
                     </span>
                   </div>
                   <div>
@@ -116,7 +121,7 @@ export function RightRail({
                     'text-xs font-medium transition-colors',
                     traveler.isConnected
                       ? 'text-connection hover:text-connection/80'
-                      : 'btn-connection px-2 py-1 rounded-lg'
+                      : 'btn-connection rounded-lg px-2 py-1'
                   )}
                 >
                   {traveler.isConnected ? 'Connected' : 'Say hi'}
@@ -128,15 +133,15 @@ export function RightRail({
 
         {/* Trending — compact inline list */}
         <div className="px-1">
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             <Hash className="h-3 w-3" />
             Trending
           </h4>
           <div className="flex flex-wrap gap-1.5">
-            {trendingTags.map((tag) => (
+            {trendingTags.map(tag => (
               <button
                 key={tag.name}
-                className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground hover:bg-brand/10 hover:text-brand transition-colors"
+                className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-brand/10 hover:text-brand"
               >
                 #{tag.name}
               </button>
@@ -145,12 +150,20 @@ export function RightRail({
         </div>
 
         {/* Footer */}
-        <div className="space-y-1 px-1 text-xs text-muted-foreground pt-2">
+        <div className="space-y-1 px-1 pt-2 text-xs text-muted-foreground">
           <div className="flex flex-wrap gap-x-3 gap-y-1">
-            <Link href="/about" className="hover:text-foreground">About</Link>
-            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link href="/terms" className="hover:text-foreground">Terms</Link>
-            <Link href="/help" className="hover:text-foreground">Help</Link>
+            <Link href="/about" className="hover:text-foreground">
+              About
+            </Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              Terms
+            </Link>
+            <Link href="/help" className="hover:text-foreground">
+              Help
+            </Link>
           </div>
           <p className="opacity-60">&copy; 2024 SoloAdventurer</p>
         </div>

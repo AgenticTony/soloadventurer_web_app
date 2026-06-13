@@ -18,7 +18,6 @@ export function MainLayout({ children }: MainLayoutProps) {
   const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false)
@@ -39,11 +38,17 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   // Get active tab from pathname
   const getActiveTab = () => {
-    if (pathname === '/' || pathname.startsWith('/discover') || pathname === '/feed') return 'discover'
+    if (pathname === '/' || pathname.startsWith('/discover') || pathname === '/feed')
+      return 'discover'
     if (pathname.startsWith('/trips')) return 'trips'
     if (pathname.startsWith('/cities')) return 'cities'
     if (pathname.startsWith('/messages') || pathname.startsWith('/chat')) return 'messages'
-    if (pathname.startsWith('/groups') || pathname.startsWith('/events') || pathname.startsWith('/meetups')) return 'meetups'
+    if (
+      pathname.startsWith('/groups') ||
+      pathname.startsWith('/events') ||
+      pathname.startsWith('/meetups')
+    )
+      return 'meetups'
     if (pathname.startsWith('/saved')) return 'saved'
     return 'discover'
   }
@@ -96,7 +101,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main Content Area */}
       <div className="mx-auto max-w-[1920px]">
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_minmax(680px,1fr)] xl:grid-cols-[240px_minmax(680px,1fr)_300px] gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_minmax(680px,1fr)] xl:grid-cols-[240px_minmax(680px,1fr)_300px]">
           {/* Mobile Menu Overlay */}
           {isMobileMenuOpen && (
             <>
@@ -118,7 +123,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
 
           {/* Center Content */}
-          <main id="main-content" className="min-w-0 w-full border-x border-border">
+          <main id="main-content" className="w-full min-w-0 border-x border-border">
             <div className="p-4 pb-20 lg:pb-4">{children}</div>
           </main>
 

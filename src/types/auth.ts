@@ -16,19 +16,11 @@ export interface AuthContextType {
   isAuthenticated: boolean
   error: AuthError | null
   login: (email: string, password: string) => Promise<void>
-  signup: (
-    email: string,
-    password: string,
-    name: string,
-  ) => Promise<{ userConfirmed: boolean }>
+  signup: (email: string, password: string, name: string) => Promise<{ userConfirmed: boolean }>
   logout: () => Promise<void>
   clearAuthState: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
-  confirmResetPassword: (
-    email: string,
-    code: string,
-    newPassword: string,
-  ) => Promise<void>
+  confirmResetPassword: (email: string, code: string, newPassword: string) => Promise<void>
   confirmSignUp: (email: string, code: string) => Promise<void>
   resendSignUpCode: (email: string) => Promise<void>
 }

@@ -16,15 +16,19 @@ Implement Stripe-powered subscriptions with tiered plans and feature gates, plus
 ## Why This Sprint Exists
 
 ### Subscriptions
+
 The mobile app has a complete subscription UI with tiered plans (Free / Explorer / Adventurer / VIP) but uses mock payment processing. Both apps need real Stripe integration.
 
 ### AI Features
+
 The mobile app has partial AI integration:
+
 - Recommendation service using OpenAI
 - Semantic matching via pgvector embeddings (Sprint 8)
 - Personalized destination recommendations
 
 Both apps need:
+
 - Real AI-powered recommendations
 - Travel assistant chatbot
 - Smart itinerary suggestions
@@ -34,14 +38,16 @@ Both apps need:
 ## Mobile App Reference
 
 ### Subscription Tiers
-| Tier | Price | Features |
-|------|-------|----------|
-| **Free** | $0 | 5 matches/day, basic chat, 3 journal entries/month |
-| **Explorer** | $9.99/mo | 20 matches/day, full chat, unlimited journal, see who liked you |
+
+| Tier           | Price     | Features                                                            |
+| -------------- | --------- | ------------------------------------------------------------------- |
+| **Free**       | $0        | 5 matches/day, basic chat, 3 journal entries/month                  |
+| **Explorer**   | $9.99/mo  | 20 matches/day, full chat, unlimited journal, see who liked you     |
 | **Adventurer** | $19.99/mo | Unlimited matches, AI recommendations, priority support, PDF export |
-| **VIP** | $39.99/mo | Everything + verified badge, advanced filters, early features |
+| **VIP**        | $39.99/mo | Everything + verified badge, advanced filters, early features       |
 
 ### AI Integration
+
 - OpenAI API (via OpenRouter) for recommendations
 - pgvector embeddings for semantic search
 - `recommendation_service.dart` — personalized destination/activity suggestions
@@ -169,8 +175,8 @@ Add AI-enhanced features throughout the app.
 
 - [ ] **Smart journal prompts**
   - [ ] After completing a trip, suggest journal prompts
-  -   "How was the food in Bangkok?"
-  -   "What surprised you most about Tokyo?"
+  - "How was the food in Bangkok?"
+  - "What surprised you most about Tokyo?"
   - [ ] Auto-suggest tags based on photos and content
   - [ ] **Test:** Prompts appear after trip completion
 

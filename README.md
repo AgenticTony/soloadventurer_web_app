@@ -15,6 +15,7 @@ A modern social platform for solo travelers built with Next.js 15, React 18, Typ
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18.0.0 or higher
 - npm or yarn package manager
 - AWS account with appropriate permissions (for backend integration)
@@ -22,23 +23,27 @@ A modern social platform for solo travelers built with Next.js 15, React 18, Typ
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/AgenticTony/soloadventurer_web_app.git
    cd soloadventurer_web_app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your actual values
    ```
 
 4. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -49,22 +54,26 @@ A modern social platform for solo travelers built with Next.js 15, React 18, Typ
 ## 📚 Documentation
 
 ### Project Documentation
+
 - [Project Overview](./docs/project/PROJECT.md) - Complete project description and setup
 - [Development Standards](./docs/standards/CLAUDE.md) - Coding conventions and best practices
 - [Sprint Planning](./docs/project/WEB_APP_SPRINTS.md) - 6-sprint roadmap and MVP definition
 - [Sprint Index](./docs/project/WEB_APP_SPRINTS_INDEX.md) - Quick reference and tracking
 
 ### Technical Documentation
+
 - [Architecture Standards](./docs/standards/ARCHITECTURE.md) - Technical architecture decisions
 - [Code Style Guide](./docs/standards/CODESTYLE.md) - Coding conventions
 - [Security Guidelines](./docs/standards/SECURITY.md) - Security requirements
 - [Testing Strategy](./docs/standards/TESTING.md) - Testing approaches
 
 ### Architecture Decisions
+
 - [GraphQL Service Selection](./docs/adr/0001-use-graphql-appsync.md)
 - [Mobile Architecture](./docs/adr/0002-mobile-flutter-web-react.md)
 
 ### Sprint Documentation
+
 - [Sprint 1: Foundations & Authentication](./docs/sprints/sprint-01-foundations.md) ✅ **COMPLETED**
   - [Final Cleanup Report](./docs/Sprint-01-Cleanup-Completion.md) - Production-ready with A- grade
 - [Sprint 2: Trips & Explore Map](./docs/sprints/sprint-02-trips-map.md) 🔄 (75% complete)
@@ -73,23 +82,24 @@ A modern social platform for solo travelers built with Next.js 15, React 18, Typ
 - [Sprint 5: Safety & Scaling](./docs/sprints/sprint-05-safety-scale.md)
 
 ### Technical Implementation Guides
+
 - [Mapbox Integration Guide](./docs/MAPBOX_INTEGRATION_GUIDE.md) - Complete technical documentation for map functionality
 
 ## 🛠 Development
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server on localhost:3000 |
-| `npm run build` | Build for production with optimization |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint with Next.js rules |
-| `npm run typecheck` | TypeScript type checking |
-| `npm run test` | Run Jest tests |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run e2e` | Run Cypress end-to-end tests |
-| `npm run deploy` | Build and deploy application |
+| Command              | Description                                |
+| -------------------- | ------------------------------------------ |
+| `npm run dev`        | Start development server on localhost:3000 |
+| `npm run build`      | Build for production with optimization     |
+| `npm run start`      | Start production server                    |
+| `npm run lint`       | Run ESLint with Next.js rules              |
+| `npm run typecheck`  | TypeScript type checking                   |
+| `npm run test`       | Run Jest tests                             |
+| `npm run test:watch` | Run tests in watch mode                    |
+| `npm run e2e`        | Run Cypress end-to-end tests               |
+| `npm run deploy`     | Build and deploy application               |
 
 ### Technology Stack
 
@@ -106,9 +116,11 @@ A modern social platform for solo travelers built with Next.js 15, React 18, Typ
 ## 🎨 Design System
 
 ### Color Palette
+
 The app uses a travel-inspired color system with carefully chosen hex values:
 
 **Primary Colors:**
+
 - Brand: `#3B82F6` (Blue)
 - Coral: `#F97316` (Orange)
 - Sun: `#FCD34D` (Yellow)
@@ -116,47 +128,50 @@ The app uses a travel-inspired color system with carefully chosen hex values:
 - Sky: `#06B6D4` (Cyan)
 
 **Dark Mode Support:**
+
 - All colors have corresponding dark mode variants using CSS variables
 - Automatic theme switching based on system preference
 - Manual theme toggle in user settings
 
 ### Typography
+
 - **Primary**: Inter (system font stack)
 - **Monospace**: JetBrains Mono (for code)
 - Responsive typography with fluid scaling
 
 ### Spacing Scale
+
 - Custom spacing scale optimized for travel content
 - 8px base unit with responsive adjustments
 - Mobile-first approach with progressive enhancement
 
 ## 📱 Responsive Breakpoints
 
-| Breakpoint | Width | Columns | Features |
-|------------|-------|---------|----------|
-| Base | < 640px | 1 | Mobile navigation, simplified layout |
-| sm | 640px+ | 1 | Tablet-optimized |
-| md | 768px+ | 2 | Desktop: Feed + Sidebar |
-| lg | 1024px+ | 3 | Full: Left Rail + Feed + Right Rail |
-| xl | 1280px+ | 3 | Enhanced spacing and content |
-| 2xl | 1536px+ | 3 | Maximum content width |
+| Breakpoint | Width   | Columns | Features                             |
+| ---------- | ------- | ------- | ------------------------------------ |
+| Base       | < 640px | 1       | Mobile navigation, simplified layout |
+| sm         | 640px+  | 1       | Tablet-optimized                     |
+| md         | 768px+  | 2       | Desktop: Feed + Sidebar              |
+| lg         | 1024px+ | 3       | Full: Left Rail + Feed + Right Rail  |
+| xl         | 1280px+ | 3       | Enhanced spacing and content         |
+| 2xl        | 1536px+ | 3       | Maximum content width                |
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `⌘K` / `Ctrl+K` | Search | Open omnibox search |
-| `⌘N` / `Ctrl+N` | New Post | Create new post |
-| `⌘M` / `Ctrl+M` | Messages | Open messages |
-| `⌘A` / `Ctrl+A` | Notifications | View notifications |
-| `⌘P` / `Ctrl+P` | Profile | Go to profile |
-| `⌘,` / `Ctrl+,` | Settings | Open settings |
-| `?` | Help | Show keyboard shortcuts |
-| `J` | Next | Navigate to next item |
-| `K` | Previous | Navigate to previous item |
-| `L` | Like | Like current item |
-| `C` | Comment | Comment on current item |
-| `⌘S` / `Ctrl+S` | Share | Share current item |
+| Shortcut        | Action        | Description               |
+| --------------- | ------------- | ------------------------- |
+| `⌘K` / `Ctrl+K` | Search        | Open omnibox search       |
+| `⌘N` / `Ctrl+N` | New Post      | Create new post           |
+| `⌘M` / `Ctrl+M` | Messages      | Open messages             |
+| `⌘A` / `Ctrl+A` | Notifications | View notifications        |
+| `⌘P` / `Ctrl+P` | Profile       | Go to profile             |
+| `⌘,` / `Ctrl+,` | Settings      | Open settings             |
+| `?`             | Help          | Show keyboard shortcuts   |
+| `J`             | Next          | Navigate to next item     |
+| `K`             | Previous      | Navigate to previous item |
+| `L`             | Like          | Like current item         |
+| `C`             | Comment       | Comment on current item   |
+| `⌘S` / `Ctrl+S` | Share         | Share current item        |
 
 ## 📋 Project Structure
 
@@ -217,10 +232,12 @@ src/
 ## 🔧 Core Components
 
 ### Layout Components
+
 - **MainLayout**: Three-column responsive layout with header, left rail, center feed, and right rail
 - **BottomTabBar**: Mobile navigation with 5 primary actions
 
 ### Feature Components
+
 - **PostComposer**: Rich post creation with drag-and-drop media support
 - **PostCard**: Post display with photo grids, engagement metrics, and comment threads
 - **CityModule**: City information widget with weather and trending spots
@@ -231,6 +248,7 @@ src/
 - **CommentThread**: Nested comment system with replies and reactions
 
 ### UI Components
+
 - **Skeletons**: Loading states for all major components
 - **Toast**: Context-based notification system
 - **withLoadingState**: Higher-order component for loading management
@@ -238,10 +256,12 @@ src/
 ## 🎯 Pages & Routes
 
 ### Authentication
+
 - `/sign-in` - Sign in form with social options
 - `/sign-up` - Sign up form with validation
 
 ### Main App
+
 - `/` - Home feed with PostComposer and posts
 - `/cities/[slug]` - Dynamic city hub pages
 - `/messages` - Split-view messaging interface
@@ -253,10 +273,12 @@ src/
 ## 🔄 State Management
 
 ### React Context
+
 - **LayoutContext**: Layout-level state (active nav, user data)
 - **ToastContext**: Global toast notifications
 
 ### Apollo Client
+
 - GraphQL queries and mutations
 - Local state management
 - Caching strategies
@@ -264,16 +286,19 @@ src/
 ## 🧪 Testing
 
 ### Unit Tests
+
 - Jest for unit testing
 - React Testing Library for component tests
 - Coverage reporting
 
 ### E2E Tests
+
 - Cypress for end-to-end testing
 - Critical user journey testing
 - Cross-browser testing
 
 ### Performance Testing
+
 - Lighthouse integration
 - Bundle analysis
 - Core Web Vitals monitoring
@@ -281,22 +306,26 @@ src/
 ## 🚀 Deployment
 
 ### Development
+
 ```bash
 npm run dev
 ```
 
 ### Production
+
 ```bash
 npm run build
 npm run start
 ```
 
 ### Vercel Deployment
+
 1. Connect repository to Vercel
 2. Configure environment variables
 3. Deploy on push to main branch
 
 ### AWS Deployment
+
 ```bash
 npm run deploy
 ```
@@ -304,17 +333,20 @@ npm run deploy
 ## 🔒 Security
 
 ### Authentication
+
 - AWS Amplify + Cognito
 - Social sign-in options
 - Multi-factor authentication support
 
 ### Data Protection
+
 - HTTPS everywhere
 - Input validation and sanitization
 - XSS protection
 - CSRF protection
 
 ### Privacy
+
 - GDPR compliance
 - User data controls
 - Activity logging
@@ -322,6 +354,7 @@ npm run deploy
 ## 🌍 Accessibility
 
 ### WCAG 2.1 AA Compliance
+
 - Semantic HTML structure
 - ARIA labels and descriptions
 - Keyboard navigation
@@ -330,6 +363,7 @@ npm run deploy
 - Focus management
 
 ### Features
+
 - Full keyboard navigation with shortcuts
 - Screen reader announcements
 - High contrast mode support
@@ -339,6 +373,7 @@ npm run deploy
 ## 📈 Performance
 
 ### Optimization
+
 - Image optimization with Next.js Image
 - Code splitting and lazy loading
 - Bundle size analysis
@@ -346,6 +381,7 @@ npm run deploy
 - Progressive enhancement
 
 ### Monitoring
+
 - Core Web Vitals tracking
 - Performance budgets
 - Error tracking
@@ -361,6 +397,7 @@ We welcome contributions! Please follow our guidelines:
 4. **Pull Request Template** - [Template](./.github/PULL_REQUEST_TEMPLATE.md)
 
 ### Development Workflow
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -372,6 +409,7 @@ We welcome contributions! Please follow our guidelines:
 ### Common Issues
 
 **Build Errors**
+
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -379,18 +417,21 @@ npm run build
 ```
 
 **TypeScript Errors**
+
 ```bash
 # Clear TypeScript cache
 npm run typecheck -- --force
 ```
 
 **Port Already in Use**
+
 ```bash
 # Kill process on port 3000
 lsof -ti:3000 | xargs kill -9
 ```
 
 ### Environment Setup
+
 - Ensure Node.js 18.0.0+ is installed
 - Check that all dependencies are installed
 - Verify environment variables are set correctly
@@ -402,6 +443,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 For support and questions:
+
 - Create an [issue](https://github.com/AgenticTony/soloadventurer_web_app/issues)
 - Check our [documentation](./docs/)
 - Join our community discussions
@@ -410,7 +452,7 @@ For support and questions:
 ---
 
 **Built with ❤️ by the SoloAdventurer Team**  
-*Connecting solo travelers worldwide since 2024*
+_Connecting solo travelers worldwide since 2024_
 
 ---
 
@@ -422,6 +464,7 @@ For support and questions:
 **MVP Target**: Q4 2024
 
 ### Sprint 1 - Completed & Production Ready ✅
+
 - ✅ **Performance Optimized**: All images converted to Next.js Image components
 - ✅ **Type Safe**: Zero TypeScript `any` types in core components
 - ✅ **Code Quality**: ESLint warnings reduced from 47+ to 43 (non-critical)
@@ -439,12 +482,14 @@ For support and questions:
 - ✅ **Trip visualization** with marker clustering
 
 ### In Progress
+
 - 🚧 Trip CRUD operations and management UI
 - 🚧 Backend integration (AWS AppSync)
 - 🚧 Real-time messaging
 - 🚧 Advanced map search and filtering
 
 ### Upcoming Features
+
 - 📅 Real-time location sharing
 - 📅 Group trip coordination
 - 📅 Safety features (SOS, check-ins)

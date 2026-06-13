@@ -5,7 +5,7 @@ import { TripDetail } from '../TripDetail'
 jest.mock('../TripMap', () => ({
   TripMap: function MockTripMap({ tripId }: { tripId: string }) {
     return <div data-testid="trip-map">Map for trip: {tripId}</div>
-  }
+  },
 }))
 
 // Use future dates for upcoming trip
@@ -26,14 +26,14 @@ const mockTrip = {
   ownerId: 'user-123',
   owner: 'travel_user',
   createdAt: '2024-05-01T00:00:00Z',
-  updatedAt: '2024-05-01T00:00:00Z'
+  updatedAt: '2024-05-01T00:00:00Z',
 }
 
 const mockPrivateTrip = {
   ...mockTrip,
   id: 'trip-456',
   title: 'Secret Getaway',
-  isPrivate: true
+  isPrivate: true,
 }
 
 describe('TripDetail', () => {

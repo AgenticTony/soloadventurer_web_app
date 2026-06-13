@@ -1,6 +1,6 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { PrivacyProvider, usePrivacy } from '../PrivacyContext';
+import React from 'react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { PrivacyProvider, usePrivacy } from '../PrivacyContext'
 
 jest.mock('@/contexts/ToastContext', () => ({
   useToast: () => ({
@@ -10,10 +10,10 @@ jest.mock('@/contexts/ToastContext', () => ({
     showWarning: jest.fn(),
     showToast: jest.fn(),
     dismissToast: jest.fn(),
-    dismissAllToasts: jest.fn()
+    dismissAllToasts: jest.fn(),
   }),
-  ToastProvider: ({ children }: { children: React.ReactNode }) => children
-}));
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
 
 const TestComponent = () => {
   const {
@@ -24,8 +24,8 @@ const TestComponent = () => {
     unblockUser,
     hideFromUser,
     showToUser,
-    resetToDefaults
-  } = usePrivacy();
+    resetToDefaults,
+  } = usePrivacy()
 
   return (
     <div>
@@ -43,120 +43,120 @@ const TestComponent = () => {
       <button onClick={() => showToUser('user2')}>Show to user2</button>
       <button onClick={resetToDefaults}>Reset</button>
     </div>
-  );
-};
+  )
+}
 
 describe('PrivacyContext', () => {
   beforeEach(() => {
-    localStorage.clear();
-  });
+    localStorage.clear()
+  })
 
   afterEach(() => {
-    localStorage.clear();
-  });
+    localStorage.clear()
+  })
 
   test('provides default privacy settings', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    expect(screen.getByTestId('location-sharing')).toHaveTextContent('off');
-    expect(screen.getByTestId('precise-location')).toHaveTextContent('false');
-    expect(screen.getByTestId('blocked-users')).toHaveTextContent('');
-    expect(screen.getByTestId('hidden-users')).toHaveTextContent('');
-  });
+    expect(screen.getByTestId('location-sharing')).toHaveTextContent('off')
+    expect(screen.getByTestId('precise-location')).toHaveTextContent('false')
+    expect(screen.getByTestId('blocked-users')).toHaveTextContent('')
+    expect(screen.getByTestId('hidden-users')).toHaveTextContent('')
+  })
 
   test('updates location sharing setting', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Share with friends'));
-    expect(screen.getByTestId('location-sharing')).toHaveTextContent('friends');
+    fireEvent.click(screen.getByText('Share with friends'))
+    expect(screen.getByTestId('location-sharing')).toHaveTextContent('friends')
 
-    fireEvent.click(screen.getByText('Share with everyone'));
-    expect(screen.getByTestId('location-sharing')).toHaveTextContent('everyone');
+    fireEvent.click(screen.getByText('Share with everyone'))
+    expect(screen.getByTestId('location-sharing')).toHaveTextContent('everyone')
 
-    fireEvent.click(screen.getByText('Stop sharing'));
-    expect(screen.getByTestId('location-sharing')).toHaveTextContent('off');
-  });
+    fireEvent.click(screen.getByText('Stop sharing'))
+    expect(screen.getByTestId('location-sharing')).toHaveTextContent('off')
+  })
 
   test('does not auto-enable precise location when sharing with everyone', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Share with everyone'));
-    expect(screen.getByTestId('precise-location')).toHaveTextContent('false');
-  });
+    fireEvent.click(screen.getByText('Share with everyone'))
+    expect(screen.getByTestId('precise-location')).toHaveTextContent('false')
+  })
 
   test('disables precise location when sharing is turned off', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Share with friends'));
-    fireEvent.click(screen.getByText('Toggle precise'));
-    expect(screen.getByTestId('precise-location')).toHaveTextContent('true');
+    fireEvent.click(screen.getByText('Share with friends'))
+    fireEvent.click(screen.getByText('Toggle precise'))
+    expect(screen.getByTestId('precise-location')).toHaveTextContent('true')
 
-    fireEvent.click(screen.getByText('Stop sharing'));
-    expect(screen.getByTestId('precise-location')).toHaveTextContent('false');
-  });
+    fireEvent.click(screen.getByText('Stop sharing'))
+    expect(screen.getByTestId('precise-location')).toHaveTextContent('false')
+  })
 
   test('manages blocked users', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Block user1'));
-    expect(screen.getByTestId('blocked-users')).toHaveTextContent('user1');
+    fireEvent.click(screen.getByText('Block user1'))
+    expect(screen.getByTestId('blocked-users')).toHaveTextContent('user1')
 
-    fireEvent.click(screen.getByText('Unblock user1'));
-    expect(screen.getByTestId('blocked-users')).toHaveTextContent('');
-  });
+    fireEvent.click(screen.getByText('Unblock user1'))
+    expect(screen.getByTestId('blocked-users')).toHaveTextContent('')
+  })
 
   test('manages hidden users', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Hide from user2'));
-    expect(screen.getByTestId('hidden-users')).toHaveTextContent('user2');
+    fireEvent.click(screen.getByText('Hide from user2'))
+    expect(screen.getByTestId('hidden-users')).toHaveTextContent('user2')
 
-    fireEvent.click(screen.getByText('Show to user2'));
-    expect(screen.getByTestId('hidden-users')).toHaveTextContent('');
-  });
+    fireEvent.click(screen.getByText('Show to user2'))
+    expect(screen.getByTestId('hidden-users')).toHaveTextContent('')
+  })
 
   test('persists settings to localStorage', async () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Share with friends'));
-    fireEvent.click(screen.getByText('Block user1'));
+    fireEvent.click(screen.getByText('Share with friends'))
+    fireEvent.click(screen.getByText('Block user1'))
 
     await waitFor(() => {
-      const stored = localStorage.getItem('soloadventurer_privacy_settings');
-      expect(stored).toBeTruthy();
-      const parsed = JSON.parse(stored!);
-      expect(parsed.locationSharing).toBe('friends');
-      expect(parsed.blockedUsers).toContain('user1');
-    });
-  });
+      const stored = localStorage.getItem('soloadventurer_privacy_settings')
+      expect(stored).toBeTruthy()
+      const parsed = JSON.parse(stored!)
+      expect(parsed.locationSharing).toBe('friends')
+      expect(parsed.blockedUsers).toContain('user1')
+    })
+  })
 
   test('loads settings from localStorage', () => {
     const mockSettings = {
@@ -164,60 +164,66 @@ describe('PrivacyContext', () => {
       preciseLocation: true,
       blockedUsers: ['user1', 'user2'],
       hideFromUsers: ['user3'],
-      showPrivacyStatus: false
-    };
-    localStorage.setItem('soloadventurer_privacy_settings', JSON.stringify(mockSettings));
+      showPrivacyStatus: false,
+    }
+    localStorage.setItem('soloadventurer_privacy_settings', JSON.stringify(mockSettings))
 
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    expect(screen.getByTestId('location-sharing')).toHaveTextContent('everyone');
-    expect(screen.getByTestId('precise-location')).toHaveTextContent('true');
-    expect(screen.getByTestId('blocked-users')).toHaveTextContent('user1,user2');
-    expect(screen.getByTestId('hidden-users')).toHaveTextContent('user3');
-  });
+    expect(screen.getByTestId('location-sharing')).toHaveTextContent('everyone')
+    expect(screen.getByTestId('precise-location')).toHaveTextContent('true')
+    expect(screen.getByTestId('blocked-users')).toHaveTextContent('user1,user2')
+    expect(screen.getByTestId('hidden-users')).toHaveTextContent('user3')
+  })
 
   test('resets to defaults', () => {
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Share with everyone'));
-    fireEvent.click(screen.getByText('Block user1'));
+    fireEvent.click(screen.getByText('Share with everyone'))
+    fireEvent.click(screen.getByText('Block user1'))
 
-    fireEvent.click(screen.getByText('Reset'));
+    fireEvent.click(screen.getByText('Reset'))
 
-    expect(screen.getByTestId('location-sharing')).toHaveTextContent('off');
-    expect(screen.getByTestId('precise-location')).toHaveTextContent('false');
-    expect(screen.getByTestId('blocked-users')).toHaveTextContent('');
-    expect(screen.getByTestId('hidden-users')).toHaveTextContent('');
-  });
+    expect(screen.getByTestId('location-sharing')).toHaveTextContent('off')
+    expect(screen.getByTestId('precise-location')).toHaveTextContent('false')
+    expect(screen.getByTestId('blocked-users')).toHaveTextContent('')
+    expect(screen.getByTestId('hidden-users')).toHaveTextContent('')
+  })
 
   test('handles localStorage errors gracefully', async () => {
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
     const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('Storage quota exceeded');
-    });
+      throw new Error('Storage quota exceeded')
+    })
 
     render(
       <PrivacyProvider>
         <TestComponent />
       </PrivacyProvider>
-    );
+    )
 
-    fireEvent.click(screen.getByText('Share with friends'));
+    fireEvent.click(screen.getByText('Share with friends'))
 
     // The component should log a warning when localStorage fails
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to save privacy settings to localStorage:', expect.any(Error));
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Failed to save privacy settings to localStorage:',
+          expect.any(Error)
+        )
+      },
+      { timeout: 2000 }
+    )
 
-    setItemSpy.mockRestore();
-    consoleSpy.mockRestore();
-  });
-});
+    setItemSpy.mockRestore()
+    consoleSpy.mockRestore()
+  })
+})

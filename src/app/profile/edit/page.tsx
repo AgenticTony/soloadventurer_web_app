@@ -78,13 +78,13 @@ export default function ProfileEditPage() {
   }
 
   const toggleItem = (item: string, list: string[], setList: (v: string[]) => void) => {
-    setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item])
+    setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item])
   }
 
   const handleSave = async () => {
     setSaving(true)
     // TODO: Wire to Supabase profile update
-    await new Promise((r) => setTimeout(r, 500))
+    await new Promise(r => setTimeout(r, 500))
     setSaving(false)
     router.push('/profile')
   }
@@ -126,7 +126,7 @@ export default function ProfileEditPage() {
                 {user.avatar ? (
                   <img src={user.avatar} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-cover-warm">
+                  <div className="bg-cover-warm flex h-full w-full items-center justify-center">
                     <span className="font-display text-3xl font-bold text-white">
                       {(user.name || user.email).charAt(0).toUpperCase()}
                     </span>
@@ -150,19 +150,25 @@ export default function ProfileEditPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div>
-                <label htmlFor="edit-name" className="mb-1.5 block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="edit-name"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
                   Name
                 </label>
                 <Input
                   id="edit-name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   placeholder="Your name"
                   className="rounded-xl"
                 />
               </div>
               <div>
-                <label htmlFor="edit-bio" className="mb-1.5 block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="edit-bio"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
                   Bio
                 </label>
                 <textarea
@@ -171,11 +177,14 @@ export default function ProfileEditPage() {
                   className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   placeholder="Tell travelers about yourself and your travel style..."
                   value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  onChange={e => setBio(e.target.value)}
                 />
               </div>
               <div>
-                <label htmlFor="edit-location" className="mb-1.5 block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="edit-location"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
                   Location
                 </label>
                 <div className="relative">
@@ -183,7 +192,7 @@ export default function ProfileEditPage() {
                   <Input
                     id="edit-location"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    onChange={e => setLocation(e.target.value)}
                     placeholder="City, Country"
                     className="rounded-xl pl-10"
                   />
@@ -202,7 +211,7 @@ export default function ProfileEditPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {TRAVEL_STYLES.map((style) => {
+                {TRAVEL_STYLES.map(style => {
                   const active = travelStyles.includes(style)
                   return (
                     <motion.button
@@ -232,7 +241,7 @@ export default function ProfileEditPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {INTEREST_OPTIONS.map((interest) => {
+                {INTEREST_OPTIONS.map(interest => {
                   const active = interests.includes(interest)
                   return (
                     <motion.button
@@ -254,7 +263,7 @@ export default function ProfileEditPage() {
           </Card>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2 pb-4">
+          <div className="flex items-center justify-end gap-3 pb-4 pt-2">
             <Button
               variant="outline"
               onClick={() => router.push('/profile')}

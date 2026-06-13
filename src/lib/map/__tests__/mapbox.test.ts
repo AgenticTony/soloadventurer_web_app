@@ -3,33 +3,33 @@ jest.mock('mapbox-gl', () => ({
   Map: jest.fn(),
   Marker: jest.fn(),
   Popup: jest.fn(),
-}));
+}))
 
-import { validateMapboxToken, convertTripsToGeoJSON, MapboxError } from '../mapbox';
-import type { Trip } from '@/types/trip';
+import { validateMapboxToken, convertTripsToGeoJSON, MapboxError } from '../mapbox'
+import type { Trip } from '@/types/trip'
 
 describe('mapbox utilities', () => {
   describe('validateMapboxToken', () => {
     it('should throw error for undefined token', () => {
-      expect(() => validateMapboxToken(undefined)).toThrow(MapboxError);
-      expect(() => validateMapboxToken(undefined)).toThrow('Mapbox token is required');
-    });
+      expect(() => validateMapboxToken(undefined)).toThrow(MapboxError)
+      expect(() => validateMapboxToken(undefined)).toThrow('Mapbox token is required')
+    })
 
     it('should throw error for empty token', () => {
-      expect(() => validateMapboxToken('')).toThrow(MapboxError);
-      expect(() => validateMapboxToken('')).toThrow('Mapbox token is required');
-    });
+      expect(() => validateMapboxToken('')).toThrow(MapboxError)
+      expect(() => validateMapboxToken('')).toThrow('Mapbox token is required')
+    })
 
     it('should throw error for invalid token format', () => {
-      expect(() => validateMapboxToken('invalid-token')).toThrow(MapboxError);
-      expect(() => validateMapboxToken('invalid-token')).toThrow('Invalid Mapbox token format');
-    });
+      expect(() => validateMapboxToken('invalid-token')).toThrow(MapboxError)
+      expect(() => validateMapboxToken('invalid-token')).toThrow('Invalid Mapbox token format')
+    })
 
     it('should return valid token', () => {
-      const validToken = 'pk.eyJ1IjoidGVzdCIsImEiOiJjbGVhcjEyM3Rlc3QifQ.test';
-      expect(validateMapboxToken(validToken)).toBe(validToken);
-    });
-  });
+      const validToken = 'pk.eyJ1IjoidGVzdCIsImEiOiJjbGVhcjEyM3Rlc3QifQ.test'
+      expect(validateMapboxToken(validToken)).toBe(validToken)
+    })
+  })
 
   describe('convertTripsToGeoJSON', () => {
     const mockTrips: Trip[] = [
@@ -46,7 +46,7 @@ describe('mapbox utilities', () => {
         ownerId: 'user-1',
         owner: 'user_one',
         createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z'
+        updatedAt: '2024-01-01T00:00:00Z',
       },
       {
         id: 'trip-2',
@@ -61,20 +61,20 @@ describe('mapbox utilities', () => {
         ownerId: 'user-2',
         owner: 'user_two',
         createdAt: '2024-01-02T00:00:00Z',
-        updatedAt: '2024-01-02T00:00:00Z'
+        updatedAt: '2024-01-02T00:00:00Z',
       },
-    ];
+    ]
 
     it('should convert trips to GeoJSON format', () => {
-      const result = convertTripsToGeoJSON(mockTrips);
+      const result = convertTripsToGeoJSON(mockTrips)
 
-      expect(result.type).toBe('FeatureCollection');
-      expect(result.features).toHaveLength(2);
+      expect(result.type).toBe('FeatureCollection')
+      expect(result.features).toHaveLength(2)
 
-      const feature1 = result.features[0];
-      expect(feature1.type).toBe('Feature');
-      expect(feature1.geometry.type).toBe('Point');
-      expect(feature1.geometry.coordinates).toHaveLength(2);
+      const feature1 = result.features[0]
+      expect(feature1.type).toBe('Feature')
+      expect(feature1.geometry.type).toBe('Point')
+      expect(feature1.geometry.coordinates).toHaveLength(2)
 
       expect(feature1.properties).toEqual({
         id: 'trip-1',
@@ -83,27 +83,27 @@ describe('mapbox utilities', () => {
         endDate: '2024-03-05T10:00:00Z',
         isPrivate: false,
         ownerId: 'user-1',
-      });
-    });
+      })
+    })
 
     it('should handle empty trips array', () => {
-      const result = convertTripsToGeoJSON([]);
+      const result = convertTripsToGeoJSON([])
 
-      expect(result.type).toBe('FeatureCollection');
-      expect(result.features).toHaveLength(0);
-    });
+      expect(result.type).toBe('FeatureCollection')
+      expect(result.features).toHaveLength(0)
+    })
 
     it('should use actual coordinates from trip data', () => {
-      const result = convertTripsToGeoJSON(mockTrips);
+      const result = convertTripsToGeoJSON(mockTrips)
 
       // Paris coordinates
-      expect(result.features[0].geometry.coordinates[0]).toBe(2.3522); // longitude
-      expect(result.features[0].geometry.coordinates[1]).toBe(48.8566); // latitude
+      expect(result.features[0].geometry.coordinates[0]).toBe(2.3522) // longitude
+      expect(result.features[0].geometry.coordinates[1]).toBe(48.8566) // latitude
 
       // Tokyo coordinates
-      expect(result.features[1].geometry.coordinates[0]).toBe(139.6503);
-      expect(result.features[1].geometry.coordinates[1]).toBe(35.6762);
-    });
+      expect(result.features[1].geometry.coordinates[0]).toBe(139.6503)
+      expect(result.features[1].geometry.coordinates[1]).toBe(35.6762)
+    })
 
     it('should filter out trips without coordinates', () => {
       const tripWithoutCoords: Trip = {
@@ -118,13 +118,13 @@ describe('mapbox utilities', () => {
         ownerId: 'user-3',
         owner: 'user_three',
         createdAt: '2024-01-03T00:00:00Z',
-        updatedAt: '2024-01-03T00:00:00Z'
-      };
+        updatedAt: '2024-01-03T00:00:00Z',
+      }
 
-      const result = convertTripsToGeoJSON([tripWithoutCoords]);
+      const result = convertTripsToGeoJSON([tripWithoutCoords])
 
-      expect(result.features).toHaveLength(0);
-    });
+      expect(result.features).toHaveLength(0)
+    })
 
     it('should handle trip with undefined isPrivate', () => {
       const tripWithoutPrivate: Trip = {
@@ -140,12 +140,12 @@ describe('mapbox utilities', () => {
         ownerId: 'user-3',
         owner: 'user_three',
         createdAt: '2024-01-03T00:00:00Z',
-        updatedAt: '2024-01-03T00:00:00Z'
-      };
+        updatedAt: '2024-01-03T00:00:00Z',
+      }
 
-      const result = convertTripsToGeoJSON([tripWithoutPrivate]);
+      const result = convertTripsToGeoJSON([tripWithoutPrivate])
 
-      expect(result.features[0].properties.isPrivate).toBe(false);
-    });
-  });
-});
+      expect(result.features[0].properties.isPrivate).toBe(false)
+    })
+  })
+})

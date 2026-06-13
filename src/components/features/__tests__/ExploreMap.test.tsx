@@ -1,9 +1,9 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ExploreMap } from '../ExploreMap';
-import { useGeolocation } from '@/hooks/useGeolocation';
-import type { UseTripFiltersReturn } from '@/hooks/useTripFilters';
-import type { Trip } from '@/types/trip';
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { ExploreMap } from '../ExploreMap'
+import { useGeolocation } from '@/hooks/useGeolocation'
+import type { UseTripFiltersReturn } from '@/hooks/useTripFilters'
+import type { Trip } from '@/types/trip'
 
 // Mock mapbox-gl
 jest.mock('mapbox-gl', () => ({
@@ -15,7 +15,7 @@ jest.mock('mapbox-gl', () => ({
     addLayer: jest.fn(),
     getSource: jest.fn(),
     getCanvas: jest.fn(() => ({
-      style: { cursor: '' }
+      style: { cursor: '' },
     })),
   })),
   Marker: jest.fn(() => ({
@@ -28,7 +28,7 @@ jest.mock('mapbox-gl', () => ({
     setHTML: jest.fn().mockReturnThis(),
     addTo: jest.fn().mockReturnThis(),
   })),
-}));
+}))
 
 // Mock mapbox utilities
 jest.mock('@/lib/map/mapbox', () => ({
@@ -41,21 +41,21 @@ jest.mock('@/lib/map/mapbox', () => ({
     addLayer: jest.fn(),
     getSource: jest.fn(),
     getCanvas: jest.fn(() => ({
-      style: { cursor: '' }
+      style: { cursor: '' },
     })),
   })),
   convertTripsToGeoJSON: jest.fn(() => ({
     type: 'FeatureCollection',
-    features: []
+    features: [],
   })),
   addTripMarkers: jest.fn(),
   addUserLocationMarker: jest.fn(() => ({
-    remove: jest.fn()
+    remove: jest.fn(),
   })),
   MapboxError: class extends Error {
     constructor(message: string) {
-      super(message);
-      this.name = 'MapboxError';
+      super(message)
+      this.name = 'MapboxError'
     }
   },
   DEFAULT_MAP_CONFIG: {
@@ -63,14 +63,14 @@ jest.mock('@/lib/map/mapbox', () => ({
     center: [-95.7129, 37.0902],
     zoom: 3,
   },
-}));
+}))
 
 // Mock the useGeolocation hook
-jest.mock('@/hooks/useGeolocation');
-const mockUseGeolocation = useGeolocation as jest.MockedFunction<typeof useGeolocation>;
+jest.mock('@/hooks/useGeolocation')
+const mockUseGeolocation = useGeolocation as jest.MockedFunction<typeof useGeolocation>
 
 // Mock CSS import
-jest.mock('mapbox-gl/dist/mapbox-gl.css', () => {});
+jest.mock('mapbox-gl/dist/mapbox-gl.css', () => {})
 
 describe('ExploreMap', () => {
   const mockTrips: Trip[] = [
@@ -86,7 +86,7 @@ describe('ExploreMap', () => {
       ownerId: 'user-1',
       owner: 'user_one',
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z'
+      updatedAt: '2024-01-01T00:00:00Z',
     },
     {
       id: 'trip-2',
@@ -100,9 +100,9 @@ describe('ExploreMap', () => {
       ownerId: 'user-2',
       owner: 'user_two',
       createdAt: '2024-01-02T00:00:00Z',
-      updatedAt: '2024-01-02T00:00:00Z'
+      updatedAt: '2024-01-02T00:00:00Z',
     },
-  ];
+  ]
 
   const mockTripFilters: UseTripFiltersReturn = {
     filters: { dateFilter: 'all', distanceFilter: null, searchKeyword: '', userLocation: null },
@@ -113,15 +113,15 @@ describe('ExploreMap', () => {
     setSearchKeyword: jest.fn(),
     setUserLocation: jest.fn(),
     clearAllFilters: jest.fn(),
-  };
+  }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 
     // Reset mapbox utils to successful behavior by default
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { initializeMapbox, createMap } = require('@/lib/map/mapbox');
-    initializeMapbox.mockImplementation(() => {});
+    const { initializeMapbox, createMap } = require('@/lib/map/mapbox')
+    initializeMapbox.mockImplementation(() => {})
     createMap.mockReturnValue({
       on: jest.fn(),
       remove: jest.fn(),
@@ -130,7 +130,7 @@ describe('ExploreMap', () => {
       addLayer: jest.fn(),
       getSource: jest.fn(),
       getCanvas: jest.fn(() => ({ style: { cursor: '' } })),
-    });
+    })
 
     mockUseGeolocation.mockReturnValue({
       position: null,
@@ -139,34 +139,39 @@ describe('ExploreMap', () => {
       permission: 'prompt',
       requestPosition: jest.fn(),
       clearError: jest.fn(),
-    });
-  });
+    })
+  })
 
   it('should render map container and filter panel', () => {
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    expect(screen.getByText('Filters')).toBeInTheDocument();
-    expect(screen.getByText('2 trips')).toBeInTheDocument();
-  });
+    expect(screen.getByText('Filters')).toBeInTheDocument()
+    expect(screen.getByText('2 trips')).toBeInTheDocument()
+  })
 
   it('should handle mapbox initialization error', () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { initializeMapbox, MapboxError } = require('@/lib/map/mapbox');
+    const { initializeMapbox, MapboxError } = require('@/lib/map/mapbox')
 
     initializeMapbox.mockImplementation(() => {
-      throw new MapboxError('Mapbox token is required. Please add NEXT_PUBLIC_MAPBOX_TOKEN to your environment variables.');
-    });
+      throw new MapboxError(
+        'Mapbox token is required. Please add NEXT_PUBLIC_MAPBOX_TOKEN to your environment variables.'
+      )
+    })
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    expect(screen.getByText('Map Unavailable')).toBeInTheDocument();
-    expect(screen.getByText(/Mapbox token is required/)).toBeInTheDocument();
-    expect(screen.getByText('Get a free token from')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Mapbox' })).toHaveAttribute('href', 'https://account.mapbox.com/');
-  });
+    expect(screen.getByText('Map Unavailable')).toBeInTheDocument()
+    expect(screen.getByText(/Mapbox token is required/)).toBeInTheDocument()
+    expect(screen.getByText('Get a free token from')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Mapbox' })).toHaveAttribute(
+      'href',
+      'https://account.mapbox.com/'
+    )
+  })
 
   it('should handle location request', () => {
-    const mockRequestPosition = jest.fn();
+    const mockRequestPosition = jest.fn()
     mockUseGeolocation.mockReturnValue({
       position: null,
       loading: false,
@@ -174,15 +179,15 @@ describe('ExploreMap', () => {
       permission: 'prompt',
       requestPosition: mockRequestPosition,
       clearError: jest.fn(),
-    });
+    })
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    const locationButton = screen.getByTitle('Find my location');
-    fireEvent.click(locationButton);
+    const locationButton = screen.getByTitle('Find my location')
+    fireEvent.click(locationButton)
 
-    expect(mockRequestPosition).toHaveBeenCalled();
-  });
+    expect(mockRequestPosition).toHaveBeenCalled()
+  })
 
   it('should display loading state', () => {
     mockUseGeolocation.mockReturnValue({
@@ -192,29 +197,29 @@ describe('ExploreMap', () => {
       permission: 'prompt',
       requestPosition: jest.fn(),
       clearError: jest.fn(),
-    });
+    })
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    const locationButton = screen.getByTitle('Find my location');
-    expect(locationButton).toBeDisabled();
-  });
+    const locationButton = screen.getByTitle('Find my location')
+    expect(locationButton).toBeDisabled()
+  })
 
   it('should display location found state', () => {
     mockUseGeolocation.mockReturnValue({
-      position: { latitude: 40.7128, longitude: -74.0060 },
+      position: { latitude: 40.7128, longitude: -74.006 },
       error: null,
       loading: false,
       permission: 'granted',
       requestPosition: jest.fn(),
       clearError: jest.fn(),
-    });
+    })
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    const locationButton = screen.getByTitle('Find my location');
-    expect(locationButton).toBeInTheDocument();
-  });
+    const locationButton = screen.getByTitle('Find my location')
+    expect(locationButton).toBeInTheDocument()
+  })
 
   it('should display permission denied state', () => {
     mockUseGeolocation.mockReturnValue({
@@ -224,13 +229,13 @@ describe('ExploreMap', () => {
       permission: 'denied',
       requestPosition: jest.fn(),
       clearError: jest.fn(),
-    });
+    })
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    const locationButton = screen.getByTitle('Location access denied');
-    expect(locationButton).not.toBeDisabled();
-  });
+    const locationButton = screen.getByTitle('Location access denied')
+    expect(locationButton).not.toBeDisabled()
+  })
 
   it('should display unsupported state', () => {
     mockUseGeolocation.mockReturnValue({
@@ -240,30 +245,30 @@ describe('ExploreMap', () => {
       permission: 'denied' as const,
       requestPosition: jest.fn(),
       clearError: jest.fn(),
-    });
+    })
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    const locationButton = screen.getByTitle('Location access denied');
-    expect(locationButton).not.toBeDisabled();
-  });
+    const locationButton = screen.getByTitle('Location access denied')
+    expect(locationButton).not.toBeDisabled()
+  })
 
   it('should display correct trip count', () => {
-    const mockTripFiltersEmpty = { ...mockTripFilters, resultCount: 0 };
-    render(<ExploreMap trips={[]} tripFilters={mockTripFiltersEmpty} />);
-    expect(screen.getByText('0 trips')).toBeInTheDocument();
+    const mockTripFiltersEmpty = { ...mockTripFilters, resultCount: 0 }
+    render(<ExploreMap trips={[]} tripFilters={mockTripFiltersEmpty} />)
+    expect(screen.getByText('0 trips')).toBeInTheDocument()
 
-    const mockTripFiltersSingle = { ...mockTripFilters, resultCount: 1 };
-    render(<ExploreMap trips={[mockTrips[0]]} tripFilters={mockTripFiltersSingle} />);
-    expect(screen.getByText('1 trip')).toBeInTheDocument();
+    const mockTripFiltersSingle = { ...mockTripFilters, resultCount: 1 }
+    render(<ExploreMap trips={[mockTrips[0]]} tripFilters={mockTripFiltersSingle} />)
+    expect(screen.getByText('1 trip')).toBeInTheDocument()
 
-    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
-    expect(screen.getByText('2 trips')).toBeInTheDocument();
-  });
+    render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
+    expect(screen.getByText('2 trips')).toBeInTheDocument()
+  })
 
   it('should handle map creation and cleanup', async () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { createMap } = require('@/lib/map/mapbox');
+    const { createMap } = require('@/lib/map/mapbox')
     const mockMap = {
       on: jest.fn(),
       remove: jest.fn(),
@@ -272,23 +277,23 @@ describe('ExploreMap', () => {
       addLayer: jest.fn(),
       getSource: jest.fn(),
       getCanvas: jest.fn(() => ({ style: { cursor: '' } })),
-    };
+    }
 
-    createMap.mockReturnValue(mockMap);
+    createMap.mockReturnValue(mockMap)
 
-    const { unmount } = render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    const { unmount } = render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
-    expect(createMap).toHaveBeenCalled();
-    expect(mockMap.on).toHaveBeenCalledWith('load', expect.any(Function));
+    expect(createMap).toHaveBeenCalled()
+    expect(mockMap.on).toHaveBeenCalledWith('load', expect.any(Function))
 
-    unmount();
+    unmount()
 
-    expect(mockMap.remove).toHaveBeenCalled();
-  });
+    expect(mockMap.remove).toHaveBeenCalled()
+  })
 
   it('should update map when location changes', async () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { createMap } = require('@/lib/map/mapbox');
+    const { createMap } = require('@/lib/map/mapbox')
     const mockMap = {
       on: jest.fn(),
       remove: jest.fn(),
@@ -297,24 +302,24 @@ describe('ExploreMap', () => {
       addLayer: jest.fn(),
       getSource: jest.fn(),
       getCanvas: jest.fn(() => ({ style: { cursor: '' } })),
-    };
+    }
 
-    createMap.mockReturnValue(mockMap);
+    createMap.mockReturnValue(mockMap)
 
-    const { rerender } = render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    const { rerender } = render(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
     mockUseGeolocation.mockReturnValue({
-      position: { latitude: 40.7128, longitude: -74.0060 },
+      position: { latitude: 40.7128, longitude: -74.006 },
       error: null,
       loading: false,
       permission: 'granted',
       requestPosition: jest.fn(),
       clearError: jest.fn(),
-    });
+    })
 
-    rerender(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />);
+    rerender(<ExploreMap trips={mockTrips} tripFilters={mockTripFilters} />)
 
     // Just verify the component renders with the location
-    expect(screen.getByTitle('Find my location')).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTitle('Find my location')).toBeInTheDocument()
+  })
+})

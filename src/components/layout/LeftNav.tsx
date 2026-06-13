@@ -40,7 +40,11 @@ interface LeftNavProps {
   unreadChatCount?: number
 }
 
-function calculateProfileSteps(u: NonNullable<LeftNavProps['user']>): { completed: number; total: number; steps: { label: string; done: boolean }[] } {
+function calculateProfileSteps(u: NonNullable<LeftNavProps['user']>): {
+  completed: number
+  total: number
+  steps: { label: string; done: boolean }[]
+} {
   const steps = [
     { label: 'Add your name', done: !!u.name && !u.name.includes('@') },
     { label: 'Set location', done: !!u.location },
@@ -61,7 +65,14 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
 
   useEffect(() => {
     const handleNewMessage = (event: unknown) => {
-      if (event && typeof event === 'object' && 'type' in event && event.type === 'new_message' && 'isRead' in event && !event.isRead) {
+      if (
+        event &&
+        typeof event === 'object' &&
+        'type' in event &&
+        event.type === 'new_message' &&
+        'isRead' in event &&
+        !event.isRead
+      ) {
         setRealTimeUnreadCount(prev => prev + 1)
       }
     }
@@ -82,19 +93,23 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   ]
 
   const isActive = (href: string) => {
-    if (href === '/discover') return pathname === '/' || pathname === '/discover' || pathname === '/feed'
-    if (href === '/meetups') return pathname === '/meetups' || pathname === '/groups' || pathname === '/events'
+    if (href === '/discover')
+      return pathname === '/' || pathname === '/discover' || pathname === '/feed'
+    if (href === '/meetups')
+      return pathname === '/meetups' || pathname === '/groups' || pathname === '/events'
     return pathname.startsWith(href)
   }
 
   const profileComplete = user ? calculateProfileSteps(user) : null
-  const isProfileComplete = profileComplete ? profileComplete.completed === profileComplete.total : false
+  const isProfileComplete = profileComplete
+    ? profileComplete.completed === profileComplete.total
+    : false
   const hasTrips = (user?.stats?.trips ?? 0) > 0
   const tripCount = user?.stats?.trips ?? 0
 
   const tripCTA = hasTrips
     ? tripCount >= 3
-      ? 'Plan another adventure — you\'re a pro!'
+      ? "Plan another adventure — you're a pro!"
       : 'Add your next trip'
     : 'Where are you headed next?'
 
@@ -105,37 +120,39 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   // Contextual CTA based on current page
   const isDiscover = pathname === '/' || pathname === '/discover' || pathname === '/feed'
   const isMeetups = pathname === '/meetups'
-  const ctaTitle = isMeetups
-    ? 'Join a meetup'
-    : isDiscover
-      ? 'Find travelers near you'
-      : tripCTA
+  const ctaTitle = isMeetups ? 'Join a meetup' : isDiscover ? 'Find travelers near you' : tripCTA
   const ctaDescription = isMeetups
     ? 'Meet fellow explorers in person'
     : isDiscover
       ? 'Set your location to get started'
       : tripDescription
   const ctaHref = isMeetups ? '/meetups' : isDiscover ? '/discover' : '/trips/new'
-  const ctaLabel = isMeetups ? 'Browse Meetups' : isDiscover ? 'Get Started' : (hasTrips ? 'Add Trip' : 'Create Trip')
+  const ctaLabel = isMeetups
+    ? 'Browse Meetups'
+    : isDiscover
+      ? 'Get Started'
+      : hasTrips
+        ? 'Add Trip'
+        : 'Create Trip'
 
   return (
-    <aside className="hidden lg:block sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar">
-      <div className="p-4 space-y-6">
+    <aside className="no-scrollbar sticky top-16 hidden h-[calc(100vh-4rem)] overflow-y-auto lg:block">
+      <div className="space-y-6 p-4">
         {/* User Mini Card */}
         {user && (
-          <div className="p-4 card-base">
+          <div className="card-base p-4">
             <Link href="/profile" className="block">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary">
                   <span className="text-base font-medium text-primary-foreground">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground truncate">{user.name}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate font-semibold text-foreground">{user.name}</h3>
                   {user.location ? (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
+                    <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3 w-3" />
                       {user.location}
                     </p>
                   ) : (
@@ -145,7 +162,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
               </div>
 
               {/* Profile Progress or Mini Stats */}
-              <div className="pt-3 border-t border-border">
+              <div className="border-t border-border pt-3">
                 {isProfileComplete && user.stats ? (
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
@@ -163,24 +180,26 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
                   </div>
                 ) : profileComplete && profileComplete.completed > 0 ? (
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="mb-1.5 flex items-center justify-between">
                       <span className="text-xs font-medium text-foreground">Profile</span>
                       <span className="text-xs font-semibold text-brand">
                         {profileComplete.completed} of {profileComplete.total}
                       </span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full bg-brand rounded-full transition-all duration-500"
-                        style={{ width: `${(profileComplete.completed / profileComplete.total) * 100}%` }}
+                        className="h-full rounded-full bg-brand transition-all duration-500"
+                        style={{
+                          width: `${(profileComplete.completed / profileComplete.total) * 100}%`,
+                        }}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1.5">
+                    <p className="mt-1.5 text-xs text-muted-foreground">
                       {profileComplete.steps.find(s => !s.done)?.label} to unlock matches
                     </p>
                   </div>
                 ) : (
-                  <p className="text-xs text-muted-foreground text-center">
+                  <p className="text-center text-xs text-muted-foreground">
                     Complete your profile to unlock matches
                   </p>
                 )}
@@ -191,38 +210,38 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
 
         {/* Main Navigation — 5 primary items */}
         <nav className="space-y-1">
-          {navItems.map((item) => {
+          {navItems.map(item => {
             const active = isActive(item.href)
             return (
               <Link
                 key={item.id}
                 href={item.href}
                 className={clsx(
-                  "relative flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
+                  'group relative flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200',
                   active
-                    ? "bg-brand/10 text-brand font-semibold"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    ? 'bg-brand/10 font-semibold text-brand'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
                 {active && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand rounded-r-full" />
+                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-brand" />
                 )}
-                <item.icon className={clsx(
-                  "w-5 h-5 transition-transform group-hover:scale-110",
-                  active ? "text-brand" : ""
-                )} />
+                <item.icon
+                  className={clsx(
+                    'h-5 w-5 transition-transform group-hover:scale-110',
+                    active ? 'text-brand' : ''
+                  )}
+                />
                 <span className="font-medium">{item.label}</span>
                 {item.id === 'messages' && (
                   <div className="ml-auto flex items-center gap-2">
                     {realTimeUnreadCount > 0 && (
-                      <Badge
-                        className="text-xs min-w-[1.25rem] h-5 flex items-center justify-center px-1.5 bg-connection text-connection-foreground border-0"
-                      >
+                      <Badge className="flex h-5 min-w-[1.25rem] items-center justify-center border-0 bg-connection px-1.5 text-xs text-connection-foreground">
                         {realTimeUnreadCount > 99 ? '99+' : realTimeUnreadCount}
                       </Badge>
                     )}
                     {!realTimeUnreadCount && (
-                      <div className="w-2 h-2 bg-brand rounded-full" title="Connected" />
+                      <div className="h-2 w-2 rounded-full bg-brand" title="Connected" />
                     )}
                   </div>
                 )}
@@ -232,15 +251,15 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
         </nav>
 
         {/* Quick Links */}
-        <div className="pt-6 border-t border-border">
+        <div className="border-t border-border pt-6">
           <div className="space-y-1">
-            {quickLinks.map((item) => (
+            {quickLinks.map(item => (
               <Link
                 key={item.id}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-200 group"
+                className="group flex items-center gap-3 rounded-2xl px-4 py-3 text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
               >
-                <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+                <item.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
                 <span className="font-medium">{item.label}</span>
               </Link>
             ))}
@@ -249,16 +268,14 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
 
         {/* Contextual CTA */}
         <div className="card-base p-4">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="mb-2 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-trust" />
             <h4 className="font-semibold text-foreground">{ctaTitle}</h4>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            {ctaDescription}
-          </p>
+          <p className="mb-4 text-sm text-muted-foreground">{ctaDescription}</p>
           <Link
             href={ctaHref}
-            className="block w-full px-4 py-2.5 bg-brand text-brand-foreground rounded-2xl hover:bg-brand/90 transition-all duration-200 font-medium shadow-sm hover:shadow-md text-center"
+            className="block w-full rounded-2xl bg-brand px-4 py-2.5 text-center font-medium text-brand-foreground shadow-sm transition-all duration-200 hover:bg-brand/90 hover:shadow-md"
           >
             {ctaLabel}
           </Link>

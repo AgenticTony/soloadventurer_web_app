@@ -15,7 +15,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const { login, isAuthenticated, user } = useAuth()
   const router = useRouter()
-  
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -43,7 +43,7 @@ export function LoginForm() {
     } catch (err: unknown) {
       const error = err as Error & { code?: string }
       console.error('Login error:', error)
-      
+
       // Handle Supabase auth errors
       const msg = error.message?.toLowerCase() ?? ''
       if (msg.includes('email not confirmed')) {
@@ -61,12 +61,10 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Welcome Back</CardTitle>
-        <CardDescription>
-          Sign in to your SoloAdventurer account
-        </CardDescription>
+        <CardDescription>Sign in to your SoloAdventurer account</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,11 +77,11 @@ export function LoginForm() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
               Password
@@ -93,33 +91,27 @@ export function LoginForm() {
               type="password"
               placeholder="••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
             />
           </div>
 
-          {error && (
-            <div className="text-red-600 text-sm">{error}</div>
-          )}
-          
+          {error && <div className="text-sm text-red-600">{error}</div>}
+
           {success && (
             <div className="text-sm text-green-600">
               Login successful! Redirecting to your feed...
               <button
                 type="button"
-                onClick={() => window.location.href = '/feed'}
-                className="block mt-2 text-blue-600 hover:underline"
+                onClick={() => (window.location.href = '/feed')}
+                className="mt-2 block text-blue-600 hover:underline"
               >
                 Click here if not redirected automatically
               </button>
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
 

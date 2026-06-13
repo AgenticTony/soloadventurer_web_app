@@ -14,7 +14,6 @@ import { TripsApiError } from '@/lib/api'
 import type { Trip } from '@/lib/api'
 import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema'
 
-
 interface TripEditFormProps {
   trip: Trip
   onCancel: () => void
@@ -67,9 +66,8 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
 
   // Use unsaved changes hook
   const { confirmNavigation } = useUnsavedChanges({
-    hasUnsavedChanges: hasUnsavedChanges()
+    hasUnsavedChanges: hasUnsavedChanges(),
   })
-
 
   const onSubmit = async (data: TripFormData) => {
     setIsSubmitting(true)
@@ -93,7 +91,6 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
       } else {
         onCancel() // Fall back to closing the form
       }
-
     } catch (error: unknown) {
       console.error('Error updating trip:', error)
 
@@ -108,8 +105,6 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
     }
   }
 
-
-
   const handleCancel = () => {
     confirmNavigation(onCancel)
   }
@@ -122,15 +117,13 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
             <Edit className="h-5 w-5" />
             Edit Trip
           </CardTitle>
-          <CardDescription>
-            Update your trip details and preferences
-          </CardDescription>
+          <CardDescription>Update your trip details and preferences</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* General Error */}
             {apiError && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
                 {apiError}
               </div>
             )}
@@ -152,7 +145,9 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
                 required
               />
               {errors.title && (
-                <p id="title-error" className="text-sm text-red-600" role="alert">{errors.title.message}</p>
+                <p id="title-error" className="text-sm text-red-600" role="alert">
+                  {errors.title.message}
+                </p>
               )}
               <p id="title-hint" className="text-xs text-muted-foreground">
                 {watchedValues.title?.length || 0}/80 characters
@@ -176,7 +171,7 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="startDate" className="text-sm font-medium text-foreground">
                   Start Date *
@@ -203,9 +198,7 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
                   className={errors.endDate ? 'border-red-500' : ''}
                   min={watchedValues.startDate} // Prevent selecting end date before start date
                 />
-                {errors.endDate && (
-                  <p className="text-sm text-red-600">{errors.endDate.message}</p>
-                )}
+                {errors.endDate && <p className="text-sm text-red-600">{errors.endDate.message}</p>}
               </div>
             </div>
 
@@ -227,30 +220,28 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
               </p>
             </div>
 
-
             {/* Unsaved Changes Indicator */}
             {hasUnsavedChanges() && (
-              <div className="p-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md flex items-center gap-2">
-                <Info className="w-4 h-4" />
+              <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+                <Info className="h-4 w-4" />
                 <span>You have unsaved changes</span>
               </div>
             )}
 
             {/* Form Actions */}
             <div className="flex gap-4 pt-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1"
-              >
+              <Button type="submit" disabled={isSubmitting} className="flex-1">
                 {isSubmitting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" aria-hidden="true" />
+                    <div
+                      className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                      aria-hidden="true"
+                    />
                     Saving Changes...
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 mr-2" />
+                    <Save className="mr-2 h-4 w-4" />
                     Save Changes
                   </>
                 )}
@@ -261,14 +252,13 @@ export function TripEditForm({ trip, onCancel, onSave }: TripEditFormProps) {
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
-                <X className="w-4 h-4 mr-2" />
+                <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-
     </>
   )
 }

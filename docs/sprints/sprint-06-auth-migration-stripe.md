@@ -87,6 +87,7 @@ Replace all AWS Cognito / Amplify auth with Supabase Auth.
   - [ ] **Test:** `grep -r "amplify" src/ --include="*.ts" --include="*.tsx"` returns zero results (excluding comments)
 
 #### Acceptance Criteria:
+
 - [ ] All auth flows work with Supabase (login, signup, logout, password reset, email verification)
 - [ ] Users created in the mobile app can log in on the web
 - [ ] Users created on the web can log in in the mobile app
@@ -167,6 +168,7 @@ Add server-side Stripe integration for subscription payments.
   - [ ] **Test:** Expired JWT returns 401
 
 #### Acceptance Criteria:
+
 - [ ] Stripe checkout creates a valid subscription
 - [ ] Webhook handler syncs subscription status to Supabase
 - [ ] Customer portal allows plan management
@@ -206,6 +208,7 @@ Build the public-facing pricing page and plan comparison.
   - [ ] **Test:** Cancel page shows retry CTA
 
 #### Acceptance Criteria:
+
 - [ ] Pricing page displays all plans with accurate feature lists
 - [ ] Checkout flow redirects to Stripe and back to success page
 - [ ] Pages are mobile-responsive and accessible
@@ -251,6 +254,7 @@ Build authenticated account management pages.
   - [ ] **Test:** Premium users see correct badge
 
 #### Acceptance Criteria:
+
 - [ ] Users can view and manage their subscription
 - [ ] Users can cancel and receive prorated refund info
 - [ ] Users can change payment method via Stripe Portal
@@ -288,6 +292,7 @@ Update the database to support subscriptions and web auth.
   - [ ] **Test:** Mobile app correctly reflects web-purchased subscription
 
 #### Acceptance Criteria:
+
 - [ ] Database schema supports full subscription lifecycle
 - [ ] RLS prevents client-side subscription manipulation
 - [ ] Mobile app syncs premium status from web purchases
@@ -330,6 +335,7 @@ Comprehensive testing for the auth migration and payment flow.
   - [ ] **Test:** Security scan returns no critical findings
 
 #### Acceptance Criteria:
+
 - [ ] All unit and integration tests pass
 - [ ] E2E tests cover complete auth and payment flows
 - [ ] No critical security findings
@@ -378,6 +384,7 @@ Deploy the migrated app and configure production services.
   - [ ] **Test:** Documentation accurately reflects implementation
 
 #### Acceptance Criteria:
+
 - [ ] Production deployment is live with working auth and payments
 - [ ] Mobile app links correctly to web pricing and account pages
 - [ ] All documentation updated
@@ -388,6 +395,7 @@ Deploy the migrated app and configure production services.
 ## 📊 Definition of Done
 
 A task is considered **done** when:
+
 - [ ] Code is written and follows project standards (ESLint, Prettier, TypeScript strict)
 - [ ] All auth flows work with Supabase (no AWS dependencies remain)
 - [ ] Stripe integration handles complete subscription lifecycle
@@ -402,12 +410,14 @@ A task is considered **done** when:
 ## 🔧 Technical Dependencies
 
 ### External Services:
+
 - Supabase Auth (shared with mobile app)
 - Supabase Database (profiles table)
 - Stripe (payments and subscriptions)
 - Vercel (hosting)
 
 ### npm Packages (Adding):
+
 - `@supabase/supabase-js`
 - `@supabase/ssr`
 - `stripe`
@@ -415,6 +425,7 @@ A task is considered **done** when:
 - `@stripe/react-stripe-js`
 
 ### npm Packages (Removing):
+
 - `aws-amplify`
 - `@aws-amplify/adapter-nextjs`
 - `@aws-amplify/ui-react`
@@ -422,6 +433,7 @@ A task is considered **done** when:
 - `aws-appsync-subscription-link` (if unused after migration)
 
 ### Environment Variables (New):
+
 ```
 # Supabase (replace Cognito)
 NEXT_PUBLIC_SUPABASE_URL=
@@ -445,15 +457,18 @@ STRIPE_ADVENTURER_PRO_ANNUAL_PRICE_ID=
 ## 🚧 Dependencies
 
 **Requires Completion of:**
+
 - ✅ Sprint 1: Authentication and profiles (Cognito version — this sprint replaces it)
 - ✅ Sprint 5: Safety features (content moderation)
 
 **Enables:**
+
 - Web-based subscription purchases (bypassing 30% store commission)
 - Shared auth between mobile and web apps
 - Account management portal
 
 **External Requirements:**
+
 - Supabase project already provisioned (shared with mobile app)
 - Stripe account created and verified
 - Custom domain configured (optional, can use Vercel subdomain initially)
@@ -464,22 +479,24 @@ STRIPE_ADVENTURER_PRO_ANNUAL_PRICE_ID=
 
 ### Identified Risks:
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Cognito → Supabase data migration for existing users | Medium | Web app is pre-launch; no production users to migrate. Mobile users already on Supabase. |
-| Stripe webhook reliability | High | Implement idempotent event processing + retry logic. Log all events for audit. |
-| Apple/Google policy changes on web purchase links | Medium | Use standard "manage subscription" patterns approved by both platforms. No IAP circumvention language. |
-| Session cookie conflicts between Supabase and old Cognito | Low | Complete removal of all Cognito code prevents conflicts |
-| Mobile app sync delays | Low | Mobile app fetches premium status on launch; max delay is one app open |
+| Risk                                                      | Impact | Mitigation                                                                                             |
+| --------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------ |
+| Cognito → Supabase data migration for existing users      | Medium | Web app is pre-launch; no production users to migrate. Mobile users already on Supabase.               |
+| Stripe webhook reliability                                | High   | Implement idempotent event processing + retry logic. Log all events for audit.                         |
+| Apple/Google policy changes on web purchase links         | Medium | Use standard "manage subscription" patterns approved by both platforms. No IAP circumvention language. |
+| Session cookie conflicts between Supabase and old Cognito | Low    | Complete removal of all Cognito code prevents conflicts                                                |
+| Mobile app sync delays                                    | Low    | Mobile app fetches premium status on launch; max delay is one app open                                 |
 
 ---
 
 ## 📝 Notes
 
 ### Auth Migration Strategy
+
 The web app has no production users (pre-launch), so there is no data migration needed. The mobile app already uses Supabase Auth, so migrating the web app creates a unified user base from day one.
 
 ### Payment Flow Architecture
+
 ```
 User clicks "Subscribe" on web
   → POST /api/stripe/checkout (creates Stripe Checkout Session)
@@ -492,6 +509,7 @@ User clicks "Subscribe" on web
 ```
 
 ### Revenue Flow
+
 ```
 Explorer Plan ($9.99/mo):
   Stripe processing fee: ~$0.59 (2.9% + $0.30)

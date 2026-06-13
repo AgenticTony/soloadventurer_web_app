@@ -25,25 +25,25 @@ The profile page is the second-most-visited page and the single biggest trust-bu
 
 Each component has a single responsibility:
 
-| Component | Responsibility |
-|---|---|
-| `ProfileView.tsx` | Orchestrator — composes all sub-components for own-profile |
-| `ProfileHeader.tsx` | Cover photo, avatar, name/handle/location, action buttons |
-| `TravelStatus.tsx` | Current city + heading-to status display |
-| `ProfileStatsBar.tsx` | 4-stat grid with ghost card treatment for zeros |
-| `ProfileDetailsCard.tsx` | Read-only bio, location pill, preferences, interests |
-| `ProfileTabs.tsx` | Tab navigation bar (Adventures, Gallery, Map, Travel Stats) |
-| `ProfileTabContent.tsx` | Tab content router with empty-state components |
-| `AchievementSystem.tsx` | Unified gamification — merged from AchievementGrid + ProfileCompletionTracker |
-| `WorldMap.tsx` | SVG travel map with visited countries, milestones, design tokens |
+| Component                | Responsibility                                                                |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `ProfileView.tsx`        | Orchestrator — composes all sub-components for own-profile                    |
+| `ProfileHeader.tsx`      | Cover photo, avatar, name/handle/location, action buttons                     |
+| `TravelStatus.tsx`       | Current city + heading-to status display                                      |
+| `ProfileStatsBar.tsx`    | 4-stat grid with ghost card treatment for zeros                               |
+| `ProfileDetailsCard.tsx` | Read-only bio, location pill, preferences, interests                          |
+| `ProfileTabs.tsx`        | Tab navigation bar (Adventures, Gallery, Map, Travel Stats)                   |
+| `ProfileTabContent.tsx`  | Tab content router with empty-state components                                |
+| `AchievementSystem.tsx`  | Unified gamification — merged from AchievementGrid + ProfileCompletionTracker |
+| `WorldMap.tsx`           | SVG travel map with visited countries, milestones, design tokens              |
 
 ### Route Structure
 
-| Route | Purpose |
-|---|---|
-| `/profile` | Own profile — public view mode (zero edit controls) |
-| `/profile/edit` | Edit mode — all editing in one dedicated route |
-| `/profile/[username]` | Other-user profile — "Say hi" CTA, report/block |
+| Route                 | Purpose                                             |
+| --------------------- | --------------------------------------------------- |
+| `/profile`            | Own profile — public view mode (zero edit controls) |
+| `/profile/edit`       | Edit mode — all editing in one dedicated route      |
+| `/profile/[username]` | Other-user profile — "Say hi" CTA, report/block     |
 
 ### Design Token Usage
 

@@ -1,11 +1,11 @@
 // Individual Conversation Page - Dynamic Route for Chat Conversations
 // Sprint 3: Dynamic Chat Routes with Official Next.js App Router Patterns
 
-import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation'
 
 interface ConversationPageProps {
-  params: Promise<{ conversationId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  params: Promise<{ conversationId: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 /**
@@ -21,35 +21,32 @@ interface ConversationPageProps {
  * - Consistent state management through the main chat page
  * - Seamless mobile/desktop experience
  */
-export default async function ConversationPage({
-  params,
-  searchParams,
-}: ConversationPageProps) {
+export default async function ConversationPage({ params, searchParams }: ConversationPageProps) {
   // Await the params to get the conversationId
-  const { conversationId } = await params;
-  const search = await searchParams;
+  const { conversationId } = await params
+  const search = await searchParams
 
   // Validate conversationId format (basic validation)
   if (!conversationId || conversationId.length === 0) {
-    redirect('/chat');
+    redirect('/chat')
   }
 
   // Build the redirect URL with conversation query parameter
-  const redirectUrl = new URL('/chat', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001');
-  redirectUrl.searchParams.set('conversation', conversationId);
+  const redirectUrl = new URL('/chat', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001')
+  redirectUrl.searchParams.set('conversation', conversationId)
 
   // Preserve any additional search parameters
   Object.entries(search).forEach(([key, value]) => {
     if (typeof value === 'string') {
-      redirectUrl.searchParams.set(key, value);
+      redirectUrl.searchParams.set(key, value)
     } else if (Array.isArray(value)) {
       // Handle array values by taking the first one
-      redirectUrl.searchParams.set(key, value[0]);
+      redirectUrl.searchParams.set(key, value[0])
     }
-  });
+  })
 
   // Redirect to main chat page with conversation selected
-  redirect(redirectUrl.pathname + redirectUrl.search);
+  redirect(redirectUrl.pathname + redirectUrl.search)
 }
 
 /**
@@ -64,14 +61,14 @@ export async function generateStaticParams() {
     // Example static params - replace with real data
     { conversationId: 'getting-started' },
     { conversationId: 'support' },
-  ];
+  ]
 }
 
 /**
  * Configure dynamic params handling
  * Set to true to allow dynamic conversation IDs not in generateStaticParams
  */
-export const dynamicParams = true;
+export const dynamicParams = true
 
 /**
  * Generate metadata for SEO and social sharing
@@ -80,9 +77,9 @@ export const dynamicParams = true;
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ conversationId: string }>;
+  params: Promise<{ conversationId: string }>
 }) {
-  const { conversationId } = await params;
+  const { conversationId } = await params
 
   // In a real application, fetch conversation details here
   // const conversation = await getConversation(conversationId);
@@ -107,5 +104,5 @@ export async function generateMetadata({
       index: false, // Don't index individual chat pages for privacy
       follow: false,
     },
-  };
+  }
 }

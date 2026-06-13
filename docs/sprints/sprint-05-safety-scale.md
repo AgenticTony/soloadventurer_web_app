@@ -16,12 +16,14 @@ Implement critical safety features and prepare the platform for scaling with enh
 ## 📋 Key Features
 
 ### Verification System
+
 - Email and phone verification
 - ID verification and background checks
 - Verification badges and trust scoring
 - Multi-level verification tiers
 
 ### Safety Features
+
 - Emergency contact system
 - Location sharing with trusted contacts
 - Safety check-ins during trips
@@ -29,6 +31,7 @@ Implement critical safety features and prepare the platform for scaling with enh
 - Anonymous reporting system
 
 ### Moderation & Scaling
+
 - AI-powered content moderation
 - User behavior monitoring
 - Automated violation detection
@@ -40,6 +43,7 @@ Implement critical safety features and prepare the platform for scaling with enh
 ## 🚧 Dependencies
 
 **Requires Completion of:**
+
 - ✅ Sprint 1: Authentication and profiles
 - ✅ Sprint 4: Social features and content
 

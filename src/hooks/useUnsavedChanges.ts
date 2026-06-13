@@ -10,7 +10,7 @@ interface UseUnsavedChangesOptions {
 
 export function useUnsavedChanges({
   hasUnsavedChanges,
-  message = 'You have unsaved changes. Are you sure you want to leave?'
+  message = 'You have unsaved changes. Are you sure you want to leave?',
 }: UseUnsavedChangesOptions) {
   const router = useRouter()
   const originalPush = useRef(router.push)

@@ -163,6 +163,7 @@ schema.graphql
 ### Data Models
 
 #### Core Entities
+
 - **User**: Profiles, interests, verification levels
 - **Trip**: Travel itineraries with dates and locations
 - **Connection**: Wave-based relationship system
@@ -171,6 +172,7 @@ schema.graphql
 - **Report**: Safety and moderation system
 
 #### Relationships
+
 - User → Trip (one-to-many)
 - User → Connection (many-to-many)
 - Connection → Message (one-to-many)
@@ -221,18 +223,21 @@ schema.graphql
 ### Component Patterns
 
 #### Presentational Components
+
 - Pure UI components
 - No business logic
 - Receive props and render UI
 - Examples: Button, Input, Card
 
 #### Container Components
+
 - Handle business logic
 - Manage state and side effects
 - Pass data to presentational components
 - Examples: UserProfile, TripList, ChatWindow
 
 #### Higher-Order Components
+
 - Cross-cutting concerns
 - Authentication and authorization
 - Error boundaries and loading states
@@ -247,6 +252,7 @@ schema.graphql
 The application uses a **hybrid API approach** combining REST and GraphQL:
 
 #### REST API (AWS API Gateway + Lambda) ✅ IMPLEMENTED
+
 - **Trips Management**: Full CRUD operations with optimized DynamoDB performance
 - **Authentication**: Cognito JWT token validation on all endpoints
 - **Access Control**: Owner-based access with public/private trip support
@@ -266,10 +272,10 @@ The application uses a **hybrid API approach** combining REST and GraphQL:
 const restClient = {
   baseURL: process.env.NEXT_PUBLIC_API_BASE || amplifyOutputs.custom?.API?.TripsAPI?.endpoint,
   headers: {
-    'Authorization': `Bearer ${jwtToken}`,
+    Authorization: `Bearer ${jwtToken}`,
     'Content-Type': 'application/json',
   },
-};
+}
 
 // Implemented Trips API Integration
 export async function createTrip(tripData: CreateTripInput): Promise<CreateTripResponse> {
@@ -277,33 +283,34 @@ export async function createTrip(tripData: CreateTripInput): Promise<CreateTripR
     method: 'POST',
     headers: restClient.headers,
     body: JSON.stringify(tripData),
-  });
-  return response.json();
+  })
+  return response.json()
 }
 
 export async function getTrip(tripId: string): Promise<Trip> {
   const response = await fetch(`${restClient.baseURL}/trips/${tripId}`, {
     method: 'GET',
     headers: restClient.headers,
-  });
-  if (!response.ok) throw new Error('Failed to fetch trip');
-  return response.json();
+  })
+  if (!response.ok) throw new Error('Failed to fetch trip')
+  return response.json()
 }
 
 export async function listTrips(ownerId?: string): Promise<Trip[]> {
-  const url = new URL(`${restClient.baseURL}/trips`);
-  if (ownerId) url.searchParams.set('ownerId', ownerId);
+  const url = new URL(`${restClient.baseURL}/trips`)
+  if (ownerId) url.searchParams.set('ownerId', ownerId)
 
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: restClient.headers,
-  });
-  if (!response.ok) throw new Error('Failed to fetch trips');
-  return response.json();
+  })
+  if (!response.ok) throw new Error('Failed to fetch trips')
+  return response.json()
 }
 ```
 
 #### GraphQL API (AWS AppSync)
+
 - **Real-time Features**: Subscriptions for chat, notifications
 - **Complex Queries**: User relationships, social feeds
 - **Batch Operations**: Efficient data fetching
@@ -311,12 +318,7 @@ export async function listTrips(ownerId?: string): Promise<Trip[]> {
 ```typescript
 // Apollo Client setup
 const client = new ApolloClient({
-  link: ApolloLink.from([
-    errorLink,
-    authLink,
-    httpLink,
-    subscriptionLink,
-  ]),
+  link: ApolloLink.from([errorLink, authLink, httpLink, subscriptionLink]),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
@@ -326,7 +328,7 @@ const client = new ApolloClient({
       },
     },
   }),
-});
+})
 ```
 
 ### API Service Pattern
@@ -371,31 +373,34 @@ services/
 ### Privacy Architecture
 
 **Privacy-First Design Principles:**
+
 - Default location sharing is OFF for maximum user privacy
 - Granular privacy controls with three-tier sharing (off/friends/everyone)
 - User-controlled precise vs approximate location settings
 - Comprehensive blocking and hiding functionality
 
 **Privacy Context System:**
+
 ```typescript
 // Global privacy state management
 interface PrivacySettings {
-  locationSharing: 'off' | 'friends' | 'everyone';
-  preciseLocation: boolean;
-  blockedUsers: string[];
-  hideFromUsers: string[];
-  showPrivacyStatus: boolean;
+  locationSharing: 'off' | 'friends' | 'everyone'
+  preciseLocation: boolean
+  blockedUsers: string[]
+  hideFromUsers: string[]
+  showPrivacyStatus: boolean
 }
 
 // Privacy-first access control
 function getLocationVisibility(user: User, viewer: User): LocationData | null {
-  if (user.privacy.locationSharing === 'off') return null;
-  if (user.privacy.locationSharing === 'friends' && !areFriends(user, viewer)) return null;
-  return user.privacy.preciseLocation ? exactLocation : approximateLocation;
+  if (user.privacy.locationSharing === 'off') return null
+  if (user.privacy.locationSharing === 'friends' && !areFriends(user, viewer)) return null
+  return user.privacy.preciseLocation ? exactLocation : approximateLocation
 }
 ```
 
 **Privacy Component Architecture:**
+
 - `PrivacyContext`: Global state management with localStorage persistence
 - `LocationSettings`: Granular location sharing controls
 - `PrivacyControls`: User blocking and hiding management
@@ -464,6 +469,7 @@ tests/
 ```
 
 **Current Test Coverage:**
+
 - ✅ **API Layer**: Complete test coverage for createTrip, getTrip, listTrips with authentication scenarios
 - ✅ **Error Handling**: 400, 401, 404, 500 status code validation
 - ✅ **Access Control**: Owner vs. non-owner access patterns, private vs. public trip logic

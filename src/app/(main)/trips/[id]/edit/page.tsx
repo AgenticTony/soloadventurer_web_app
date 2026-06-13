@@ -55,35 +55,35 @@ export default function TripEditPage({ params }: TripEditPageProps) {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <div className="flex items-center gap-4">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             <span>Back to Trip</span>
           </button>
         </div>
 
-        <div className="bg-card rounded-2xl p-8 animate-pulse">
+        <div className="animate-pulse rounded-2xl bg-card p-8">
           <div className="space-y-6">
             <div className="space-y-2">
-              <div className="h-6 bg-muted rounded w-1/3" />
-              <div className="h-4 bg-muted rounded w-2/3" />
+              <div className="h-6 w-1/3 rounded bg-muted" />
+              <div className="h-4 w-2/3 rounded bg-muted" />
             </div>
             <div className="space-y-4">
-              <div className="h-10 bg-muted rounded" />
-              <div className="h-24 bg-muted rounded" />
+              <div className="h-10 rounded bg-muted" />
+              <div className="h-24 rounded bg-muted" />
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-10 bg-muted rounded" />
-                <div className="h-10 bg-muted rounded" />
+                <div className="h-10 rounded bg-muted" />
+                <div className="h-10 rounded bg-muted" />
               </div>
-              <div className="h-6 bg-muted rounded w-1/2" />
+              <div className="h-6 w-1/2 rounded bg-muted" />
             </div>
             <div className="flex gap-4">
-              <div className="h-10 bg-muted rounded flex-1" />
-              <div className="h-10 bg-muted rounded w-24" />
+              <div className="h-10 flex-1 rounded bg-muted" />
+              <div className="h-10 w-24 rounded bg-muted" />
             </div>
           </div>
         </div>
@@ -93,24 +93,24 @@ export default function TripEditPage({ params }: TripEditPageProps) {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <div className="flex items-center gap-4">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             <span>Back to Trip</span>
           </button>
         </div>
 
-        <div className="text-center py-12">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-8">
-            <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Trip</h3>
-            <p className="text-red-600 mb-4">{error}</p>
+        <div className="py-12 text-center">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-8">
+            <h3 className="mb-2 text-lg font-semibold text-red-800">Error Loading Trip</h3>
+            <p className="mb-4 text-red-600">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               Try Again
             </button>
@@ -125,17 +125,17 @@ export default function TripEditPage({ params }: TripEditPageProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
         <button
           onClick={handleBack}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           <span>Back to Trip</span>
         </button>
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Edit className="w-4 h-4" />
+          <Edit className="h-4 w-4" />
           <span>Editing: {trip.title}</span>
         </div>
       </div>

@@ -20,6 +20,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 ### Epic 1: REST API Infrastructure ✅
 
 #### Tasks Completed:
+
 - [x] **API Gateway Setup**
   - [x] Configure REST API with Cognito User Pool authorization
   - [x] Add CORS support for POST, GET, OPTIONS methods
@@ -33,6 +34,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
   - [x] Use DynamoDB DocumentClient for optimal performance
 
 #### Acceptance Criteria:
+
 - ✅ POST /trips endpoint validates and creates trips
 - ✅ Authentication required via Cognito JWT tokens
 - ✅ Proper CORS headers for web app integration
@@ -41,6 +43,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 ### Epic 2: Database Design & Optimization ✅
 
 #### Tasks Completed:
+
 - [x] **DynamoDB Schema**
   - [x] Design Trip table with proper partition key (id)
   - [x] Add GSI on ownerId for efficient user-specific queries
@@ -54,6 +57,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
   - [x] Use environment variables for table names
 
 #### Acceptance Criteria:
+
 - ✅ Trip table supports millions of records efficiently
 - ✅ GSI enables fast lookup by ownerId
 - ✅ Private/public access control implemented
@@ -62,6 +66,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 ### Epic 3: GET Endpoints Implementation ✅
 
 #### Tasks Completed:
+
 - [x] **GET /trips/{id} Endpoint**
   - [x] Retrieve individual trips with access control
   - [x] Owner OR public access logic (prevent info leak)
@@ -75,6 +80,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
   - [x] Efficient querying using GSI
 
 #### Acceptance Criteria:
+
 - ✅ GET /trips/{id} returns trip if owner OR public
 - ✅ GET /trips lists own trips, others' public trips with ?ownerId
 - ✅ Consistent 404 responses for unauthorized access
@@ -83,6 +89,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 ### Epic 4: Frontend Integration ✅
 
 #### Tasks Completed:
+
 - [x] **API Client Implementation**
   - [x] Create getTrip(tripId) helper with authentication
   - [x] Create listTrips(ownerId?) helper with query parameters
@@ -96,6 +103,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
   - [x] JWT token integration with requests
 
 #### Acceptance Criteria:
+
 - ✅ Frontend can create, read, and list trips
 - ✅ Authentication tokens properly included
 - ✅ Environment configuration works for dev/prod
@@ -104,6 +112,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 ### Epic 5: Testing & Quality Assurance ✅
 
 #### Tasks Completed:
+
 - [x] **Comprehensive Test Suite**
   - [x] Unit tests for API helpers (getTrip, listTrips, createTrip)
   - [x] Integration tests for authentication flows
@@ -117,6 +126,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
   - [x] Modern ES2020+ configuration
 
 #### Acceptance Criteria:
+
 - ✅ All tests pass (Jest + Testing Library)
 - ✅ Code coverage for critical paths
 - ✅ Type safety throughout the codebase
@@ -129,6 +139,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 ### Architecture Decisions
 
 **AWS Amplify Gen 2 Stack:**
+
 - **API Gateway**: REST API with Cognito authorization
 - **Lambda**: Node.js 18 with TypeScript for business logic
 - **DynamoDB**: NoSQL database with GSI for performance
@@ -136,6 +147,7 @@ Implement a production-ready Trips REST API backend with full CRUD operations, l
 - **CloudWatch**: Monitoring and alerting for 5XX errors
 
 **Key Design Patterns:**
+
 - Environment-based configuration for dev/prod deployments
 - Clean separation of concerns (validation, business logic, data access)
 - Error-first design with structured error responses
@@ -165,11 +177,11 @@ ownerId-index {
 
 ### API Endpoints
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/trips` | POST | Required | Create new trip with validation |
-| `/trips` | GET | Required | List own trips or others' public trips |
-| `/trips/{id}` | GET | Required | Get trip if owner or public |
+| Endpoint      | Method | Auth     | Description                            |
+| ------------- | ------ | -------- | -------------------------------------- |
+| `/trips`      | POST   | Required | Create new trip with validation        |
+| `/trips`      | GET    | Required | List own trips or others' public trips |
+| `/trips/{id}` | GET    | Required | Get trip if owner or public            |
 
 **Request/Response Examples:**
 
@@ -195,12 +207,14 @@ Response: Trip[] (200) | { error: "Unauthorized" } (401)
 ## 📊 Performance Metrics
 
 ### Achieved Performance:
+
 - **Lambda Cold Start**: <1 second
 - **Database Query Time**: <100ms (with GSI)
 - **API Response Time**: <500ms average
 - **Concurrent Users**: Supports 1000+ with auto-scaling
 
 ### Scalability Improvements:
+
 - Replaced table scan with GSI queries (10x performance improvement)
 - Environment-based configuration for multi-stage deployments
 - CloudWatch alarms for monitoring 5XX errors and Lambda duration
@@ -211,12 +225,14 @@ Response: Trip[] (200) | { error: "Unauthorized" } (401)
 ## 🔒 Security Implementation
 
 ### Authentication & Authorization:
+
 - **Cognito JWT Validation**: All endpoints require valid tokens
 - **User Context**: Consistent claims.sub usage for user identification
 - **Access Control**: Owner-based access with public/private trip support
 - **Error Handling**: 404 responses prevent information leakage
 
 ### Data Protection:
+
 - **Input Validation**: Comprehensive validation with detailed error messages
 - **SQL Injection Prevention**: NoSQL DynamoDB with parameterized queries
 - **Environment Isolation**: Separate configurations for dev/staging/prod
@@ -227,12 +243,14 @@ Response: Trip[] (200) | { error: "Unauthorized" } (401)
 ## 🧪 Testing Strategy
 
 ### Test Coverage:
+
 - **Unit Tests**: API helpers, validation logic, error handling
 - **Integration Tests**: Authentication flows, database operations
 - **Error Scenarios**: 400, 401, 404, 500 response handling
 - **Edge Cases**: Boundary conditions, malformed requests
 
 ### Quality Gates:
+
 - ✅ TypeScript compilation passes
 - ✅ All tests pass (Jest + Testing Library)
 - ✅ ESLint/Prettier compliance
@@ -244,18 +262,20 @@ Response: Trip[] (200) | { error: "Unauthorized" } (401)
 ## 🚀 Deployment & Infrastructure
 
 ### Environment Configuration:
+
 - **Development**: Local development with mock data
 - **Sandbox**: AWS sandbox environment for testing
 - **Production**: (Ready for deployment)
 
 ### Infrastructure as Code:
+
 ```typescript
 // Amplify Gen 2 Configuration
 export const backend = defineBackend({
   auth,
   data,
   tripsApi,
-});
+})
 
 // API Gateway + Lambda + DynamoDB
 const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
@@ -263,10 +283,11 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
     allowMethods: ['POST', 'GET', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
   },
-});
+})
 ```
 
 ### Monitoring & Alerting:
+
 - CloudWatch alarms for 5XX errors (threshold: 5/minute)
 - Lambda duration monitoring (threshold: 2 seconds)
 - DynamoDB performance metrics
@@ -277,12 +298,14 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
 ## 📈 Success Metrics
 
 ### Technical Achievements:
+
 - ✅ **Build Time**: <3 minutes (target: <5 minutes)
 - ✅ **Test Coverage**: 90%+ for critical paths
 - ✅ **Response Time**: <500ms average (target: <1 second)
 - ✅ **Error Rate**: <0.1% (target: <1%)
 
 ### Feature Completeness:
+
 - ✅ **CRUD Operations**: Create, Read, List trips
 - ✅ **Access Control**: Private/public trip support
 - ✅ **Authentication**: JWT token validation
@@ -293,11 +316,13 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
 ## 🔄 Next Steps & Dependencies
 
 ### Enables Future Sprints:
+
 - **Sprint 2B**: Trip management UI and interactive map
 - **Sprint 3**: User discovery and matching based on trips
 - **Sprint 4**: Trip-based social feed and check-ins
 
 ### Technical Debt & Improvements:
+
 - [ ] Add pagination for large trip lists
 - [ ] Implement trip search and filtering
 - [ ] Add trip categories and tags
@@ -308,6 +333,7 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
 ## 🎯 Sprint Retrospective
 
 ### What Went Extremely Well:
+
 - ✅ **Rapid Implementation**: Complete backend in 1 day instead of 2 weeks
 - ✅ **Production Ready**: Full AWS infrastructure with monitoring
 - ✅ **Performance Optimized**: GSI-based queries from day one
@@ -316,6 +342,7 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
 - ✅ **Test Coverage**: Comprehensive testing strategy implemented
 
 ### Technical Wins:
+
 - ✅ **Clean Architecture**: Proper separation of concerns
 - ✅ **Scalable Design**: Handles millions of trips efficiently
 - ✅ **Error Handling**: Production-grade error responses
@@ -323,6 +350,7 @@ const tripsRestApi = new RestApi(apiStack, 'TripsRestApi', {
 - ✅ **Documentation**: Comprehensive API documentation
 
 ### Future Considerations:
+
 - Consider adding trip versioning for collaboration features
 - Plan for advanced filtering and search capabilities
 - Design for real-time trip updates and notifications

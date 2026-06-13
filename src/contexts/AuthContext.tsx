@@ -17,10 +17,7 @@ function mapSupabaseUser(session: Session | null): User | null {
     id: user.id,
     email: user.email ?? '',
     name:
-      user.user_metadata?.name ??
-      user.user_metadata?.full_name ??
-      user.email?.split('@')[0] ??
-      '',
+      user.user_metadata?.name ?? user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '',
     avatar: user.user_metadata?.avatar_url ?? user.user_metadata?.picture,
     bio: user.user_metadata?.bio ?? '',
     location: user.user_metadata?.location ?? '',
@@ -53,60 +50,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-        if (authError) throw authError
-        // onAuthStateChange will update user state
-      } catch (err) {
-        const authErr = err as AuthError
-        setError(authErr)
-        throw err
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [],
-  )
+  const login = useCallback(async (email: string, password: string) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (authError) throw authError
+      // onAuthStateChange will update user state
+    } catch (err) {
+      const authErr = err as AuthError
+      setError(authErr)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
-  const signup = useCallback(
-    async (email: string, password: string, name: string) => {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const { data, error: authError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              name,
-              full_name: name,
-              bio: '',
-              location: '',
-            },
+  const signup = useCallback(async (email: string, password: string, name: string) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            full_name: name,
+            bio: '',
+            location: '',
           },
-        })
-        if (authError) throw authError
+        },
+      })
+      if (authError) throw authError
 
-        // If email confirmation is required, user won't have a session yet
-        const userConfirmed = !!data.session
-        return { userConfirmed }
-      } catch (err) {
-        const authErr = err as AuthError
-        setError(authErr)
-        throw err
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [],
-  )
+      // If email confirmation is required, user won't have a session yet
+      const userConfirmed = !!data.session
+      return { userConfirmed }
+    } catch (err) {
+      const authErr = err as AuthError
+      setError(authErr)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   const logout = useCallback(async () => {
     try {
@@ -129,20 +120,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false)
   }, [supabase])
 
-  const resetPassword = useCallback(
-    async (email: string) => {
-      try {
-        const { error: authError } =
-          await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/forgot-password`,
-          })
-        if (authError) throw authError
-      } catch (err) {
-        throw err
-      }
-    },
-    [],
-  )
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/forgot-password`,
+      })
+      if (authError) throw authError
+    } catch (err) {
+      throw err
+    }
+  }, [])
 
   const confirmResetPassword = useCallback(
     async (email: string, code: string, newPassword: string) => {
@@ -164,40 +151,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw err
       }
     },
-    [],
+    []
   )
 
-  const confirmSignUp = useCallback(
-    async (email: string, code: string) => {
-      try {
-        const { error: authError } = await supabase.auth.verifyOtp({
-          email,
-          token: code,
-          type: 'signup',
-        })
-        if (authError) throw authError
-        // onAuthStateChange will update user state if auto-confirmed
-      } catch (err) {
-        throw err
-      }
-    },
-    [],
-  )
+  const confirmSignUp = useCallback(async (email: string, code: string) => {
+    try {
+      const { error: authError } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: 'signup',
+      })
+      if (authError) throw authError
+      // onAuthStateChange will update user state if auto-confirmed
+    } catch (err) {
+      throw err
+    }
+  }, [])
 
-  const resendSignUpCode = useCallback(
-    async (email: string) => {
-      try {
-        const { error: authError } = await supabase.auth.resend({
-          type: 'signup',
-          email,
-        })
-        if (authError) throw authError
-      } catch (err) {
-        throw err
-      }
-    },
-    [],
-  )
+  const resendSignUpCode = useCallback(async (email: string) => {
+    try {
+      const { error: authError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      })
+      if (authError) throw authError
+    } catch (err) {
+      throw err
+    }
+  }, [])
 
   return (
     <AuthContext.Provider

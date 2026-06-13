@@ -1,2 +1,2 @@
-export { LocationSettings } from './LocationSettings';
-export { PrivacyControls } from './PrivacyControls';
+export { LocationSettings } from './LocationSettings'
+export { PrivacyControls } from './PrivacyControls'

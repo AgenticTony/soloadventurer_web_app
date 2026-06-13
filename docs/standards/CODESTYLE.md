@@ -9,6 +9,7 @@ This document defines the coding standards and style guidelines for the SoloAdve
 ## 📝 General Principles
 
 ### Code Quality Goals
+
 - **Readable**: Code should be self-documenting and easy to understand
 - **Maintainable**: Easy to modify and extend
 - **Testable**: Code should be easy to unit test
@@ -16,6 +17,7 @@ This document defines the coding standards and style guidelines for the SoloAdve
 - **Secure**: Follow security best practices
 
 ### Guiding Philosophy
+
 > "Code is written once but read many times. Prioritize clarity over cleverness."
 
 ---
@@ -23,6 +25,7 @@ This document defines the coding standards and style guidelines for the SoloAdve
 ## 🎨 TypeScript Standards
 
 ### Strict Mode Configuration
+
 - Always use TypeScript strict mode
 - No `any` types unless absolutely necessary (with documentation)
 - Enable all strict type checking options
@@ -33,16 +36,16 @@ This document defines the coding standards and style guidelines for the SoloAdve
 ```typescript
 // ✅ Good - Explicit interfaces
 interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string; // Optional property
-  createdAt: Date;
+  id: string
+  email: string
+  name: string
+  avatar?: string // Optional property
+  createdAt: Date
 }
 
 // ✅ Good - Type aliases for simple types
-type UserId = string;
-type TripStatus = 'draft' | 'published' | 'archived';
+type UserId = string
+type TripStatus = 'draft' | 'published' | 'archived'
 
 // ❌ Avoid - Inline complex types
 function processUser(user: { id: string; name: string; email: string }) {
@@ -63,13 +66,13 @@ function calculateDistance(
 
 // ✅ Good - Async functions with proper typing
 async function fetchUser(id: UserId): Promise<User> {
-  const response = await api.get(`/users/${id}`);
-  return response.data;
+  const response = await api.get(`/users/${id}`)
+  return response.data
 }
 
 // ❌ Avoid - Implicit any or missing return types
 function processData(data) {
-  return data.map(item => item.value);
+  return data.map(item => item.value)
 }
 ```
 
@@ -93,7 +96,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   className = '',
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const handleEdit = useCallback(() => {
     onEdit?.(user);
     setIsEditing(false);
@@ -131,30 +134,30 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 ```typescript
 // ✅ Good - Custom hook with proper typing
 interface UseAuthReturn {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  user: User | null
+  isAuthenticated: boolean
+  login: (email: string, password: string) => Promise<void>
+  logout: () => void
 }
 
 export const useAuth = (): UseAuthReturn => {
-  const [user, setUser] = useState<User | null>(null);
-  
+  const [user, setUser] = useState<User | null>(null)
+
   const login = useCallback(async (email: string, password: string) => {
     // Login logic
-  }, []);
-  
+  }, [])
+
   const logout = useCallback(() => {
     // Logout logic
-  }, []);
-  
+  }, [])
+
   return {
     user,
     isAuthenticated: !!user,
     login,
     logout,
-  };
-};
+  }
+}
 ```
 
 ---
@@ -225,7 +228,7 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage error={error} />;
-  
+
   return <UserProfileCard user={data!.user} />;
 };
 ```
@@ -266,7 +269,7 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
   --color-secondary-foreground: 222 84% 5%;
   --color-background: 0 0% 100%;
   --color-foreground: 222 84% 5%;
-  
+
   --radius: 0.5rem;
   --spacing: 0.25rem;
 }
@@ -324,20 +327,20 @@ src/
 
 ```typescript
 // ✅ Good - Zod schema validation
-import { z } from 'zod';
+import { z } from 'zod'
 
 const UserProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
   location: z.string().optional(),
-});
+})
 
-type UserProfileInput = z.infer<typeof UserProfileSchema>;
+type UserProfileInput = z.infer<typeof UserProfileSchema>
 
 const validateUserProfile = (data: unknown): UserProfileInput => {
-  return UserProfileSchema.parse(data);
-};
+  return UserProfileSchema.parse(data)
+}
 ```
 
 ### Utility Functions
@@ -345,13 +348,13 @@ const validateUserProfile = (data: unknown): UserProfileInput => {
 ```typescript
 // ✅ Good - Pure utility functions
 export const formatDate = (date: Date | string): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === 'string' ? new Date(date) : date
   return dateObj.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  });
-};
+  })
+}
 
 export const calculateDistance = (
   lat1: number,
@@ -360,17 +363,20 @@ export const calculateDistance = (
   lng2: number
 ): number => {
   // Haversine formula implementation
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
+  const R = 6371 // Earth's radius in kilometers
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLng = ((lng2 - lng1) * Math.PI) / 180
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2)
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
 ```
 
 ---
@@ -383,15 +389,15 @@ export const calculateDistance = (
 // ✅ Good - Well-structured unit tests
 describe('calculateDistance', () => {
   it('calculates distance between two points correctly', () => {
-    const distance = calculateDistance(40.7128, -74.0060, 34.0522, -118.2437);
-    expect(distance).toBeCloseTo(3935.75, 2); // NYC to LA in km
-  });
+    const distance = calculateDistance(40.7128, -74.006, 34.0522, -118.2437)
+    expect(distance).toBeCloseTo(3935.75, 2) // NYC to LA in km
+  })
 
   it('returns 0 for same coordinates', () => {
-    const distance = calculateDistance(40.7128, -74.0060, 40.7128, -74.0060);
-    expect(distance).toBe(0);
-  });
-});
+    const distance = calculateDistance(40.7128, -74.006, 40.7128, -74.006)
+    expect(distance).toBe(0)
+  })
+})
 ```
 
 ### Component Tests
@@ -409,7 +415,7 @@ describe('UserProfile', () => {
 
   it('renders user information correctly', () => {
     render(<UserProfile user={mockUser} />);
-    
+
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
     expect(screen.getByAltText('John Doe')).toHaveAttribute('src', mockUser.avatar);
@@ -418,7 +424,7 @@ describe('UserProfile', () => {
   it('calls onEdit when edit button is clicked', () => {
     const mockOnEdit = jest.fn();
     render(<UserProfile user={mockUser} onEdit={mockOnEdit} />);
-    
+
     fireEvent.click(screen.getByRole('button', { name: /edit/i }));
     expect(mockOnEdit).toHaveBeenCalledWith(mockUser);
   });
@@ -436,7 +442,7 @@ describe('UserProfile', () => {
 /**
  * Calculates the distance between two geographic coordinates using the Haversine formula.
  * @param lat1 - Latitude of first point in degrees
- * @param lng1 - Longitude of first point in degrees  
+ * @param lng1 - Longitude of first point in degrees
  * @param lat2 - Latitude of second point in degrees
  * @param lng2 - Longitude of second point in degrees
  * @returns Distance in kilometers
@@ -451,7 +457,7 @@ export const calculateDistance = (
   lng2: number
 ): number => {
   // Implementation
-};
+}
 ```
 
 ### TODO Comments
@@ -468,6 +474,7 @@ export const calculateDistance = (
 ## 🔍 Code Review Checklist
 
 ### Before Submitting PR
+
 - [ ] All TypeScript errors are resolved
 - [ ] ESLint passes without warnings
 - [ ] All tests pass (unit, integration, E2E)
@@ -479,6 +486,7 @@ export const calculateDistance = (
 - [ ] Component is responsive on mobile/desktop
 
 ### Performance Considerations
+
 - [ ] Avoid unnecessary re-renders (useMemo, useCallback)
 - [ ] Optimize images and assets
 - [ ] Implement proper loading states
@@ -486,6 +494,7 @@ export const calculateDistance = (
 - [ ] Minimize bundle size impact
 
 ### Security Considerations
+
 - [ ] Input validation is implemented
 - [ ] XSS prevention measures in place
 - [ ] Authentication/authorization checks present

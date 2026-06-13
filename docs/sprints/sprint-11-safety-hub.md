@@ -20,6 +20,7 @@ A professional UI/UX review identified safety as the single biggest gap: "Before
 ## Why This Sprint Exists
 
 Safety is a core feature for solo travelers. The mobile app has a comprehensive safety system:
+
 - One-tap SOS emergency alert
 - Scheduled check-ins with missed detection
 - Trusted contacts management
@@ -33,6 +34,7 @@ The web app has no safety features. This sprint builds the browser-compatible eq
 ## Mobile App Reference
 
 ### Safety Data Model
+
 ```
 CheckIn:
   id, userId, status (pending | completed | missed | overdue),
@@ -49,6 +51,7 @@ SOSAlert:
 ```
 
 ### Key Features
+
 - SOS button with confirmation dialog
 - Scheduled check-ins (hourly, 2hr, 4hr, daily, custom)
 - Missed check-in detection → auto-notify trusted contacts

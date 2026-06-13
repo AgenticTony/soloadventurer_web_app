@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { useState, memo } from 'react';
-import { Filter, ChevronDown, ChevronUp } from 'lucide-react';
-import { MapFilters } from './MapFilters';
-import type { DateFilter, DistanceFilter } from '@/hooks/useTripFilters';
+import { useState, memo } from 'react'
+import { Filter, ChevronDown, ChevronUp } from 'lucide-react'
+import { MapFilters } from './MapFilters'
+import type { DateFilter, DistanceFilter } from '@/hooks/useTripFilters'
 
 interface FilterPanelProps {
-  dateFilter: DateFilter;
-  distanceFilter: DistanceFilter;
-  searchKeyword: string;
-  resultCount: number;
-  hasUserLocation: boolean;
-  onDateFilterChange: (filter: DateFilter) => void;
-  onDistanceFilterChange: (filter: DistanceFilter) => void;
-  onSearchKeywordChange: (keyword: string) => void;
-  onClearAllFilters: () => void;
+  dateFilter: DateFilter
+  distanceFilter: DistanceFilter
+  searchKeyword: string
+  resultCount: number
+  hasUserLocation: boolean
+  onDateFilterChange: (filter: DateFilter) => void
+  onDistanceFilterChange: (filter: DistanceFilter) => void
+  onSearchKeywordChange: (keyword: string) => void
+  onClearAllFilters: () => void
 }
 
 export const FilterPanel = memo(function FilterPanel({
@@ -28,26 +28,24 @@ export const FilterPanel = memo(function FilterPanel({
   onSearchKeywordChange,
   onClearAllFilters,
 }: FilterPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Check if any filters are active for badge display
   const hasActiveFilters =
-    dateFilter !== 'all' ||
-    distanceFilter !== null ||
-    searchKeyword.trim() !== '';
+    dateFilter !== 'all' || distanceFilter !== null || searchKeyword.trim() !== ''
 
   const activeFilterCount = [
     dateFilter !== 'all',
     distanceFilter !== null,
     searchKeyword.trim() !== '',
-  ].filter(Boolean).length;
+  ].filter(Boolean).length
 
   return (
-    <div className="absolute top-4 left-4 z-10 w-80 max-w-[calc(100vw-2rem)]">
+    <div className="absolute left-4 top-4 z-10 w-80 max-w-[calc(100vw-2rem)]">
       {/* Toggle Button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-4 py-3 hover:bg-white/100 transition-colors"
+        className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm transition-colors hover:bg-white/100"
       >
         <div className="flex items-center gap-3">
           <Filter className="h-5 w-5 text-gray-700" />
@@ -59,14 +57,16 @@ export const FilterPanel = memo(function FilterPanel({
                   {activeFilterCount} active • {resultCount} {resultCount === 1 ? 'trip' : 'trips'}
                 </span>
               ) : (
-                <span>{resultCount} {resultCount === 1 ? 'trip' : 'trips'}</span>
+                <span>
+                  {resultCount} {resultCount === 1 ? 'trip' : 'trips'}
+                </span>
               )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {hasActiveFilters && (
-            <div className="bg-blue-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+            <div className="rounded-full bg-blue-500 px-2 py-1 text-xs font-medium text-white">
               {activeFilterCount}
             </div>
           )}
@@ -103,5 +103,5 @@ export const FilterPanel = memo(function FilterPanel({
         />
       )}
     </div>
-  );
-});
+  )
+})

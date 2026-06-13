@@ -13,7 +13,7 @@ export function SignupForm() {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -23,7 +23,7 @@ export function SignupForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }))
   }
 
@@ -62,7 +62,9 @@ export function SignupForm() {
       } else if (msg.includes('already registered') || msg.includes('user already registered')) {
         setError('An account with this email already exists')
       } else if (msg.includes('weak password')) {
-        setError('Password is too weak. Use at least 6 characters with a mix of letters and numbers.')
+        setError(
+          'Password is too weak. Use at least 6 characters with a mix of letters and numbers.'
+        )
       } else {
         setError(error.message || 'Signup failed. Please try again.')
       }
@@ -72,12 +74,10 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Create Account</CardTitle>
-        <CardDescription>
-          Join SoloAdventurer and start your journey
-        </CardDescription>
+        <CardDescription>Join SoloAdventurer and start your journey</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,7 +95,7 @@ export function SignupForm() {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email
@@ -110,7 +110,7 @@ export function SignupForm() {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
               Password
@@ -124,11 +124,11 @@ export function SignupForm() {
               onChange={handleChange}
               required
             />
-            <div className="flex items-start gap-2 mt-2">
-              <Info className="w-4 h-4 text-muted-foreground mt-0.5" />
-              <div className="text-xs text-muted-foreground space-y-1">
+            <div className="mt-2 flex items-start gap-2">
+              <Info className="mt-0.5 h-4 w-4 text-muted-foreground" />
+              <div className="space-y-1 text-xs text-muted-foreground">
                 <p>Password must contain:</p>
-                <ul className="list-disc list-inside space-y-0.5">
+                <ul className="list-inside list-disc space-y-0.5">
                   <li>At least 8 characters</li>
                   <li>Uppercase and lowercase letters</li>
                   <li>At least one number</li>
@@ -153,15 +153,9 @@ export function SignupForm() {
             />
           </div>
 
-          {error && (
-            <div className="text-red-600 text-sm">{error}</div>
-          )}
+          {error && <div className="text-sm text-red-600">{error}</div>}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </Button>
 

@@ -1,12 +1,15 @@
-'use client';
+'use client'
 
-import type { UserStatsProps, UserCardSize } from '@/types/user';
+import type { UserStatsProps, UserCardSize } from '@/types/user'
 
-const sizeStyles: Record<UserCardSize, {
-  container: string;
-  statValue: string;
-  statLabel: string;
-}> = {
+const sizeStyles: Record<
+  UserCardSize,
+  {
+    container: string
+    statValue: string
+    statLabel: string
+  }
+> = {
   small: {
     container: 'gap-3',
     statValue: 'text-sm font-semibold',
@@ -22,28 +25,28 @@ const sizeStyles: Record<UserCardSize, {
     statValue: 'text-lg font-semibold',
     statLabel: 'text-sm text-gray-500',
   },
-};
+}
 
 function formatStatValue(value: number): string {
   if (value >= 1000000) {
-    return `${(value / 1000000).toFixed(1)}M`;
+    return `${(value / 1000000).toFixed(1)}M`
   }
   if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}K`;
+    return `${(value / 1000).toFixed(1)}K`
   }
-  return value.toString();
+  return value.toString()
 }
 
 export function UserStats({
   stats,
   size = 'medium',
   isLoading = false,
-  className = ''
+  className = '',
 }: UserStatsProps) {
-  const styles = sizeStyles[size];
+  const styles = sizeStyles[size]
 
   if (isLoading) {
-    return <UserStatsSkeleton size={size} className={className} />;
+    return <UserStatsSkeleton size={size} className={className} />
   }
 
   const statItems = [
@@ -71,7 +74,7 @@ export function UserStats({
       value: stats.placesVisited,
       'aria-label': `${stats.placesVisited} places visited`,
     },
-  ];
+  ]
 
   return (
     <div
@@ -79,34 +82,25 @@ export function UserStats({
       role="group"
       aria-label="User statistics"
     >
-      {statItems.map((stat) => (
-        <div
-          key={stat.key}
-          className="text-center"
-          role="img"
-          aria-label={stat['aria-label']}
-        >
-          <div className={styles.statValue}>
-            {formatStatValue(stat.value)}
-          </div>
-          <div className={styles.statLabel}>
-            {stat.label}
-          </div>
+      {statItems.map(stat => (
+        <div key={stat.key} className="text-center" role="img" aria-label={stat['aria-label']}>
+          <div className={styles.statValue}>{formatStatValue(stat.value)}</div>
+          <div className={styles.statLabel}>{stat.label}</div>
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 // Skeleton component for loading state
 export function UserStatsSkeleton({
   size = 'medium',
-  className = ''
+  className = '',
 }: {
-  size?: UserCardSize;
-  className?: string;
+  size?: UserCardSize
+  className?: string
 }) {
-  const styles = sizeStyles[size];
+  const styles = sizeStyles[size]
 
   return (
     <div
@@ -116,14 +110,14 @@ export function UserStatsSkeleton({
     >
       {Array.from({ length: 4 }).map((_, index) => (
         <div key={index} className="text-center">
-          <div className={`${styles.statValue} bg-gray-200 rounded animate-pulse mb-1`}>
+          <div className={`${styles.statValue} mb-1 animate-pulse rounded bg-gray-200`}>
             <span className="opacity-0">000</span>
           </div>
-          <div className={`${styles.statLabel} bg-gray-200 rounded animate-pulse`}>
+          <div className={`${styles.statLabel} animate-pulse rounded bg-gray-200`}>
             <span className="opacity-0">Label</span>
           </div>
         </div>
       ))}
     </div>
-  );
+  )
 }

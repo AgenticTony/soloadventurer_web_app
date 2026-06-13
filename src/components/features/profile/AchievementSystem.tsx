@@ -137,8 +137,8 @@ export function AchievementSystem({
     },
   ]
 
-  const unlocked = achievements.filter((a) => a.unlocked)
-  const locked = achievements.filter((a) => !a.unlocked)
+  const unlocked = achievements.filter(a => a.unlocked)
+  const locked = achievements.filter(a => !a.unlocked)
 
   // Weight completion: sign-up (verified+early+name) = ~40% base
   const completionPct = Math.round((unlocked.length / achievements.length) * 100)
@@ -154,20 +154,16 @@ export function AchievementSystem({
       <CardContent className="p-5">
         {/* Progress header */}
         <div className="mb-4 flex items-center justify-between">
-          <div className="text-sm font-medium text-foreground">
-            Profile Progress
-          </div>
+          <div className="text-sm font-medium text-foreground">Profile Progress</div>
           <div className="flex items-center gap-2">
-            <span className="badge-trust px-2 py-0.5 text-xs font-semibold">
-              {completionPct}%
-            </span>
+            <span className="badge-trust px-2 py-0.5 text-xs font-semibold">{completionPct}%</span>
           </div>
         </div>
         <Progress value={completionPct} className="mb-4 h-2" />
 
         {/* Unlocked */}
         <div className="flex flex-wrap gap-2">
-          {unlocked.map((a) => (
+          {unlocked.map(a => (
             <div
               key={a.id}
               className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"
@@ -190,7 +186,7 @@ export function AchievementSystem({
 
         {showLocked && (
           <div className="mt-3 flex flex-wrap gap-2">
-            {locked.map((a) => (
+            {locked.map(a => (
               <div
                 key={a.id}
                 className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground"

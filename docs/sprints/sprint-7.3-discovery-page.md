@@ -70,15 +70,15 @@ Supabase → getFeed() (lib/api)
 
 ### Route Map
 
-| Route | Behavior | Tab |
-|-------|----------|-----|
-| `/` | 302 redirect → `/discover` | — |
-| `/discover` | Discovery landing page | Near You (default) |
-| `/feed` | 302 redirect → `/discover` | — |
-| `/dashboard` | 302 redirect → `/discover` | — |
-| `/meetups` | Standalone meetups page | — |
-| `/groups` | 302 redirect → `/meetups` | — |
-| `/events` | 302 redirect → `/meetups` | — |
+| Route        | Behavior                   | Tab                |
+| ------------ | -------------------------- | ------------------ |
+| `/`          | 302 redirect → `/discover` | —                  |
+| `/discover`  | Discovery landing page     | Near You (default) |
+| `/feed`      | 302 redirect → `/discover` | —                  |
+| `/dashboard` | 302 redirect → `/discover` | —                  |
+| `/meetups`   | Standalone meetups page    | —                  |
+| `/groups`    | 302 redirect → `/meetups`  | —                  |
+| `/events`    | 302 redirect → `/meetups`  | —                  |
 
 ---
 
@@ -88,17 +88,17 @@ All Sprint 7.3 components strictly follow the Sprint 7.2 design token system:
 
 ### Semantic Token Usage
 
-| Token | Usage in Discovery |
-|-------|-------------------|
-| `bg-background` | Page background, tab bar backdrop |
-| `bg-card` / `card-base` | All card containers |
-| `card-interactive` | Hoverable meetup/spot cards |
-| `bg-brand` / `text-brand` | Active tab, primary CTA, trending spot pins |
-| `bg-brand/10` | Active filter pills, tab highlight |
-| `bg-connection` / `btn-connection` | "Say hi" buttons, meetup category badges |
-| `text-trust` | Trending section header icon |
-| `bg-gradient-ocean-sunset` | City hero card, avatar gradients (hero moments) |
-| `border-border` | Card borders, section dividers |
+| Token                              | Usage in Discovery                              |
+| ---------------------------------- | ----------------------------------------------- |
+| `bg-background`                    | Page background, tab bar backdrop               |
+| `bg-card` / `card-base`            | All card containers                             |
+| `card-interactive`                 | Hoverable meetup/spot cards                     |
+| `bg-brand` / `text-brand`          | Active tab, primary CTA, trending spot pins     |
+| `bg-brand/10`                      | Active filter pills, tab highlight              |
+| `bg-connection` / `btn-connection` | "Say hi" buttons, meetup category badges        |
+| `text-trust`                       | Trending section header icon                    |
+| `bg-gradient-ocean-sunset`         | City hero card, avatar gradients (hero moments) |
+| `border-border`                    | Card borders, section dividers                  |
 
 ### Color Channel Discipline
 
@@ -236,6 +236,7 @@ All Sprint 7.3 components strictly follow the Sprint 7.2 design token system:
 ## Component Reference
 
 ### `src/app/(main)/discover/page.tsx`
+
 - **Type**: Client component (`'use client'`)
 - **Pattern**: Suspense boundary wrapping inner content component
 - **State**: `activeTab: DiscoverTabId` (default `'near-you'`)
@@ -243,12 +244,14 @@ All Sprint 7.3 components strictly follow the Sprint 7.2 design token system:
 - **Props flow**: Location + requestLocation passed to NearYouTab and PeopleTab
 
 ### `src/components/features/discover/DiscoverTabBar.tsx`
+
 - **Props**: `activeTab: DiscoverTabId`, `onTabChange: (tab) => void`
 - **Behavior**: Sticky top-0 with backdrop blur, tab role/aria-selected for a11y
 - **Tabs**: 4 items with Lucide icons (MapPin, Users, Rss, Calendar)
 - **Active state**: `bg-brand/10 text-brand shadow-sm` + icon color change
 
 ### `src/components/features/discover/NearYouTab.tsx`
+
 - **Props**: `userLocation`, `onRequestLocation`
 - **Internal state**: matches (from API), activeFilters (Set<string>), loading
 - **Sections**: City Hero → Quick Filters → Trending Spots → Arriving Soon → Who's Here Now → Meetups This Week
@@ -256,28 +259,33 @@ All Sprint 7.3 components strictly follow the Sprint 7.2 design token system:
 - **Sub-components**: ArrivingSoonCard, MeetupPreviewCard, PopularCitiesFallback, WeatherIcon
 
 ### `src/components/features/discover/PeopleTab.tsx`
+
 - **Props**: `userLocation`, `onRequestLocation`
 - **Pattern**: Thin wrapper delegating to `NearbyTravelersSection` from matching feature
 
 ### `src/components/features/discover/FeedTab.tsx`
+
 - **Internal state**: activeFilter, feedItems, loading, composerExpanded, composerText, newPostsCount, promptIndex
 - **Data**: `getFeed()` from `@/lib/api` on mount
 - **Sections**: Filter Bar → Composer → New Posts Pill → Feed Content / ActivationFunnel
 - **Sub-components**: ActivationFunnel (suggested travelers, trending stories, creator CTA)
 
 ### `src/components/features/discover/MeetupsTab.tsx`
+
 - **Internal state**: activeCategory (default `'All'`)
 - **Categories**: All, Outdoors, Food, Photography, Social, Wellness, Cultural
 - **Category system**: Color mapping per category + Lucide icon mapping
 - **Note**: Category colors use some hardcoded values (green/orange/purple) — technical debt for Sprint 7.4+ token migration
 
 ### `src/components/layout/LeftNav.tsx`
+
 - **Props**: `user?` (name, avatar, location, bio, emailVerified, stats), `unreadChatCount?`
 - **Key function**: `calculateProfileSteps()` — returns {completed, total, steps[]}
 - **Contextual CTA**: pathname-aware — changes title/description/href based on current route
 - **Real-time**: Unread message count updated via event listener (currently stubbed)
 
 ### `src/components/layout/RightRail.tsx`
+
 - **Props**: `currentCity?`, `nearbyTravelers?`, `trendingTags?`
 - **Defaults**: San Francisco (234 travelers), 3 nearby travelers, 3 trending tags
 - **Visibility**: `xl:block` only (hidden below 1280px)
@@ -288,35 +296,35 @@ All Sprint 7.3 components strictly follow the Sprint 7.2 design token system:
 ## Types (`src/types/discover.ts`)
 
 ```typescript
-export type DiscoverTabId = 'near-you' | 'people' | 'feed' | 'meetups';
+export type DiscoverTabId = 'near-you' | 'people' | 'feed' | 'meetups'
 
 export interface CityHero {
-  name: string;
-  country: string;
-  travelerCount: number;
-  weather: { temp: number; condition: 'sunny' | 'cloudy' | 'rainy' };
+  name: string
+  country: string
+  travelerCount: number
+  weather: { temp: number; condition: 'sunny' | 'cloudy' | 'rainy' }
 }
 
 export interface TrendingSpot {
-  id: string;
-  name: string;
-  visitorCount: number;
+  id: string
+  name: string
+  visitorCount: number
 }
 
 export interface MeetupPreview {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  attendeeCount: number;
-  category: string;
-  description: string;
-  host: { name: string; avatar: string | null };
+  id: string
+  title: string
+  date: string
+  location: string
+  attendeeCount: number
+  category: string
+  description: string
+  host: { name: string; avatar: string | null }
 }
 
 export interface DiscoverFilter {
-  id: string;
-  label: string;
+  id: string
+  label: string
 }
 ```
 
@@ -386,34 +394,38 @@ export interface DiscoverFilter {
 ## Files Created/Modified
 
 ### New Files
-| File | Purpose |
-|------|---------|
-| `src/types/discover.ts` | Type definitions: DiscoverTabId, CityHero, TrendingSpot, MeetupPreview, DiscoverFilter |
-| `src/components/features/discover/DiscoverTabBar.tsx` | Sticky tab navigation with 4 tabs, a11y roles, backdrop blur |
-| `src/components/features/discover/NearYouTab.tsx` | Default tab: city hero, filters, arriving carousel, who's here grid, meetup previews, popular cities fallback |
-| `src/components/features/discover/PeopleTab.tsx` | People tab: thin wrapper around NearbyTravelersSection |
-| `src/components/features/discover/FeedTab.tsx` | Feed tab: collapsible composer, filter bar, feed items, activation funnel, new posts pill |
-| `src/components/features/discover/MeetupsTab.tsx` | Meetups tab: category filters, meetup cards with category icons and colors |
+
+| File                                                  | Purpose                                                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `src/types/discover.ts`                               | Type definitions: DiscoverTabId, CityHero, TrendingSpot, MeetupPreview, DiscoverFilter                        |
+| `src/components/features/discover/DiscoverTabBar.tsx` | Sticky tab navigation with 4 tabs, a11y roles, backdrop blur                                                  |
+| `src/components/features/discover/NearYouTab.tsx`     | Default tab: city hero, filters, arriving carousel, who's here grid, meetup previews, popular cities fallback |
+| `src/components/features/discover/PeopleTab.tsx`      | People tab: thin wrapper around NearbyTravelersSection                                                        |
+| `src/components/features/discover/FeedTab.tsx`        | Feed tab: collapsible composer, filter bar, feed items, activation funnel, new posts pill                     |
+| `src/components/features/discover/MeetupsTab.tsx`     | Meetups tab: category filters, meetup cards with category icons and colors                                    |
 
 ### Modified Files
-| File | Changes |
-|------|---------|
-| `src/app/(main)/discover/page.tsx` | Complete redesign with tab system, Suspense boundary, useUserLocation hook |
-| `src/app/(main)/page.tsx` | Redirects to `/discover` (was `/feed`) |
-| `src/components/layout/LeftNav.tsx` | Profile progress nudge (calculateProfileSteps), location CTA, contextual trip CTA, page-aware CTA logic |
-| `src/components/layout/RightRail.tsx` | Actionable traveler count, trust signal banner, trending hashtag pills, visually distinct card types |
-| `src/components/layout/MainLayout.tsx` | Proper tab→route navigation, discover as default tab, 3-col grid with correct breakpoints |
-| `next.config.js` | Redirects: `/`→`/discover`, `/dashboard`→`/discover`, `/feed`→`/discover`, `/groups`→`/meetups`, `/events`→`/meetups` |
-| `src/styles/globals.css` | Component utilities: `card-base`, `card-interactive`, `btn-connection`, `badge-trust`, `bg-gradient-ocean-sunset` |
+
+| File                                   | Changes                                                                                                               |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `src/app/(main)/discover/page.tsx`     | Complete redesign with tab system, Suspense boundary, useUserLocation hook                                            |
+| `src/app/(main)/page.tsx`              | Redirects to `/discover` (was `/feed`)                                                                                |
+| `src/components/layout/LeftNav.tsx`    | Profile progress nudge (calculateProfileSteps), location CTA, contextual trip CTA, page-aware CTA logic               |
+| `src/components/layout/RightRail.tsx`  | Actionable traveler count, trust signal banner, trending hashtag pills, visually distinct card types                  |
+| `src/components/layout/MainLayout.tsx` | Proper tab→route navigation, discover as default tab, 3-col grid with correct breakpoints                             |
+| `next.config.js`                       | Redirects: `/`→`/discover`, `/dashboard`→`/discover`, `/feed`→`/discover`, `/groups`→`/meetups`, `/events`→`/meetups` |
+| `src/styles/globals.css`               | Component utilities: `card-base`, `card-interactive`, `btn-connection`, `badge-trust`, `bg-gradient-ocean-sunset`     |
 
 ---
 
 ## Dependencies
 
 ### Upstream
+
 - **Sprint 7.2**: Design tokens, color system, nav consolidation, CTA verbs — all in place
 
 ### Downstream
+
 - **Sprint 7.4 (Profile Overhaul)**: Uses discover routes for navigation context, profile progress nudge feeds into profile edit flow
 - **Future: Real-time feed**: FeedTab's new posts pill + composer ready for Supabase Realtime integration
 - **Future: Geolocation pipeline**: Location CTA + useUserLocation ready for reverse geocoding + Supabase persistence

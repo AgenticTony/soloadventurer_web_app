@@ -19,6 +19,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
 ### Epic 1: Project Setup & Configuration
 
 #### Tasks:
+
 - [x] **Next.js 15 Setup**
   - [x] Initialize Next.js 15 project with TypeScript
   - [x] Configure App Router structure
@@ -41,6 +42,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
   - [x] Set up Husky for git hooks
 
 #### Acceptance Criteria:
+
 - ✅ Next.js project builds successfully
 - ✅ TypeScript compilation passes
 - ✅ TailwindCSS and shadcn/ui components work
@@ -50,6 +52,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
 ### Epic 2: Authentication System
 
 #### Tasks:
+
 - [x] **AWS Cognito Integration** (Mock for development)
   - [x] Set up Cognito User Pool in AWS (Mock for development)
   - [x] Configure App Client for web application (Mock for development)
@@ -79,6 +82,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
   - [x] Implement protected routes middleware
 
 #### Acceptance Criteria:
+
 - ✅ Users can register with email and password
 - ✅ Users can login with existing credentials
 - ✅ Password reset flow works end-to-end
@@ -89,6 +93,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
 ### Epic 3: User Profile Management
 
 #### Tasks:
+
 - [x] **Database Schema** (Mock for development)
   - [x] Design User table schema
   - [x] Set up GraphQL schema for User type
@@ -111,6 +116,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
   - [x] Add profile privacy settings
 
 #### Acceptance Criteria:
+
 - ✅ Users can view their own profiles
 - ✅ Users can edit profile information
 - ✅ Avatar upload works with S3 integration
@@ -121,6 +127,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
 ### Epic 4: Base Layout & Navigation
 
 #### Tasks:
+
 - [x] **Layout Components**
   - [x] Create main layout wrapper
   - [x] Build responsive navigation header
@@ -143,6 +150,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
   - [x] Set up deep linking
 
 #### Acceptance Criteria:
+
 - ✅ Consistent layout across all pages
 - ✅ Navigation works on mobile and desktop
 - ✅ Protected routes require authentication
@@ -153,6 +161,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
 ### Epic 5: CI/CD & Infrastructure
 
 #### Tasks:
+
 - [x] **GitHub Actions**
   - [x] Set up CI/CD pipeline
   - [x] Configure automated testing
@@ -175,6 +184,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
   - [x] Configure alerting (Ready for AWS integration)
 
 #### Acceptance Criteria:
+
 - ✅ CI/CD pipeline runs on push
 - ✅ Tests run automatically
 - ✅ Deployments work for staging and production (Pipeline ready)
@@ -186,6 +196,7 @@ Establish the technical foundation for the SoloAdventurer web application and im
 ## 📊 Definition of Done
 
 A task is considered **done** when:
+
 - ✅ Code is written and follows project standards
 - ✅ All tests pass (unit, integration, E2E)
 - ✅ Code is reviewed and approved
@@ -200,6 +211,7 @@ A task is considered **done** when:
 ## 🎨 Design Assets
 
 ### Components Needed:
+
 - Login form component
 - Signup form component
 - Profile card component
@@ -211,6 +223,7 @@ A task is considered **done** when:
 - Success modals
 
 ### Design System:
+
 - Color palette and tokens
 - Typography scale
 - Spacing system
@@ -223,6 +236,7 @@ A task is considered **done** when:
 ## 🔧 Technical Dependencies
 
 ### External Services:
+
 - AWS Cognito (authentication)
 - AWS AppSync (GraphQL API)
 - Amazon S3 (file storage)
@@ -230,6 +244,7 @@ A task is considered **done** when:
 - GitHub Actions (CI/CD)
 
 ### npm Packages:
+
 - @aws-amplify/ui-react
 - @apollo/client
 - framer-motion
@@ -243,6 +258,7 @@ A task is considered **done** when:
 ## 📈 Success Metrics
 
 ### Technical Metrics:
+
 - Build time < 2 minutes
 - Test coverage > 80%
 - Lighthouse score > 90
@@ -250,6 +266,7 @@ A task is considered **done** when:
 - Time to interactive < 3 seconds
 
 ### User Experience:
+
 - Registration completion rate > 70%
 - Login success rate > 95%
 - Profile creation rate > 80%
@@ -257,6 +274,7 @@ A task is considered **done** when:
 - Mobile responsiveness score > 90%
 
 ### Quality Gates:
+
 - Zero critical bugs in production
 - All security tests pass
 - Accessibility WCAG 2.1 AA compliant
@@ -268,12 +286,14 @@ A task is considered **done** when:
 ## 🚧 Risks & Blockers
 
 ### Identified Risks:
+
 - **AWS Configuration**: Complex Cognito setup may delay authentication
 - **Timeline**: Authentication integration may take longer than estimated
 - **Dependencies**: Third-party service outages could impact development
 - **Security**: Authentication flows require careful security review
 
 ### Mitigation Strategies:
+
 - Allocate buffer time for AWS configuration
 - Use Amplify UI components to speed up development
 - Have backup authentication provider options
@@ -284,6 +304,7 @@ A task is considered **done** when:
 ## 📝 Sprint Retrospective
 
 ### What Went Well:
+
 - ✅ Complete project setup accomplished in 2 days instead of 2 weeks
 - ✅ shadcn/ui component library integrated smoothly
 - ✅ Authentication UI components implemented with proper validation
@@ -292,12 +313,14 @@ A task is considered **done** when:
 - ✅ Mock authentication approach allows immediate development progress
 
 ### What Could Be Improved:
+
 - ⚠️ AWS Cognito integration postponed to future sprints
 - ⚠️ GraphQL schema needs actual backend implementation
 - ⚠️ Real database setup needed for production deployment
 - ⚠️ File upload functionality requires AWS S3 integration
 
 ### Action Items:
+
 - 🔄 Schedule AWS services setup for Sprint 3 or 4
 - 🔄 Implement actual GraphQL resolvers when backend is ready
 - 🔄 Plan database migration strategy for production deployment
@@ -308,9 +331,11 @@ A task is considered **done** when:
 ## 🔄 Dependencies
 
 ### Blocked By:
+
 - None (this is the first sprint)
 
 ### Blocking:
+
 - Sprint 2 (Trips & Map) depends on authentication
 - Sprint 3 (Matching) depends on user profiles
 

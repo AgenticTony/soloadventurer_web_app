@@ -24,31 +24,35 @@ Both apps will share the same `connections`, `trips`, `activities`, `user_activi
 ## Mobile App Reference (Source of Truth)
 
 ### Supabase Tables Used
-| Table | Purpose |
-|-------|---------|
-| `trips` | User travel plans (already connected) |
-| `connections` | Match records with status (pending/accepted/declined/blocked) |
-| `activities` | Available activity types (coffee, hiking, sightseeing, etc.) |
-| `user_activities` | User's selected activity interests |
-| `messages` | Chat messages between matched users |
+
+| Table             | Purpose                                                       |
+| ----------------- | ------------------------------------------------------------- |
+| `trips`           | User travel plans (already connected)                         |
+| `connections`     | Match records with status (pending/accepted/declined/blocked) |
+| `activities`      | Available activity types (coffee, hiking, sightseeing, etc.)  |
+| `user_activities` | User's selected activity interests                            |
+| `messages`        | Chat messages between matched users                           |
 
 ### Supabase RPC Functions
-| Function | Purpose | Status |
-|----------|---------|--------|
+
+| Function                 | Purpose                                                  | Status                                        |
+| ------------------------ | -------------------------------------------------------- | --------------------------------------------- |
 | `find_potential_matches` | Geographic overlap matching (params: user_id, radius_km) | Not in schema cache — implemented client-side |
-| `set_typing_indicator` | Chat typing status (params: p_chat_id, p_user_id) | Not yet implemented |
-| `clear_typing_indicator` | Clear typing status | Not yet implemented |
-| `get_typing_users` | Get who's typing in a chat | Not yet implemented |
+| `set_typing_indicator`   | Chat typing status (params: p_chat_id, p_user_id)        | Not yet implemented                           |
+| `clear_typing_indicator` | Clear typing status                                      | Not yet implemented                           |
+| `get_typing_users`       | Get who's typing in a chat                               | Not yet implemented                           |
 
 ### Supabase Edge Functions
-| Function | Purpose | Status |
-|----------|---------|--------|
-| `find-potential-matches-semantic` | AI-powered interest matching | Not yet implemented |
-| `request-connection` | Send connection request | Implemented via direct table insert |
-| `respond-connection` | Accept/decline connection | Implemented via direct table update |
-| `notify-new-message` | Push notification for new message | Not yet implemented |
+
+| Function                          | Purpose                           | Status                              |
+| --------------------------------- | --------------------------------- | ----------------------------------- |
+| `find-potential-matches-semantic` | AI-powered interest matching      | Not yet implemented                 |
+| `request-connection`              | Send connection request           | Implemented via direct table insert |
+| `respond-connection`              | Accept/decline connection         | Implemented via direct table update |
+| `notify-new-message`              | Push notification for new message | Not yet implemented                 |
 
 ### Connection Entity Fields
+
 ```
 id, userAId, userBId, matchType (geographicOverlap | activityMatch | combinedMatch),
 status (pending | accepted | declined | blocked),
@@ -58,6 +62,7 @@ matchedUserProfile: { id, firstName, ageRange, homeCountry, gender, avatarUrl, t
 ```
 
 ### Mobile App Screens
+
 1. **Matches Screen** — card list of nearby travelers with destination, dates, overlap days, activity chips, match type badges
 2. **Chat List Screen** — conversations with matched users
 3. **Chat Screen** — real-time messaging with typing indicators
@@ -67,9 +72,11 @@ matchedUserProfile: { id, firstName, ageRange, homeCountry, gender, avatarUrl, t
 ## Implementation Notes
 
 ### RPC Functions Not Available
+
 The planned RPC functions (`find_potential_matches`, `get_nearby_travelers_count`) are not in our Supabase schema cache, so match discovery is implemented via direct table queries with client-side overlap computation. This uses the `trips` table with date range comparisons and haversine distance calculation.
 
 ### Edge Functions Replaced with Direct Queries
+
 Connection requests and responses are implemented as direct Supabase table inserts/updates rather than edge function calls, since the edge functions are not configured for our project.
 
 ---
@@ -228,44 +235,48 @@ Wire everything into the main navigation flow.
 ## Architecture Decisions
 
 ### API Pattern
+
 All matching queries use the same pattern as the mobile app:
+
 - **Direct table queries** for match discovery, connections, and messages (RPC functions not available in schema cache)
 - **Supabase Realtime** for live chat messages (replacing WebSocket)
 - **Client-side computation** for date overlap and haversine distance matching
 
 ### No New GraphQL/Apollo
+
 This feature is built entirely on Supabase — no reintroduction of Apollo or GraphQL.
 
 ### Shared Tables
+
 The web app reads/writes the same Supabase tables as the mobile app. No new tables needed.
 
 ---
 
 ## Files Created
 
-| File | Purpose |
-|------|---------|
-| `src/types/matching.ts` | Types: Activity, UserActivity, Connection, ConnectionProfile, PotentialMatch, ConnectionStatus, MatchType |
-| `src/lib/api/activities.ts` | Supabase CRUD for activities and user_activities tables |
-| `src/lib/api/matching.ts` | Match discovery, connection management (findPotentialMatches, getConnections, requestConnection, respondToConnection) |
-| `src/lib/api/chat.ts` | Chat messaging with Supabase Realtime subscriptions |
-| `src/components/features/matching/ActivitySelector.tsx` | Category-grouped activity chip selector |
-| `src/components/features/matching/MatchCard.tsx` | Match display card with connect action |
-| `docs/sprints/sprint-07-matching-supabase.md` | This sprint plan |
+| File                                                    | Purpose                                                                                                               |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `src/types/matching.ts`                                 | Types: Activity, UserActivity, Connection, ConnectionProfile, PotentialMatch, ConnectionStatus, MatchType             |
+| `src/lib/api/activities.ts`                             | Supabase CRUD for activities and user_activities tables                                                               |
+| `src/lib/api/matching.ts`                               | Match discovery, connection management (findPotentialMatches, getConnections, requestConnection, respondToConnection) |
+| `src/lib/api/chat.ts`                                   | Chat messaging with Supabase Realtime subscriptions                                                                   |
+| `src/components/features/matching/ActivitySelector.tsx` | Category-grouped activity chip selector                                                                               |
+| `src/components/features/matching/MatchCard.tsx`        | Match display card with connect action                                                                                |
+| `docs/sprints/sprint-07-matching-supabase.md`           | This sprint plan                                                                                                      |
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
-| `src/app/profile/page.tsx` | Added ActivitySelector component |
-| `src/app/(main)/discover/page.tsx` | Added NearbyTravelersSection with MatchCard grid |
-| `src/app/(main)/connections/page.tsx` | Full rewrite: REST/mock → Supabase queries |
-| `src/app/(main)/chat/page.tsx` | Full rewrite: Allotment/WebSocket → Supabase Realtime |
-| `src/components/layout/Header.tsx` | Waves→Users icon, Messages links to /chat |
-| `src/components/users/UserCard.tsx` | Working Connect/Message buttons |
-| `src/types/connection.ts` | Fixed `any` → `unknown` lint error |
-| `src/lib/api/moderation.ts` | Fixed `any` → `unknown` lint errors |
-| `src/services/users/userService.ts` | Fixed `let` → removed unused variable |
+| File                                  | Change                                                |
+| ------------------------------------- | ----------------------------------------------------- |
+| `src/app/profile/page.tsx`            | Added ActivitySelector component                      |
+| `src/app/(main)/discover/page.tsx`    | Added NearbyTravelersSection with MatchCard grid      |
+| `src/app/(main)/connections/page.tsx` | Full rewrite: REST/mock → Supabase queries            |
+| `src/app/(main)/chat/page.tsx`        | Full rewrite: Allotment/WebSocket → Supabase Realtime |
+| `src/components/layout/Header.tsx`    | Waves→Users icon, Messages links to /chat             |
+| `src/components/users/UserCard.tsx`   | Working Connect/Message buttons                       |
+| `src/types/connection.ts`             | Fixed `any` → `unknown` lint error                    |
+| `src/lib/api/moderation.ts`           | Fixed `any` → `unknown` lint errors                   |
+| `src/services/users/userService.ts`   | Fixed `let` → removed unused variable                 |
 
 ---
 

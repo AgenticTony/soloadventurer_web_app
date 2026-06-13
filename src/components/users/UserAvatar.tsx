@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useMemo } from 'react';
-import Image from 'next/image';
-import type { UserAvatarProps, AvatarSize, UserStatus } from '@/types/user';
+import { useMemo } from 'react'
+import Image from 'next/image'
+import type { UserAvatarProps, AvatarSize, UserStatus } from '@/types/user'
 
 const sizeClasses: Record<AvatarSize, string> = {
   xs: 'h-6 w-6 text-xs',
@@ -10,13 +10,13 @@ const sizeClasses: Record<AvatarSize, string> = {
   md: 'h-10 w-10 text-base',
   lg: 'h-12 w-12 text-lg',
   xl: 'h-16 w-16 text-xl',
-};
+}
 
 const statusColors: Record<UserStatus, string> = {
   online: 'bg-green-500',
   offline: 'bg-gray-400',
   away: 'bg-yellow-500',
-};
+}
 
 const statusSizes: Record<AvatarSize, string> = {
   xs: 'h-1.5 w-1.5',
@@ -24,14 +24,14 @@ const statusSizes: Record<AvatarSize, string> = {
   md: 'h-2.5 w-2.5',
   lg: 'h-3 w-3',
   xl: 'h-4 w-4',
-};
+}
 
 function getInitials(name: string): string {
   return name
     .split(' ')
     .map(part => part.charAt(0).toUpperCase())
     .slice(0, 2)
-    .join('');
+    .join('')
 }
 
 function generateAvatarColor(name: string): string {
@@ -45,13 +45,13 @@ function generateAvatarColor(name: string): string {
     'bg-pink-500',
     'bg-indigo-500',
     'bg-teal-500',
-  ];
+  ]
 
   const hash = name.split('').reduce((acc, char) => {
-    return char.charCodeAt(0) + ((acc << 5) - acc);
-  }, 0);
+    return char.charCodeAt(0) + ((acc << 5) - acc)
+  }, 0)
 
-  return colors[Math.abs(hash) % colors.length];
+  return colors[Math.abs(hash) % colors.length]
 }
 
 export function UserAvatar({
@@ -60,24 +60,16 @@ export function UserAvatar({
   status,
   showStatus = false,
   className = '',
-  alt
+  alt,
 }: UserAvatarProps) {
-  const initials = useMemo(() => getInitials(user.name), [user.name]);
-  const avatarColor = useMemo(() => generateAvatarColor(user.name), [user.name]);
-  const altText = alt || `${user.name}'s avatar`;
+  const initials = useMemo(() => getInitials(user.name), [user.name])
+  const avatarColor = useMemo(() => generateAvatarColor(user.name), [user.name])
+  const altText = alt || `${user.name}'s avatar`
 
   return (
     <div className={`relative inline-block ${className}`}>
       <div
-        className={`
-          ${sizeClasses[size]}
-          rounded-full
-          overflow-hidden
-          flex
-          items-center
-          justify-center
-          ${!user.avatar ? `${avatarColor} text-white font-medium` : 'bg-gray-200'}
-        `}
+        className={` ${sizeClasses[size]} flex items-center justify-center overflow-hidden rounded-full ${!user.avatar ? `${avatarColor} font-medium text-white` : 'bg-gray-200'} `}
         role="img"
         aria-label={altText}
       >
@@ -88,14 +80,14 @@ export function UserAvatar({
             fill
             className="object-cover"
             sizes="(max-width: 64px) 64px, 128px"
-            onError={(e) => {
+            onError={e => {
               // Fallback to initials on image error
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+              const parent = target.parentElement
               if (parent) {
-                parent.className = `${parent.className} ${avatarColor} text-white font-medium`;
-                parent.textContent = initials;
+                parent.className = `${parent.className} ${avatarColor} text-white font-medium`
+                parent.textContent = initials
               }
             }}
           />
@@ -109,60 +101,34 @@ export function UserAvatar({
       {/* Status indicator */}
       {showStatus && status && (
         <div
-          className={`
-            absolute
-            -bottom-0.5
-            -right-0.5
-            ${statusSizes[size]}
-            ${statusColors[status]}
-            rounded-full
-            border-2
-            border-white
-          `}
+          className={`absolute -bottom-0.5 -right-0.5 ${statusSizes[size]} ${statusColors[status]} rounded-full border-2 border-white`}
           role="status"
           aria-label={`User is ${status}`}
           title={`${user.name} is ${status}`}
         />
       )}
     </div>
-  );
+  )
 }
 
 // Skeleton component for loading state
 export function UserAvatarSkeleton({
   size = 'md',
   showStatus = false,
-  className = ''
+  className = '',
 }: {
-  size?: AvatarSize;
-  showStatus?: boolean;
-  className?: string;
+  size?: AvatarSize
+  showStatus?: boolean
+  className?: string
 }) {
   return (
     <div className={`relative inline-block ${className}`} aria-hidden="true">
-      <div
-        className={`
-          ${sizeClasses[size]}
-          rounded-full
-          bg-gray-200
-          animate-pulse
-        `}
-      />
+      <div className={` ${sizeClasses[size]} animate-pulse rounded-full bg-gray-200`} />
       {showStatus && (
         <div
-          className={`
-            absolute
-            -bottom-0.5
-            -right-0.5
-            ${statusSizes[size]}
-            bg-gray-300
-            rounded-full
-            border-2
-            border-white
-            animate-pulse
-          `}
+          className={`absolute -bottom-0.5 -right-0.5 ${statusSizes[size]} animate-pulse rounded-full border-2 border-white bg-gray-300`}
         />
       )}
     </div>
-  );
+  )
 }

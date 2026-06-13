@@ -17,21 +17,25 @@ jest.mock('@/lib/supabase/client', () => ({
 // Mock the trip service
 jest.mock('@/services/trips/tripService', () => ({
   tripService: {
-    updateTrip: jest.fn().mockResolvedValue({ success: true })
-  }
+    updateTrip: jest.fn().mockResolvedValue({ success: true }),
+  },
 }))
 
 // Mock the API module for TripsApiError
 jest.mock('@/lib/api', () => ({
   ...jest.requireActual('@/lib/api'),
-  TripsApiError: class TripsApiError extends Error { constructor(m: string) { super(m) } },
+  TripsApiError: class TripsApiError extends Error {
+    constructor(m: string) {
+      super(m)
+    }
+  },
 }))
 
 // Mock the unsaved changes hook
 jest.mock('@/hooks/useUnsavedChanges', () => ({
   useUnsavedChanges: jest.fn(() => ({
-    confirmNavigation: jest.fn((callback) => callback())
-  }))
+    confirmNavigation: jest.fn(callback => callback()),
+  })),
 }))
 
 const mockTrip = {
@@ -46,7 +50,7 @@ const mockTrip = {
   ownerId: 'user-123',
   owner: 'adventure_seeker',
   createdAt: '2024-05-01T00:00:00Z',
-  updatedAt: '2024-05-01T00:00:00Z'
+  updatedAt: '2024-05-01T00:00:00Z',
 }
 
 const mockOnCancel = jest.fn()
@@ -76,7 +80,10 @@ describe('TripEditForm', () => {
   })
 
   it('should submit the form successfully when valid', async () => {
-    ;(tripService.updateTrip as jest.Mock).mockResolvedValueOnce({ ...mockTrip, title: 'Paris Adventure' })
+    ;(tripService.updateTrip as jest.Mock).mockResolvedValueOnce({
+      ...mockTrip,
+      title: 'Paris Adventure',
+    })
 
     const mockOnSave = jest.fn()
     render(<TripEditForm trip={mockTrip} onCancel={mockOnCancel} onSave={mockOnSave} />)

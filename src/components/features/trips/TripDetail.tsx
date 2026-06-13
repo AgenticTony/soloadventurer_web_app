@@ -1,16 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Calendar,
-  MapPin,
-  Clock,
-  Lock,
-  Globe,
-  Edit,
-  Trash2,
-  MoreHorizontal
-} from 'lucide-react'
+import { Calendar, MapPin, Clock, Lock, Globe, Edit, Trash2, MoreHorizontal } from 'lucide-react'
 import { TripMap } from './TripMap'
 import type { Trip } from '@/lib/api'
 
@@ -21,12 +12,7 @@ interface TripDetailProps {
   className?: string
 }
 
-export function TripDetail({
-  trip,
-  onEdit,
-  onDelete,
-  className = ''
-}: TripDetailProps) {
+export function TripDetail({ trip, onEdit, onDelete, className = '' }: TripDetailProps) {
   const [showActionsMenu, setShowActionsMenu] = useState(false)
 
   const formatDate = (date: string) => {
@@ -34,7 +20,7 @@ export function TripDetail({
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     })
   }
 
@@ -42,7 +28,7 @@ export function TripDetail({
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
 
@@ -54,7 +40,7 @@ export function TripDetail({
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1
 
     if (diffDays === 1) return '1 day'
-    if (diffDays <= 14) return `${diffDays} days`  // Show days up to 2 weeks
+    if (diffDays <= 14) return `${diffDays} days` // Show days up to 2 weeks
     if (diffDays < 30) {
       const weeks = Math.floor(diffDays / 7)
       return `${weeks} week${weeks > 1 ? 's' : ''}`
@@ -69,7 +55,8 @@ export function TripDetail({
     const end = new Date(trip.endDate)
 
     if (start > now) return { label: 'Upcoming', color: 'text-sun-600 bg-sun-50 border-sun-200' }
-    if (start <= now && end >= now) return { label: 'Ongoing', color: 'text-brand-600 bg-brand-50 border-brand-200' }
+    if (start <= now && end >= now)
+      return { label: 'Ongoing', color: 'text-brand-600 bg-brand-50 border-brand-200' }
     return { label: 'Completed', color: 'text-sky-600 bg-sky-50 border-sky-200' }
   }
 
@@ -93,62 +80,60 @@ export function TripDetail({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="bg-card rounded-2xl shadow-card border border-border p-8">
-        <div className="flex items-start justify-between mb-6">
+      <div className="rounded-2xl border border-border bg-card p-8 shadow-card">
+        <div className="mb-6 flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="mb-2 flex items-center gap-3">
               <h1 className="text-3xl font-bold text-foreground">{trip.title}</h1>
-              <div className={`px-3 py-1 rounded-full text-sm font-medium border ${status.color}`}>
+              <div className={`rounded-full border px-3 py-1 text-sm font-medium ${status.color}`}>
                 {status.label}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-muted-foreground mb-4">
+            <div className="mb-4 flex items-center gap-2 text-muted-foreground">
               {trip.isPrivate ? (
                 <div className="flex items-center gap-1">
-                  <Lock className="w-4 h-4" />
+                  <Lock className="h-4 w-4" />
                   <span className="text-sm">Private Trip</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
-                  <Globe className="w-4 h-4" />
+                  <Globe className="h-4 w-4" />
                   <span className="text-sm">Public Trip</span>
                 </div>
               )}
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              Created on {formatDate(trip.createdAt)}
-            </p>
+            <p className="text-sm text-muted-foreground">Created on {formatDate(trip.createdAt)}</p>
           </div>
 
           {/* Actions Menu */}
           <div className="relative">
             <button
               onClick={() => setShowActionsMenu(!showActionsMenu)}
-              className="p-2 bg-muted hover:bg-muted/80 rounded-lg transition-colors text-muted-foreground"
+              className="rounded-lg bg-muted p-2 text-muted-foreground transition-colors hover:bg-muted/80"
             >
-              <MoreHorizontal className="w-5 h-5" />
+              <MoreHorizontal className="h-5 w-5" />
             </button>
 
             {showActionsMenu && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border rounded-lg shadow-lg z-10">
+              <div className="absolute right-0 top-full z-10 mt-1 w-48 rounded-lg border border-border bg-card shadow-lg">
                 <button
                   onClick={handleEdit}
                   disabled={true}
-                  className="w-full px-4 py-3 text-left text-sm text-muted-foreground hover:bg-muted/50 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50"
                   title="Edit functionality coming soon"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="h-4 w-4" />
                   <span>Edit Trip</span>
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={true}
-                  className="w-full px-4 py-3 text-left text-sm text-muted-foreground hover:bg-muted/50 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50"
                   title="Delete functionality coming soon"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                   <span>Delete Trip</span>
                 </button>
               </div>
@@ -157,31 +142,31 @@ export function TripDetail({
         </div>
 
         {/* Trip Details Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Start Date */}
-          <div className="p-4 bg-muted rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-5 h-5 text-brand-500" />
+          <div className="rounded-xl bg-muted p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-brand-500" />
               <h3 className="font-medium text-foreground">Start Date</h3>
             </div>
-            <p className="text-sm text-muted-foreground mb-1">{formatDate(trip.startDate)}</p>
+            <p className="mb-1 text-sm text-muted-foreground">{formatDate(trip.startDate)}</p>
             <p className="text-xs text-muted-foreground">{formatDateShort(trip.startDate)}</p>
           </div>
 
           {/* End Date */}
-          <div className="p-4 bg-muted rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-5 h-5 text-coral-500" />
+          <div className="rounded-xl bg-muted p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-coral-500" />
               <h3 className="font-medium text-foreground">End Date</h3>
             </div>
-            <p className="text-sm text-muted-foreground mb-1">{formatDate(trip.endDate)}</p>
+            <p className="mb-1 text-sm text-muted-foreground">{formatDate(trip.endDate)}</p>
             <p className="text-xs text-muted-foreground">{formatDateShort(trip.endDate)}</p>
           </div>
 
           {/* Duration */}
-          <div className="p-4 bg-muted rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-sun-500" />
+          <div className="rounded-xl bg-muted p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Clock className="h-5 w-5 text-sun-500" />
               <h3 className="font-medium text-foreground">Duration</h3>
             </div>
             <p className="text-sm text-muted-foreground">{getDuration()}</p>
@@ -190,9 +175,9 @@ export function TripDetail({
       </div>
 
       {/* Map Section */}
-      <div className="bg-card rounded-2xl shadow-card border border-border p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <MapPin className="w-5 h-5 text-brand-500" />
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="mb-4 flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-brand-500" />
           <h2 className="text-xl font-semibold text-foreground">Location</h2>
         </div>
 
@@ -200,31 +185,31 @@ export function TripDetail({
       </div>
 
       {/* Trip Metadata */}
-      <div className="bg-card rounded-2xl shadow-card border border-border p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Trip Information</h2>
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <h2 className="mb-4 text-xl font-semibold text-foreground">Trip Information</h2>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-2 border-b border-border">
+          <div className="flex items-center justify-between border-b border-border py-2">
             <span className="text-sm font-medium text-foreground">Trip ID</span>
-            <span className="text-sm text-muted-foreground font-mono">{trip.id}</span>
+            <span className="font-mono text-sm text-muted-foreground">{trip.id}</span>
           </div>
 
-          <div className="flex items-center justify-between py-2 border-b border-border">
+          <div className="flex items-center justify-between border-b border-border py-2">
             <span className="text-sm font-medium text-foreground">Owner ID</span>
-            <span className="text-sm text-muted-foreground font-mono">{trip.ownerId}</span>
+            <span className="font-mono text-sm text-muted-foreground">{trip.ownerId}</span>
           </div>
 
-          <div className="flex items-center justify-between py-2 border-b border-border">
+          <div className="flex items-center justify-between border-b border-border py-2">
             <span className="text-sm font-medium text-foreground">Privacy</span>
             <div className="flex items-center gap-2">
               {trip.isPrivate ? (
                 <>
-                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  <Lock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Private</span>
                 </>
               ) : (
                 <>
-                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <Globe className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Public</span>
                 </>
               )}

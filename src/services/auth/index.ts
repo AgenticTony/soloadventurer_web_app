@@ -1,5 +1,5 @@
 // Export service instance and class
-export { authService, AuthService } from './authService';
+export { authService, AuthService } from './authService'
 
 // Export all types
 export type {
@@ -14,7 +14,7 @@ export type {
   ResetPasswordFormData,
   ConfirmResetPasswordFormData,
   ConfirmSignUpFormData,
-} from './types';
+} from './types'
 
 // Export API error for consumers
-export { ApiError } from '../base/ApiClient';
+export { ApiError } from '../base/ApiClient'

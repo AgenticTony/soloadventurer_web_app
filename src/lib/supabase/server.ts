@@ -13,6 +13,6 @@ export async function createServerSupabaseClient() {
           return cookieStore.getAll()
         },
       },
-    },
+    }
   )
 }

@@ -7,7 +7,7 @@ import { AppError } from '@/lib/errors'
 // Mock dependencies
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-  notFound: jest.fn()
+  notFound: jest.fn(),
 }))
 
 jest.mock('@/lib/api', () => ({
@@ -18,7 +18,7 @@ jest.mock('@/lib/api', () => ({
 jest.mock('@/components/features/trips/TripDetail', () => ({
   TripDetail: function MockTripDetail({ trip }: { trip: { title: string } }) {
     return <div data-testid="trip-detail">Trip: {trip.title}</div>
-  }
+  },
 }))
 
 const mockRouter = {
@@ -27,7 +27,7 @@ const mockRouter = {
   forward: jest.fn(),
   refresh: jest.fn(),
   replace: jest.fn(),
-  prefetch: jest.fn()
+  prefetch: jest.fn(),
 }
 
 const mockTrip = {
@@ -42,7 +42,7 @@ const mockTrip = {
   ownerId: 'user-123',
   owner: 'trip_enthusiast',
   createdAt: '2024-05-01T00:00:00Z',
-  updatedAt: '2024-05-01T00:00:00Z'
+  updatedAt: '2024-05-01T00:00:00Z',
 }
 
 describe('TripDetailPage', () => {

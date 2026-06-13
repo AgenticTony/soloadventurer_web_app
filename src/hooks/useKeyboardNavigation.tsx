@@ -14,34 +14,37 @@ interface KeyboardShortcut {
 }
 
 export function useKeyboardNavigation(shortcuts: KeyboardShortcut[]) {
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    for (const shortcut of shortcuts) {
-      const {
-        key,
-        ctrlKey = false,
-        metaKey = false,
-        shiftKey = false,
-        altKey = false,
-        callback,
-        preventDefault = true
-      } = shortcut
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      for (const shortcut of shortcuts) {
+        const {
+          key,
+          ctrlKey = false,
+          metaKey = false,
+          shiftKey = false,
+          altKey = false,
+          callback,
+          preventDefault = true,
+        } = shortcut
 
-      const matches = 
-        e.key === key &&
-        e.ctrlKey === ctrlKey &&
-        e.metaKey === metaKey &&
-        e.shiftKey === shiftKey &&
-        e.altKey === altKey
+        const matches =
+          e.key === key &&
+          e.ctrlKey === ctrlKey &&
+          e.metaKey === metaKey &&
+          e.shiftKey === shiftKey &&
+          e.altKey === altKey
 
-      if (matches) {
-        if (preventDefault) {
-          e.preventDefault()
+        if (matches) {
+          if (preventDefault) {
+            e.preventDefault()
+          }
+          callback(e)
+          break
         }
-        callback(e)
-        break
       }
-    }
-  }, [shortcuts])
+    },
+    [shortcuts]
+  )
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
@@ -191,33 +194,44 @@ interface KeyboardShortcutsHelpProps {
 }
 
 export function KeyboardShortcutsHelp({ shortcuts }: KeyboardShortcutsHelpProps) {
-  const groupedShortcuts = shortcuts.reduce((acc, shortcut) => {
-    if (!shortcut.description) return acc
-    
-    const category = shortcut.metaKey || shortcut.ctrlKey ? 'Navigation' : 'Actions'
-    if (!acc[category]) {
-      acc[category] = []
-    }
-    acc[category].push(shortcut)
-    return acc
-  }, {} as Record<string, KeyboardShortcut[]>)
+  const groupedShortcuts = shortcuts.reduce(
+    (acc, shortcut) => {
+      if (!shortcut.description) return acc
+
+      const category = shortcut.metaKey || shortcut.ctrlKey ? 'Navigation' : 'Actions'
+      if (!acc[category]) {
+        acc[category] = []
+      }
+      acc[category].push(shortcut)
+      return acc
+    },
+    {} as Record<string, KeyboardShortcut[]>
+  )
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Keyboard Shortcuts</h3>
       {Object.entries(groupedShortcuts).map(([category, items]) => (
         <div key={category}>
-          <h4 className="text-sm font-medium text-muted-foreground mb-2">{category}</h4>
+          <h4 className="mb-2 text-sm font-medium text-muted-foreground">{category}</h4>
           <div className="space-y-1">
             {items.map((shortcut, index) => (
               <div key={index} className="flex items-center justify-between text-sm">
                 <span>{shortcut.description}</span>
                 <div className="flex items-center space-x-1">
-                  {shortcut.metaKey && <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘</kbd>}
-                  {shortcut.ctrlKey && <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl</kbd>}
-                  {shortcut.shiftKey && <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Shift</kbd>}
-                  {shortcut.altKey && <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Alt</kbd>}
-                  <kbd className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                  {shortcut.metaKey && (
+                    <kbd className="rounded bg-muted px-1 py-0.5 text-xs">⌘</kbd>
+                  )}
+                  {shortcut.ctrlKey && (
+                    <kbd className="rounded bg-muted px-1 py-0.5 text-xs">Ctrl</kbd>
+                  )}
+                  {shortcut.shiftKey && (
+                    <kbd className="rounded bg-muted px-1 py-0.5 text-xs">Shift</kbd>
+                  )}
+                  {shortcut.altKey && (
+                    <kbd className="rounded bg-muted px-1 py-0.5 text-xs">Alt</kbd>
+                  )}
+                  <kbd className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
                     {shortcut.key.toUpperCase()}
                   </kbd>
                 </div>
