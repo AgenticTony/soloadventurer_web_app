@@ -21,6 +21,8 @@ interface PostCardProps {
     username: string
     avatar?: string
     isVerified?: boolean
+    /** Where the author currently is — rendered as "Currently in [city]". */
+    currentCity?: string
   }
   content: string
   photos?: Array<{
@@ -50,6 +52,10 @@ interface PostCardProps {
   onComment?: () => void
   onShare?: (postId: string) => void
   onBookmark?: (postId: string) => void
+  /** Initiate a connection with the post author — coral "Say hi" CTA. */
+  onSayHi?: () => void
+  /** True when the author is in the viewer's city — adds a warm accent border. */
+  isInCity?: boolean
 }
 
 export function PostCard({
@@ -67,6 +73,8 @@ export function PostCard({
   onComment,
   onShare,
   onBookmark,
+  onSayHi,
+  isInCity,
 }: PostCardProps) {
   const [bookmarked, setBookmarked] = useState(isBookmarked || false)
 
@@ -206,7 +214,9 @@ export function PostCard({
   }
 
   return (
-    <div className="mb-4 rounded-2xl bg-card p-4 shadow-card">
+    <div
+      className={`mb-4 rounded-2xl bg-card p-4 shadow-card ${isInCity ? 'ring-2 ring-connection/60' : ''}`}
+    >
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -222,6 +232,11 @@ export function PostCard({
                   <span>{location.name}</span>
                 </div>
               )}
+              {author.currentCity && (
+                <span className="rounded-full bg-connection/10 px-2 py-0.5 text-xs font-medium text-connection">
+                  Currently in {author.currentCity}
+                </span>
+              )}
               <div className="flex items-center space-x-1">
                 <Clock className="h-3 w-3" />
                 <span>{formatTimestamp(timestamp)}</span>
@@ -230,9 +245,19 @@ export function PostCard({
           </div>
         </div>
 
-        <button className="rounded-lg p-2 transition-colors hover:bg-muted">
-          <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center space-x-1">
+          <button
+            type="button"
+            onClick={() => onSayHi?.()}
+            aria-label={`Say hi to ${author.name}`}
+            className="btn-connection px-3 py-1.5 text-xs"
+          >
+            Say hi
+          </button>
+          <button className="rounded-lg p-2 transition-colors hover:bg-muted">
+            <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       {/* Content */}
