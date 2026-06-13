@@ -7,8 +7,10 @@ global.TextEncoder = TextEncoder as typeof globalThis.TextEncoder
 global.TextDecoder = TextDecoder as typeof globalThis.TextDecoder
 
 // Provide Supabase env vars so createBrowserClient doesn't throw in tests
-process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDYzNjEwMTMsImV4cCI6MTk2MTkzNzAxM30.placeholder'
+process.env.NEXT_PUBLIC_SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder-anon-key'
 
 // Mock fetch for Apollo Client
 global.fetch = jest.fn()
@@ -49,14 +51,18 @@ global.IntersectionObserver = class IntersectionObserver {
     this.root = (options?.root as Element) || null
     this.rootMargin = options?.rootMargin || '0px'
     this.thresholds = options?.threshold
-      ? Array.isArray(options.threshold) ? options.threshold : [options.threshold]
+      ? Array.isArray(options.threshold)
+        ? options.threshold
+        : [options.threshold]
       : []
   }
 
   disconnect() {}
   observe() {}
   unobserve() {}
-  takeRecords(): IntersectionObserverEntry[] { return [] }
+  takeRecords(): IntersectionObserverEntry[] {
+    return []
+  }
 }
 
 // Mock ResizeObserver
@@ -70,7 +76,7 @@ global.ResizeObserver = class ResizeObserver {
 // Suppress console errors in tests unless explicitly testing error scenarios
 const originalError = console.error
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: Parameters<typeof console.error>) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render is no longer supported')
