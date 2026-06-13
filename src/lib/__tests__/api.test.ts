@@ -19,7 +19,7 @@ jest.mock('@/lib/supabase/client', () => {
 
 import { createClient } from '@/lib/supabase/client'
 const supabase = createClient()
-const auth = supabase.auth
+const auth = supabase.auth as unknown as { getSession: jest.Mock }
 const rpc = supabase.rpc as jest.Mock
 
 describe('createTrip', () => {

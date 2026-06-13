@@ -22,7 +22,15 @@ jest.mock('@/lib/supabase/client', () => {
 
 import { createClient } from '@/lib/supabase/client'
 
-const auth = createClient().auth
+const auth = createClient().auth as unknown as {
+  getSession: jest.Mock
+  signInWithPassword: jest.Mock
+  signUp: jest.Mock
+  signOut: jest.Mock
+  resetPasswordForEmail: jest.Mock
+  verifyOtp: jest.Mock
+  updateUser: jest.Mock
+}
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -39,7 +47,10 @@ const TestComponent = () => {
       <button data-testid="login-btn" onClick={() => login('test@example.com', 'password')}>
         Login
       </button>
-      <button data-testid="signup-btn" onClick={() => signup('test@example.com', 'password', 'Test User')}>
+      <button
+        data-testid="signup-btn"
+        onClick={() => signup('test@example.com', 'password', 'Test User')}
+      >
         Signup
       </button>
       <button data-testid="logout-btn" onClick={logout}>
@@ -54,7 +65,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     expect(screen.getByTestId('login-btn')).toBeInTheDocument()
@@ -74,7 +85,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await act(async () => {
@@ -96,7 +107,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await act(async () => {
@@ -123,7 +134,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await act(async () => {
@@ -142,13 +153,13 @@ describe('AuthProvider', () => {
       Promise.resolve({
         data: { user: null, session: null },
         error: { message: 'Invalid login credentials', name: 'AuthError' },
-      }),
+      })
     )
 
     const { container } = render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     // Component should render without crashing even when login errors
@@ -172,13 +183,13 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestResetComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await waitFor(() => {
       expect(auth.resetPasswordForEmail).toHaveBeenCalledWith(
         'test@example.com',
-        expect.objectContaining({ redirectTo: expect.stringContaining('/forgot-password') }),
+        expect.objectContaining({ redirectTo: expect.stringContaining('/forgot-password') })
       )
     })
   })
@@ -198,7 +209,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestConfirmResetComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await waitFor(() => {
@@ -225,7 +236,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <TestConfirmSignupComponent />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await waitFor(() => {
