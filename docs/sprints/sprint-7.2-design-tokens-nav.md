@@ -72,11 +72,11 @@ Signature gradient: Teal → Coral (`bg-gradient-ocean-sunset`) — hero moments
   - [x] Replace with semantic tokens or Tailwind classes
   - [x] **Test:** No hardcoded hex in component files
 
-- [ ] **Implement light mode theme (stretch goal)**
+- [x] **Implement light mode theme (stretch goal)**
   - [x] Add light mode CSS variables under `:root`
-  - [ ] Auto-detect via `prefers-color-scheme`
-  - [ ] Add "Auto (follow system)" option in settings
-  - [ ] Defer full QA if time-boxed — tokens must be in place
+  - [x] Auto-detect via `prefers-color-scheme`
+  - [x] Add "Auto (follow system)" option in settings
+  - [x] Defer full QA if time-boxed — tokens must be in place
   - [x] **Test:** Light/dark toggle flips all surfaces
 
 ### Navigation

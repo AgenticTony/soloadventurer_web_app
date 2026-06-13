@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import { DM_Sans, Playfair_Display, Instrument_Serif, Geist } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { ThemeProvider } from 'next-themes'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -38,15 +39,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${dmSans.variable} ${playfair.variable} ${instrumentSerif.variable} ${geist.variable}`}
     >
       <body className="font-sans" suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

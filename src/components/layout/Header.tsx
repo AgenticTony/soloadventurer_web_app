@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -9,8 +9,6 @@ import {
   LogOut,
   Settings,
   HelpCircle,
-  Moon,
-  Sun,
   Plus,
   Search,
   MessageCircle,
@@ -21,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { clsx } from 'clsx'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 interface HeaderProps {
   onMenuToggle?: () => void
@@ -31,21 +30,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      setDarkMode(true)
-      document.documentElement.classList.add('dark')
-    }
-  }, [])
 
   const handleSignOut = async () => {
     try {
@@ -53,19 +38,6 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
       router.push('/')
     } catch (error) {
       console.error('Error signing out:', error)
-    }
-  }
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode
-    setDarkMode(newDarkMode)
-
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
     }
   }
 
@@ -174,20 +146,8 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                 )}
               </button>
 
-              {/* Dark Mode Toggle */}
-              {mounted && (
-                <button
-                  onClick={toggleDarkMode}
-                  className="group hidden rounded-2xl p-2.5 transition-all duration-200 hover:bg-muted sm:flex"
-                  aria-label="Toggle dark mode"
-                >
-                  {darkMode ? (
-                    <Sun className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
-                  ) : (
-                    <Moon className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
-                  )}
-                </button>
-              )}
+              {/* Color theme: Light / Auto (system) / Dark */}
+              <ThemeToggle className="hidden sm:flex" />
 
               {/* User Menu */}
               {isAuthenticated && user ? (
@@ -245,16 +205,12 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                         Settings & Privacy
                       </Link>
 
-                      <button
-                        onClick={() => {
-                          toggleDarkMode()
-                          setIsUserMenuOpen(false)
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted sm:hidden"
-                      >
-                        {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                        {darkMode ? 'Light Mode' : 'Dark Mode'}
-                      </button>
+                      <div className="px-4 py-2.5 sm:hidden">
+                        <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Appearance
+                        </p>
+                        <ThemeToggle />
+                      </div>
 
                       <Link
                         href="/help"
