@@ -8,7 +8,7 @@ export class AppError extends Error {
     public statusCode?: number,
     public details?: Array<{ field: string; message: string }>
   ) {
-    super(message);
-    this.name = 'AppError';
+    super(message)
+    this.name = 'AppError'
   }
 }

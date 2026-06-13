@@ -29,24 +29,24 @@ export function ProfileCard({ user, isOwnProfile = false, onEdit }: ProfileCardP
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+        <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-2xl font-bold text-white">
           {displayUser.name.charAt(0).toUpperCase()}
         </div>
-        
+
         <CardTitle className="text-xl">{displayUser.name}</CardTitle>
         {displayUser.location && (
           <CardDescription className="flex items-center justify-center gap-1">
             📍 {displayUser.location}
           </CardDescription>
         )}
-        
+
         {displayUser.emailVerified && (
-          <div className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+          <div className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
             ✓ Verified
           </div>
         )}
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {displayUser.bio && (
           <div>
@@ -61,15 +61,15 @@ export function ProfileCard({ user, isOwnProfile = false, onEdit }: ProfileCardP
 
         {/* Travel Stats */}
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-gray-50 rounded-lg p-2">
+          <div className="rounded-lg bg-gray-50 p-2">
             <div className="text-lg font-bold text-blue-600">0</div>
             <div className="text-xs text-gray-600">Trips</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-2">
+          <div className="rounded-lg bg-gray-50 p-2">
             <div className="text-lg font-bold text-green-600">0</div>
             <div className="text-xs text-gray-600">Buddies</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-2">
+          <div className="rounded-lg bg-gray-50 p-2">
             <div className="text-lg font-bold text-purple-600">0</div>
             <div className="text-xs text-gray-600">Reviews</div>
           </div>

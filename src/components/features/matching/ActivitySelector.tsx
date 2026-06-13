@@ -1,17 +1,32 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 import {
-  Camera, Landmark, UtensilsCrossed, ShoppingBag,
-  TreePine, Mountain, MountainSnow, Bike, Heart, Wine, Wind,
-  Waves, Sailboat, Dumbbell, Compass, Globe, Music, Coffee,
+  Camera,
+  Landmark,
+  UtensilsCrossed,
+  ShoppingBag,
+  TreePine,
+  Mountain,
+  MountainSnow,
+  Bike,
+  Heart,
+  Wine,
+  Wind,
+  Waves,
+  Sailboat,
+  Dumbbell,
+  Compass,
+  Globe,
+  Music,
+  Coffee,
   type LucideIcon,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getActivities, getUserActivities, setUserActivities } from '@/lib/api/activities';
-import type { Activity } from '@/types/matching';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getActivities, getUserActivities, setUserActivities } from '@/lib/api/activities'
+import type { Activity } from '@/types/matching'
+import { cn } from '@/lib/utils'
 
 // Map database icon_name values to Lucide React icons
 const iconMap: Record<string, LucideIcon> = {
@@ -30,7 +45,7 @@ const iconMap: Record<string, LucideIcon> = {
   diving: Sailboat,
   surfing: Waves,
   yoga: Dumbbell,
-};
+}
 
 // Map category to display color
 const categoryColors: Record<string, string> = {
@@ -42,7 +57,7 @@ const categoryColors: Record<string, string> = {
   leisure: 'bg-yellow-100 text-yellow-700 border-yellow-300',
   water_sports: 'bg-cyan-100 text-cyan-700 border-cyan-300',
   wellness: 'bg-emerald-100 text-emerald-700 border-emerald-300',
-};
+}
 
 const categoryLabels: Record<string, string> = {
   outdoor: 'Outdoor',
@@ -53,20 +68,20 @@ const categoryLabels: Record<string, string> = {
   leisure: 'Leisure',
   water_sports: 'Water Sports',
   wellness: 'Wellness',
-};
+}
 
 interface ActivitySelectorProps {
   /** Called when activities are saved successfully */
-  onSave?: (activityIds: string[]) => void;
-  className?: string;
+  onSave?: (activityIds: string[]) => void
+  className?: string
 }
 
 export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [initialIds, setInitialIds] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [initialIds, setInitialIds] = useState<Set<string>>(new Set())
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
   // Load activities and user's selections
   useEffect(() => {
@@ -75,52 +90,52 @@ export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
         const [allActivities, userActivities] = await Promise.all([
           getActivities(),
           getUserActivities(),
-        ]);
-        setActivities(allActivities);
-        const ids = new Set(userActivities.map((ua) => ua.activityId));
-        setSelectedIds(ids);
-        setInitialIds(ids);
+        ])
+        setActivities(allActivities)
+        const ids = new Set(userActivities.map(ua => ua.activityId))
+        setSelectedIds(ids)
+        setInitialIds(ids)
       } catch (error) {
-        console.error('Failed to load activities:', error);
+        console.error('Failed to load activities:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
-    load();
-  }, []);
+    load()
+  }, [])
 
   const toggleActivity = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
 
-  const hasChanges = selectedIds.size !== initialIds.size ||
-    [...selectedIds].some((id) => !initialIds.has(id));
+  const hasChanges =
+    selectedIds.size !== initialIds.size || [...selectedIds].some(id => !initialIds.has(id))
 
   const handleSave = async () => {
-    setIsSaving(true);
+    setIsSaving(true)
     try {
-      await setUserActivities([...selectedIds]);
-      setInitialIds(new Set(selectedIds));
-      onSave?.([...selectedIds]);
+      await setUserActivities([...selectedIds])
+      setInitialIds(new Set(selectedIds))
+      onSave?.([...selectedIds])
     } catch (error) {
-      console.error('Failed to save activities:', error);
+      console.error('Failed to save activities:', error)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   // Group activities by category
   const grouped = activities.reduce<Record<string, Activity[]>>((acc, activity) => {
-    const cat = activity.category;
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(activity);
-    return acc;
-  }, {});
+    const cat = activity.category
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(activity)
+    return acc
+  }, {})
 
   if (isLoading) {
     return (
@@ -129,14 +144,14 @@ export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
           <CardTitle>Your Interests</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
+              <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
             ))}
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -155,19 +170,19 @@ export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
         </p>
 
         {Object.entries(grouped).map(([category, items]) => {
-          const Icon = iconMap[items[0]?.iconName ?? ''] ?? Mountain;
+          const Icon = iconMap[items[0]?.iconName ?? ''] ?? Mountain
           return (
             <div key={category}>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="mb-3 flex items-center gap-2">
                 <Icon className="h-4 w-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold text-foreground">
                   {categoryLabels[category] ?? category}
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {items.map((activity) => {
-                  const isSelected = selectedIds.has(activity.id);
-                  const ActivityIcon = iconMap[activity.iconName ?? ''];
+                {items.map(activity => {
+                  const isSelected = selectedIds.has(activity.id)
+                  const ActivityIcon = iconMap[activity.iconName ?? '']
                   return (
                     <button
                       key={activity.id}
@@ -176,8 +191,9 @@ export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
                       className={cn(
                         'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all',
                         isSelected
-                          ? categoryColors[category] ?? 'bg-primary/10 text-primary border-primary/30'
-                          : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
+                          ? (categoryColors[category] ??
+                              'border-primary/30 bg-primary/10 text-primary')
+                          : 'border-border bg-muted/50 text-muted-foreground hover:bg-muted'
                       )}
                       aria-pressed={isSelected}
                       aria-label={`${activity.name} ${isSelected ? 'selected' : 'not selected'}`}
@@ -185,11 +201,11 @@ export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
                       {ActivityIcon && <ActivityIcon className="h-3.5 w-3.5" />}
                       {activity.name}
                     </button>
-                  );
+                  )
                 })}
               </div>
             </div>
-          );
+          )
         })}
 
         {hasChanges && (
@@ -201,5 +217,5 @@ export function ActivitySelector({ onSave, className }: ActivitySelectorProps) {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -12,7 +12,7 @@ export function useLoadingState<T = unknown>() {
   const [state, setState] = useState<LoadingState<T>>({
     data: null,
     loading: false,
-    error: null
+    error: null,
   })
 
   const setLoading = useCallback((loading: boolean) => {
@@ -24,10 +24,10 @@ export function useLoadingState<T = unknown>() {
   }, [])
 
   const setError = useCallback((error: Error | string) => {
-    setState(prev => ({ 
-      ...prev, 
-      error: error instanceof Error ? error : new Error(error), 
-      loading: false 
+    setState(prev => ({
+      ...prev,
+      error: error instanceof Error ? error : new Error(error),
+      loading: false,
     }))
   }, [])
 
@@ -35,24 +35,27 @@ export function useLoadingState<T = unknown>() {
     setState({ data: null, loading: false, error: null })
   }, [])
 
-  const execute = useCallback(async <R = unknown>(
-    asyncFn: () => Promise<R>,
-    onSuccess?: (data: R) => void,
-    onError?: (error: Error) => void
-  ) => {
-    setLoading(true)
-    try {
-      const result = await asyncFn()
-      setData(result as T)
-      onSuccess?.(result)
-      return result
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      setError(err)
-      onError?.(err)
-      throw err
-    }
-  }, [setLoading, setData, setError])
+  const execute = useCallback(
+    async <R = unknown>(
+      asyncFn: () => Promise<R>,
+      onSuccess?: (data: R) => void,
+      onError?: (error: Error) => void
+    ) => {
+      setLoading(true)
+      try {
+        const result = await asyncFn()
+        setData(result as T)
+        onSuccess?.(result)
+        return result
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+        setError(err)
+        onError?.(err)
+        throw err
+      }
+    },
+    [setLoading, setData, setError]
+  )
 
   return {
     ...state,
@@ -60,7 +63,7 @@ export function useLoadingState<T = unknown>() {
     setData,
     setError,
     reset,
-    execute
+    execute,
   }
 }
 
@@ -81,7 +84,7 @@ export function usePaginatedState<T = unknown>(initialPage = 1) {
     error: null,
     hasMore: true,
     page: initialPage,
-    total: 0
+    total: 0,
   })
 
   const setLoading = useCallback((loading: boolean) => {
@@ -95,7 +98,7 @@ export function usePaginatedState<T = unknown>(initialPage = 1) {
       loading: false,
       error: null,
       hasMore,
-      total
+      total,
     }))
   }, [])
 
@@ -106,15 +109,15 @@ export function usePaginatedState<T = unknown>(initialPage = 1) {
       loading: false,
       error: null,
       hasMore,
-      total
+      total,
     }))
   }, [])
 
   const setError = useCallback((error: Error | string) => {
-    setState(prev => ({ 
-      ...prev, 
-      error: error instanceof Error ? error : new Error(error), 
-      loading: false 
+    setState(prev => ({
+      ...prev,
+      error: error instanceof Error ? error : new Error(error),
+      loading: false,
     }))
   }, [])
 
@@ -129,42 +132,44 @@ export function usePaginatedState<T = unknown>(initialPage = 1) {
       error: null,
       hasMore: true,
       page: initialPage,
-      total: 0
+      total: 0,
     })
   }, [initialPage])
 
-  const loadMore = useCallback(async (
-    asyncFn: (page: number) => Promise<{ data: T[]; hasMore: boolean; total: number }>
-  ) => {
-    if (state.loading || !state.hasMore) return
+  const loadMore = useCallback(
+    async (asyncFn: (page: number) => Promise<{ data: T[]; hasMore: boolean; total: number }>) => {
+      if (state.loading || !state.hasMore) return
 
-    setLoading(true)
-    try {
-      const result = await asyncFn(state.page)
-      appendData(result.data, result.hasMore, result.total)
-      return result
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      setError(err)
-      throw err
-    }
-  }, [state.loading, state.hasMore, state.page, setLoading, appendData, setError])
+      setLoading(true)
+      try {
+        const result = await asyncFn(state.page)
+        appendData(result.data, result.hasMore, result.total)
+        return result
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+        setError(err)
+        throw err
+      }
+    },
+    [state.loading, state.hasMore, state.page, setLoading, appendData, setError]
+  )
 
-  const refresh = useCallback(async (
-    asyncFn: (page: number) => Promise<{ data: T[]; hasMore: boolean; total: number }>
-  ) => {
-    reset()
-    setLoading(true)
-    try {
-      const result = await asyncFn(initialPage)
-      setData(result.data, result.hasMore, result.total)
-      return result
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      setError(err)
-      throw err
-    }
-  }, [reset, setLoading, setData, setError, initialPage])
+  const refresh = useCallback(
+    async (asyncFn: (page: number) => Promise<{ data: T[]; hasMore: boolean; total: number }>) => {
+      reset()
+      setLoading(true)
+      try {
+        const result = await asyncFn(initialPage)
+        setData(result.data, result.hasMore, result.total)
+        return result
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+        setError(err)
+        throw err
+      }
+    },
+    [reset, setLoading, setData, setError, initialPage]
+  )
 
   return {
     ...state,
@@ -175,6 +180,6 @@ export function usePaginatedState<T = unknown>(initialPage = 1) {
     nextPage,
     reset,
     loadMore,
-    refresh
+    refresh,
   }
 }

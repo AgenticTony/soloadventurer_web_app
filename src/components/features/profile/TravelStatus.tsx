@@ -9,11 +9,7 @@ interface TravelStatusProps {
   headingDates?: string | null
 }
 
-export function TravelStatus({
-  currentCity,
-  headingTo,
-  headingDates,
-}: TravelStatusProps) {
+export function TravelStatus({ currentCity, headingTo, headingDates }: TravelStatusProps) {
   if (!currentCity && !headingTo) return null
 
   return (
@@ -29,20 +25,16 @@ export function TravelStatus({
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10">
               <MapPin className="h-3.5 w-3.5 text-brand" />
             </span>
-            Currently in{' '}
-            <span className="font-display font-semibold">{currentCity}</span>
+            Currently in <span className="font-display font-semibold">{currentCity}</span>
           </span>
         )}
-        {currentCity && headingTo && (
-          <span className="hidden text-border sm:inline">|</span>
-        )}
+        {currentCity && headingTo && <span className="hidden text-border sm:inline">|</span>}
         {headingTo && (
-          <span className="flex items-center gap-2 text-sm text-text-secondary">
+          <span className="text-text-secondary flex items-center gap-2 text-sm">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-connection/10">
               <Navigation className="h-3.5 w-3.5 text-connection" />
             </span>
-            Heading to{' '}
-            <span className="font-medium text-foreground">{headingTo}</span>
+            Heading to <span className="font-medium text-foreground">{headingTo}</span>
             {headingDates && (
               <span className="flex items-center gap-1 text-muted-foreground">
                 <Calendar className="h-3 w-3" />

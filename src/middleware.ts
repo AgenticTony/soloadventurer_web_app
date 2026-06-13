@@ -23,12 +23,12 @@ export async function middleware(request: NextRequest) {
   const authRoutes = ['/sign-in', '/signup', '/forgot-password', '/confirm-email']
 
   // Authenticated users on auth pages → redirect to discover
-  if (user && authRoutes.some((r) => pathname.startsWith(r))) {
+  if (user && authRoutes.some(r => pathname.startsWith(r))) {
     return NextResponse.redirect(new URL('/discover', request.url))
   }
 
   // Unauthenticated users on protected routes → redirect to sign-in
-  if (!user && protectedRoutes.some((r) => pathname.startsWith(r))) {
+  if (!user && protectedRoutes.some(r => pathname.startsWith(r))) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
@@ -41,7 +41,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|sign-in|signup).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sign-in|signup).*)'],
 }

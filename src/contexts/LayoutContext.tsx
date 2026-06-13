@@ -24,9 +24,9 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     const newToast: Toast = {
       ...toast,
       id,
-      duration: toast.duration || 5000
+      duration: toast.duration || 5000,
     }
-    
+
     setToasts(prev => [...prev, newToast])
   }, [])
 
@@ -42,14 +42,10 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     toasts,
     showToast,
     dismissToast,
-    dismissAllToasts
+    dismissAllToasts,
   }
 
-  return (
-    <LayoutContext.Provider value={value}>
-      {children}
-    </LayoutContext.Provider>
-  )
+  return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>
 }
 
 export function useLayout() {

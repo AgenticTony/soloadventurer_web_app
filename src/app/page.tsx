@@ -7,21 +7,20 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            SoloAdventurer
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Connect with fellow solo travelers, share amazing experiences, and find your perfect travel companion.
+        <div className="mb-16 text-center">
+          <h1 className="mb-6 text-5xl font-bold text-gray-900">SoloAdventurer</h1>
+          <p className="mx-auto mb-8 max-w-2xl text-xl text-gray-600">
+            Connect with fellow solo travelers, share amazing experiences, and find your perfect
+            travel companion.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex justify-center gap-4">
             <Link href="/signup">
-              <Button size="lg" className="text-lg px-8 py-3">
+              <Button size="lg" className="px-8 py-3 text-lg">
                 Start Your Journey
               </Button>
             </Link>
             <Link href="/sign-in">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+              <Button variant="outline" size="lg" className="px-8 py-3 text-lg">
                 Sign In
               </Button>
             </Link>
@@ -29,7 +28,7 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="mb-16 grid gap-8 md:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle>🌍 Discover Travelers</CardTitle>
@@ -39,7 +38,8 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                Connect with travelers who share your interests and travel style through our intelligent matching system.
+                Connect with travelers who share your interests and travel style through our
+                intelligent matching system.
               </p>
             </CardContent>
           </Card>
@@ -53,7 +53,8 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                Plan your perfect trip with interactive maps, activity suggestions, and insights from experienced travelers.
+                Plan your perfect trip with interactive maps, activity suggestions, and insights
+                from experienced travelers.
               </p>
             </CardContent>
           </Card>
@@ -67,7 +68,8 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                Chat with matched travelers, share location updates, and coordinate meetups safely and securely.
+                Chat with matched travelers, share location updates, and coordinate meetups safely
+                and securely.
               </p>
             </CardContent>
           </Card>
@@ -75,14 +77,12 @@ export default function HomePage() {
 
         {/* CTA Section */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Ready to Adventure Solo?
-          </h2>
-          <p className="text-lg text-gray-600 mb-8">
+          <h2 className="mb-4 text-3xl font-bold text-gray-900">Ready to Adventure Solo?</h2>
+          <p className="mb-8 text-lg text-gray-600">
             Join thousands of solo travelers already connecting through SoloAdventurer
           </p>
           <Link href="/signup">
-            <Button size="lg" className="text-lg px-12 py-4">
+            <Button size="lg" className="px-12 py-4 text-lg">
               Create Free Account
             </Button>
           </Link>

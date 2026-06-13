@@ -32,7 +32,9 @@ src/
 ### Key Components
 
 #### ExploreMap.tsx
+
 Main map rendering component with the following responsibilities:
+
 - Map initialization and cleanup
 - Trip marker display with clustering
 - User location detection and display
@@ -40,29 +42,35 @@ Main map rendering component with the following responsibilities:
 - Error state management
 
 **Critical Implementation Details:**
+
 ```typescript
 // Persistent map reference to avoid React strict mode issues
-const mapInstance = useRef<mapboxgl.Map | null>(null);
+const mapInstance = useRef<mapboxgl.Map | null>(null)
 
 // Use persistent reference in location updates
-const activeMap = mapInstance.current || map.current;
+const activeMap = mapInstance.current || map.current
 ```
 
 #### useUserLocation.ts
+
 Custom React hook managing geolocation state:
+
 - Browser geolocation API integration
 - Permission handling
 - Error state management
 - Loading indicators
 
 **Key Features:**
+
 - High accuracy positioning
 - 10-second timeout for location requests
 - 5-minute cache for location data
 - Comprehensive error handling for all geolocation error types
 
 #### mapbox.ts
+
 Utility functions for map operations:
+
 - Token validation and initialization
 - GeoJSON conversion for trip data
 - Marker clustering configuration
@@ -77,26 +85,27 @@ Utility functions for map operations:
 **Problem**: React strict mode in development causes double initialization and cleanup, leading to AbortError messages and map reference issues.
 
 **Solution**: Implemented persistent map references and graceful cleanup:
+
 ```typescript
-const mapInstance = useRef<mapboxgl.Map | null>(null); // Persistent reference
-const isInitialized = useRef(false); // Prevent double initialization
+const mapInstance = useRef<mapboxgl.Map | null>(null) // Persistent reference
+const isInitialized = useRef(false) // Prevent double initialization
 
 // Cleanup without aggressive removal
 return () => {
   if (map.current) {
     try {
       if (geolocateControl.current) {
-        map.current.removeControl(geolocateControl.current);
+        map.current.removeControl(geolocateControl.current)
       }
       if (userMarker.current) {
-        userMarker.current.remove();
+        userMarker.current.remove()
       }
       // Don't call map.current = null immediately
     } catch (error) {
-      console.warn('Error during map cleanup:', error);
+      console.warn('Error during map cleanup:', error)
     }
   }
-};
+}
 ```
 
 ### 2. Location Detection Timing Fix
@@ -106,29 +115,31 @@ return () => {
 **Root Cause**: Race condition where location updates occurred before map was fully loaded.
 
 **Solution**: Implemented proper timing control:
+
 ```typescript
 // Wait for both map existence AND load state
 if (activeMap && location && mapLoaded) {
   // Remove old marker
   if (userMarker.current) {
-    userMarker.current.remove();
+    userMarker.current.remove()
   }
 
   // Add new marker
-  userMarker.current = addUserLocationMarker(activeMap, location);
+  userMarker.current = addUserLocationMarker(activeMap, location)
 
   // Animate to location
   activeMap.easeTo({
     center: [location.longitude, location.latitude],
     zoom: 12,
     duration: 1000,
-  });
+  })
 }
 ```
 
 ### 3. Hybrid Location Services
 
 **Implementation**: Combined Mapbox GeolocateControl with custom location button:
+
 - GeolocateControl provides native map integration
 - Custom button provides fallback and better visibility
 - Both trigger the same location detection flow
@@ -136,6 +147,7 @@ if (activeMap && location && mapLoaded) {
 ### 4. Error Handling Strategy
 
 **Comprehensive Error Coverage:**
+
 1. **Missing Mapbox Token**: Clear instructions for setup
 2. **Geolocation Denied**: Graceful fallback with explanation
 3. **Location Timeout**: Retry mechanism with user feedback
@@ -148,11 +160,13 @@ if (activeMap && location && mapLoaded) {
 ### Environment Setup
 
 Required environment variable:
+
 ```bash
 NEXT_PUBLIC_MAPBOX_TOKEN=pk.your_mapbox_token_here
 ```
 
 **Token Requirements:**
+
 - Must start with 'pk.' (public token)
 - Requires appropriate scopes for GL JS
 - Should include domain restrictions for production
@@ -169,8 +183,9 @@ NEXT_PUBLIC_MAPBOX_TOKEN=pk.your_mapbox_token_here
 ### CSS Import
 
 Required in component or global styles:
+
 ```typescript
-import 'mapbox-gl/dist/mapbox-gl.css';
+import 'mapbox-gl/dist/mapbox-gl.css'
 ```
 
 ---
@@ -222,21 +237,25 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 ### Common Issues
 
 **Map Not Loading**
+
 - Verify NEXT_PUBLIC_MAPBOX_TOKEN is set correctly
 - Check token permissions and domain restrictions
 - Ensure token starts with 'pk.'
 
 **Location Not Working**
+
 - Check browser permissions for geolocation
 - Verify HTTPS connection (required for geolocation)
 - Test on different devices/browsers
 
 **React Strict Mode Errors**
+
 - AbortError messages are expected in development
 - Errors don't affect production builds
 - Can be safely ignored as they're handled gracefully
 
 **Performance Issues**
+
 - Enable marker clustering for large datasets
 - Consider implementing viewport-based loading
 - Monitor bundle size with map dependencies

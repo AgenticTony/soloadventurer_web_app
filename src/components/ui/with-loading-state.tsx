@@ -1,11 +1,7 @@
 'use client'
 
 import { LoadingState } from '@/hooks/useLoadingState'
-import { 
-  LoadingSpinner, 
-  ErrorState, 
-  EmptyState 
-} from './skeletons'
+import { LoadingSpinner, ErrorState, EmptyState } from './skeletons'
 import { Search, MessageCircle, Users, MapPin, Calendar } from 'lucide-react'
 
 interface WithLoadingStateProps<T = unknown> {
@@ -25,19 +21,19 @@ export function WithLoadingState<T>({
   loadingState,
   children,
   emptyIcon = Search,
-  emptyTitle = "No items found",
-  emptyDescription = "There are no items to display.",
+  emptyTitle = 'No items found',
+  emptyDescription = 'There are no items to display.',
   emptyAction,
   errorTitle,
   errorDescription,
   onRetry,
-  className = ""
+  className = '',
 }: WithLoadingStateProps<T>) {
   const { loading, error, data } = loadingState
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center min-h-[200px] ${className}`}>
+      <div className={`flex min-h-[200px] items-center justify-center ${className}`}>
         <LoadingSpinner />
       </div>
     )
@@ -70,7 +66,8 @@ export function WithLoadingState<T>({
 }
 
 // Specialized variants for common use cases
-interface PostsLoadingStateProps extends Omit<WithLoadingStateProps, 'emptyIcon' | 'emptyTitle' | 'emptyDescription'> {
+interface PostsLoadingStateProps
+  extends Omit<WithLoadingStateProps, 'emptyIcon' | 'emptyTitle' | 'emptyDescription'> {
   className?: string
 }
 

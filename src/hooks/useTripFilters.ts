@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import { useState, useMemo, useCallback } from 'react';
-import type { Trip } from '@/lib/api';
+import { useState, useMemo, useCallback } from 'react'
+import type { Trip } from '@/lib/api'
 
-export type DateFilter = 'all' | 'upcoming' | 'past' | 'current';
-export type DistanceFilter = 5 | 10 | 25 | 50 | null;
+export type DateFilter = 'all' | 'upcoming' | 'past' | 'current'
+export type DistanceFilter = 5 | 10 | 25 | 50 | null
 
 export interface TripFiltersState {
-  dateFilter: DateFilter;
-  distanceFilter: DistanceFilter;
-  searchKeyword: string;
-  userLocation: { latitude: number; longitude: number } | null;
+  dateFilter: DateFilter
+  distanceFilter: DistanceFilter
+  searchKeyword: string
+  userLocation: { latitude: number; longitude: number } | null
 }
 
 export interface UseTripFiltersReturn {
-  filters: TripFiltersState;
-  filteredTrips: Trip[];
-  resultCount: number;
-  setDateFilter: (filter: DateFilter) => void;
-  setDistanceFilter: (filter: DistanceFilter) => void;
-  setSearchKeyword: (keyword: string) => void;
-  setUserLocation: (location: { latitude: number; longitude: number } | null) => void;
-  clearAllFilters: () => void;
+  filters: TripFiltersState
+  filteredTrips: Trip[]
+  resultCount: number
+  setDateFilter: (filter: DateFilter) => void
+  setDistanceFilter: (filter: DistanceFilter) => void
+  setSearchKeyword: (keyword: string) => void
+  setUserLocation: (location: { latitude: number; longitude: number } | null) => void
+  clearAllFilters: () => void
 }
 
 const initialFilters: TripFiltersState = {
@@ -29,7 +29,7 @@ const initialFilters: TripFiltersState = {
   distanceFilter: null,
   searchKeyword: '',
   userLocation: null,
-};
+}
 
 // Helper function to check if a trip is within distance
 function isWithinDistance(
@@ -38,20 +38,21 @@ function isWithinDistance(
   maxDistanceMiles: number
 ): boolean {
   // Haversine formula for calculating distance between two points
-  const R = 3959; // Earth's radius in miles
-  const dLat = ((userCoords.latitude - tripCoords.latitude) * Math.PI) / 180;
-  const dLon = ((userCoords.longitude - tripCoords.longitude) * Math.PI) / 180;
+  const R = 3959 // Earth's radius in miles
+  const dLat = ((userCoords.latitude - tripCoords.latitude) * Math.PI) / 180
+  const dLon = ((userCoords.longitude - tripCoords.longitude) * Math.PI) / 180
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((tripCoords.latitude * Math.PI) / 180) *
-    Math.cos((userCoords.latitude * Math.PI) / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos((userCoords.latitude * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const distance = R * c
 
-  return distance <= maxDistanceMiles;
+  return distance <= maxDistanceMiles
 }
 
 // Get trip coordinates from trip data
@@ -59,82 +60,88 @@ function getTripCoordinates(trip: Trip): { latitude: number; longitude: number }
   if (trip.coordinates?.latitude && trip.coordinates?.longitude) {
     return {
       latitude: trip.coordinates.latitude,
-      longitude: trip.coordinates.longitude
-    };
+      longitude: trip.coordinates.longitude,
+    }
   }
-  return null;
+  return null
 }
 
 export function useTripFilters(trips: Trip[]): UseTripFiltersReturn {
-  const [filters, setFilters] = useState<TripFiltersState>(initialFilters);
+  const [filters, setFilters] = useState<TripFiltersState>(initialFilters)
 
   // Memoized filtered trips - only recalculates when trips or filters change
   const filteredTrips = useMemo(() => {
-    const now = new Date();
+    const now = new Date()
 
-    return trips.filter((trip) => {
+    return trips.filter(trip => {
       // Date filter
       if (filters.dateFilter !== 'all') {
-        const startDate = new Date(trip.startDate);
-        const endDate = new Date(trip.endDate);
+        const startDate = new Date(trip.startDate)
+        const endDate = new Date(trip.endDate)
 
         switch (filters.dateFilter) {
           case 'upcoming':
-            if (startDate <= now) return false;
-            break;
+            if (startDate <= now) return false
+            break
           case 'past':
-            if (endDate >= now) return false;
-            break;
+            if (endDate >= now) return false
+            break
           case 'current':
-            if (startDate > now || endDate < now) return false;
-            break;
+            if (startDate > now || endDate < now) return false
+            break
         }
       }
 
       // Distance filter
       if (filters.distanceFilter && filters.userLocation) {
-        const tripCoords = getTripCoordinates(trip);
-        if (!tripCoords || !isWithinDistance(tripCoords, filters.userLocation, filters.distanceFilter)) {
-          return false;
+        const tripCoords = getTripCoordinates(trip)
+        if (
+          !tripCoords ||
+          !isWithinDistance(tripCoords, filters.userLocation, filters.distanceFilter)
+        ) {
+          return false
         }
       }
 
       // Search keyword filter
       if (filters.searchKeyword.trim()) {
-        const keyword = filters.searchKeyword.toLowerCase().trim();
-        const searchText = `${trip.title} ${trip.description || ''}`.toLowerCase();
+        const keyword = filters.searchKeyword.toLowerCase().trim()
+        const searchText = `${trip.title} ${trip.description || ''}`.toLowerCase()
         if (!searchText.includes(keyword)) {
-          return false;
+          return false
         }
       }
 
-      return true;
-    });
-  }, [trips, filters]);
+      return true
+    })
+  }, [trips, filters])
 
   // Memoized result count
-  const resultCount = useMemo(() => filteredTrips.length, [filteredTrips]);
+  const resultCount = useMemo(() => filteredTrips.length, [filteredTrips])
 
   // Stable callback functions
   const setDateFilter = useCallback((filter: DateFilter) => {
-    setFilters(prev => ({ ...prev, dateFilter: filter }));
-  }, []);
+    setFilters(prev => ({ ...prev, dateFilter: filter }))
+  }, [])
 
   const setDistanceFilter = useCallback((filter: DistanceFilter) => {
-    setFilters(prev => ({ ...prev, distanceFilter: filter }));
-  }, []);
+    setFilters(prev => ({ ...prev, distanceFilter: filter }))
+  }, [])
 
   const setSearchKeyword = useCallback((keyword: string) => {
-    setFilters(prev => ({ ...prev, searchKeyword: keyword }));
-  }, []);
+    setFilters(prev => ({ ...prev, searchKeyword: keyword }))
+  }, [])
 
-  const setUserLocation = useCallback((location: { latitude: number; longitude: number } | null) => {
-    setFilters(prev => ({ ...prev, userLocation: location }));
-  }, []);
+  const setUserLocation = useCallback(
+    (location: { latitude: number; longitude: number } | null) => {
+      setFilters(prev => ({ ...prev, userLocation: location }))
+    },
+    []
+  )
 
   const clearAllFilters = useCallback(() => {
-    setFilters(initialFilters);
-  }, []);
+    setFilters(initialFilters)
+  }, [])
 
   return {
     filters,
@@ -145,5 +152,5 @@ export function useTripFilters(trips: Trip[]): UseTripFiltersReturn {
     setSearchKeyword,
     setUserLocation,
     clearAllFilters,
-  };
+  }
 }

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 
 // Mock the useAuth hook
 jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn()
+  useAuth: jest.fn(),
 }))
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
@@ -29,13 +29,13 @@ describe('LoginForm', () => {
       resetPassword: jest.fn(),
       confirmResetPassword: jest.fn(),
       confirmSignUp: jest.fn(),
-      resendSignUpCode: jest.fn()
+      resendSignUpCode: jest.fn(),
     })
   })
 
   test('renders login form correctly', () => {
     render(<LoginForm />)
-    
+
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
@@ -44,28 +44,28 @@ describe('LoginForm', () => {
 
   test('allows user to input email and password', () => {
     render(<LoginForm />)
-    
+
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
-    
+
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(passwordInput, { target: { value: 'password123' } })
-    
+
     expect(emailInput).toHaveValue('test@example.com')
     expect(passwordInput).toHaveValue('password123')
   })
 
   test('calls login function with correct credentials on form submission', async () => {
     render(<LoginForm />)
-    
+
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
     const submitButton = screen.getByRole('button', { name: /sign in/i })
-    
+
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(passwordInput, { target: { value: 'password123' } })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123')
     })
@@ -114,30 +114,30 @@ describe('LoginForm', () => {
 
   test('forgot password link is present', () => {
     render(<LoginForm />)
-    
+
     const forgotPasswordLink = screen.getByText('Forgot your password?')
     expect(forgotPasswordLink).toBeInTheDocument()
   })
 
   test('form has HTML5 validation attributes', () => {
     render(<LoginForm />)
-    
+
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
-    
+
     // Check that inputs have required attribute
     expect(emailInput).toHaveAttribute('required')
     expect(passwordInput).toHaveAttribute('required')
-    
+
     // Check that email input has proper type
     expect(emailInput).toHaveAttribute('type', 'email')
   })
 
   test('validates email format', () => {
     render(<LoginForm />)
-    
+
     const emailInput = screen.getByLabelText(/email/i)
-    
+
     // Check that email input validates format
     expect(emailInput).toHaveAttribute('type', 'email')
     expect(emailInput).toHaveAttribute('required')
@@ -145,9 +145,9 @@ describe('LoginForm', () => {
 
   test('requires password field', () => {
     render(<LoginForm />)
-    
+
     const passwordInput = screen.getByLabelText(/password/i)
-    
+
     // Check that password input is required
     expect(passwordInput).toHaveAttribute('required')
     expect(passwordInput).toHaveAttribute('type', 'password')
@@ -158,15 +158,15 @@ describe('LoginForm', () => {
     mockLogin.mockRejectedValue(new Error(errorMessage))
 
     render(<LoginForm />)
-    
+
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
     const submitButton = screen.getByRole('button', { name: /sign in/i })
-    
+
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(passwordInput, { target: { value: 'password123' } })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123')
     })
@@ -174,7 +174,7 @@ describe('LoginForm', () => {
 
   test('password field is of type password', () => {
     render(<LoginForm />)
-    
+
     const passwordInput = screen.getByLabelText(/password/i)
     expect(passwordInput).toHaveAttribute('type', 'password')
   })

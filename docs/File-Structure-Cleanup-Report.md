@@ -10,19 +10,23 @@ The project file structure has been cleaned up and reorganized following best pr
 ## Changes Made
 
 ### 1. Removed Duplicate Files
+
 - ❌ Deleted `jest.setup.js` (kept `jest.setup.ts` as the TypeScript version)
 - ❌ Deleted `src/graphql/schema.graphql` (duplicate of `amplify/data/schema.graphql`)
 - ❌ Deleted `src/graphql/__tests__/graphql.test.ts.old` (backup file)
 
 ### 2. Reorganized Documentation
+
 - ✅ Moved `SENIOR_DEVELOPER_REVIEW_REPORT.md` → `docs/Reviews/`
 - ✅ Moved `SENIOR_DEVELOPER_REVIEW_SPRINT1.md` → `docs/Reviews/`
 
 ### 3. Cleaned Up Empty Directories
+
 - ❌ Removed empty `tests/` directory at root (tests are properly located in `src/`)
 - ❌ Removed empty `src/components/__tests__/` directory
 
 ### 4. Fixed TypeScript Configuration
+
 - ✅ Updated `tsconfig.json` to exclude test files from production build
 - ✅ Added exclusions for: `jest.setup.ts`, `**/*.test.ts`, `**/*.test.tsx`, `cypress/**/*`
 
@@ -61,6 +65,7 @@ soloadventurer_web_app/
 ## Test Organization
 
 All tests are co-located with their source files:
+
 - Component tests: `src/components/features/auth/__tests__/`
 - Context tests: `src/contexts/__tests__/`
 - Library tests: `src/lib/__tests__/`
@@ -69,6 +74,7 @@ All tests are co-located with their source files:
 ## Build Status
 
 ✅ **Production build successful**
+
 - No TypeScript errors
 - Only minor ESLint warnings (unused variables)
 - All pages generated successfully
@@ -82,6 +88,7 @@ All tests are co-located with their source files:
 ## Next Steps
 
 The file structure is now clean and organized. The project is ready for Sprint 2 development with:
+
 - Clear separation of concerns
 - Proper test organization
 - Clean build output

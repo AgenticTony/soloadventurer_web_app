@@ -1,12 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  ZoomableGroup,
-} from 'react-simple-maps'
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Globe, Navigation } from 'lucide-react'
@@ -21,8 +16,7 @@ interface GeographyObject {
   properties: GeoProperties
 }
 
-const geoUrl =
-  'https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json'
+const geoUrl = 'https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json'
 
 interface WorldMapProps {
   visitedCountries: string[]
@@ -38,18 +32,13 @@ const MILESTONES = [
   { pct: 100, label: 'World Citizen' },
 ] as const
 
-export function WorldMap({
-  visitedCountries = [],
-  className = '',
-}: WorldMapProps) {
+export function WorldMap({ visitedCountries = [], className = '' }: WorldMapProps) {
   const [tooltip, setTooltip] = useState('')
 
   const visitedCount = visitedCountries.length
   const pct = Math.round((visitedCount / TOTAL_COUNTRIES) * 100)
 
-  const currentMilestone = [...MILESTONES]
-    .reverse()
-    .find((m) => pct >= m.pct)
+  const currentMilestone = [...MILESTONES].reverse().find(m => pct >= m.pct)
 
   const getStyle = (geo: GeographyObject) => {
     const visited = visitedCountries.includes(geo.properties.ISO_A3)
@@ -62,17 +51,13 @@ export function WorldMap({
         transition: 'fill 0.2s ease',
       },
       hover: {
-        fill: visited
-          ? 'hsl(var(--color-brand) / 0.8)'
-          : 'hsl(var(--text-muted))',
+        fill: visited ? 'hsl(var(--color-brand) / 0.8)' : 'hsl(var(--text-muted))',
         outline: 'none',
         stroke: 'hsl(var(--surface-elevated))',
         strokeWidth: 1,
       },
       pressed: {
-        fill: visited
-          ? 'hsl(var(--color-brand) / 0.6)'
-          : 'hsl(var(--text-muted) / 0.6)',
+        fill: visited ? 'hsl(var(--color-brand) / 0.6)' : 'hsl(var(--text-muted) / 0.6)',
         outline: 'none',
         stroke: 'hsl(var(--surface-elevated))',
         strokeWidth: 1,
@@ -109,13 +94,11 @@ export function WorldMap({
 
       {/* Milestone pills */}
       <div className="mb-3 flex gap-1.5">
-        {MILESTONES.map((m) => (
+        {MILESTONES.map(m => (
           <div
             key={m.pct}
             className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-              pct >= m.pct
-                ? 'bg-primary/10 text-primary'
-                : 'bg-muted text-muted-foreground'
+              pct >= m.pct ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
             }`}
           >
             {m.label}

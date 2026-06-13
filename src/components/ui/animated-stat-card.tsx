@@ -11,12 +11,12 @@ interface AnimatedStatCardProps {
   color?: string
 }
 
-export function AnimatedStatCard({ 
-  label, 
-  value, 
-  suffix = '', 
-  icon, 
-  color = 'bg-gradient-to-br from-blue-500 to-purple-600' 
+export function AnimatedStatCard({
+  label,
+  value,
+  suffix = '',
+  icon,
+  color = 'bg-gradient-to-br from-blue-500 to-purple-600',
 }: AnimatedStatCardProps) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
@@ -48,29 +48,26 @@ export function AnimatedStatCard({
       ref={ref}
       initial={{ scale: 0.8, opacity: 0 }}
       animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-      transition={{ duration: 0.5, type: "spring" }}
+      transition={{ duration: 0.5, type: 'spring' }}
       className={`relative overflow-hidden rounded-2xl p-6 text-white ${color}`}
     >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white" />
-        <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-white" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-white" />
       </div>
 
       <div className="relative z-10">
-        {icon && (
-          <div className="mb-4 inline-flex rounded-lg bg-white/20 p-3">
-            {icon}
-          </div>
-        )}
-        
+        {icon && <div className="mb-4 inline-flex rounded-lg bg-white/20 p-3">{icon}</div>}
+
         <motion.div
           initial={{ y: 20 }}
           animate={isInView ? { y: 0 } : { y: 20 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <div className="text-4xl font-bold">
-            {count.toLocaleString()}{suffix}
+            {count.toLocaleString()}
+            {suffix}
           </div>
           <div className="mt-2 text-sm opacity-90">{label}</div>
         </motion.div>
@@ -85,7 +82,7 @@ export function AnimatedStatCard({
         transition={{
           duration: 20,
           repeat: Infinity,
-          ease: "linear"
+          ease: 'linear',
         }}
       >
         <div className="h-full w-full rounded-full border-4 border-white/20 border-t-white/40" />

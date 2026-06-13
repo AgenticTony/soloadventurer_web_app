@@ -9,6 +9,7 @@ This document defines the testing approach, tools, and standards for the SoloAdv
 ## 🎯 Testing Philosophy
 
 ### Testing Principles
+
 1. **Test Early, Test Often**: Shift left - catch issues early in development
 2. **Comprehensive Coverage**: Test at all levels - unit, integration, E2E
 3. **Maintainable Tests**: Tests should be reliable, readable, and maintainable
@@ -35,16 +36,19 @@ This document defines the testing approach, tools, and standards for the SoloAdv
 ## 🔧 Testing Tools & Technologies
 
 ### Unit & Integration Testing
+
 - **Jest**: Test runner with TypeScript support
 - **React Testing Library**: Component testing utilities
 - **@testing-library/jest-dom**: DOM testing matchers
 - **msw**: Mock Service Worker for API mocking
 
 ### E2E Testing
+
 - **Cypress**: End-to-end testing framework
 - **Cypress Testing Library**: Testing utilities for Cypress
 
 ### Testing Utilities
+
 - **faker**: Data generation for test fixtures
 - **@testing-library/user-event**: User interaction simulation
 - **jest-emotion**: Emotion styling testing
@@ -249,60 +253,60 @@ describe('useAuth', () => {
 
 ```typescript
 // ✅ Good utility function test
-import { calculateDistance, formatDate, validateEmail } from './utils';
+import { calculateDistance, formatDate, validateEmail } from './utils'
 
 describe('Utility Functions', () => {
   describe('calculateDistance', () => {
     it('calculates distance between two points correctly', () => {
       // NYC to LA coordinates
-      const distance = calculateDistance(40.7128, -74.0060, 34.0522, -118.2437);
-      
-      expect(distance).toBeCloseTo(3935.75, 2); // ~3936 km
-    });
+      const distance = calculateDistance(40.7128, -74.006, 34.0522, -118.2437)
+
+      expect(distance).toBeCloseTo(3935.75, 2) // ~3936 km
+    })
 
     it('returns 0 for identical coordinates', () => {
-      const distance = calculateDistance(40.7128, -74.0060, 40.7128, -74.0060);
-      
-      expect(distance).toBe(0);
-    });
+      const distance = calculateDistance(40.7128, -74.006, 40.7128, -74.006)
+
+      expect(distance).toBe(0)
+    })
 
     it('handles negative coordinates correctly', () => {
-      const distance = calculateDistance(-33.8688, 151.2093, -22.9068, -43.1729);
-      
-      expect(distance).toBeGreaterThan(0);
-    });
-  });
+      const distance = calculateDistance(-33.8688, 151.2093, -22.9068, -43.1729)
+
+      expect(distance).toBeGreaterThan(0)
+    })
+  })
 
   describe('validateEmail', () => {
     it('returns true for valid email addresses', () => {
-      expect(validateEmail('test@example.com')).toBe(true);
-      expect(validateEmail('user.name+tag@domain.co.uk')).toBe(true);
-      expect(validateEmail('user123@sub.domain.com')).toBe(true);
-    });
+      expect(validateEmail('test@example.com')).toBe(true)
+      expect(validateEmail('user.name+tag@domain.co.uk')).toBe(true)
+      expect(validateEmail('user123@sub.domain.com')).toBe(true)
+    })
 
     it('returns false for invalid email addresses', () => {
-      expect(validateEmail('invalid-email')).toBe(false);
-      expect(validateEmail('@example.com')).toBe(false);
-      expect(validateEmail('test@')).toBe(false);
-      expect(validateEmail('')).toBe(false);
-    });
-  });
+      expect(validateEmail('invalid-email')).toBe(false)
+      expect(validateEmail('@example.com')).toBe(false)
+      expect(validateEmail('test@')).toBe(false)
+      expect(validateEmail('')).toBe(false)
+    })
+  })
 
   describe('formatDate', () => {
     it('formats date in readable format', () => {
-      const date = new Date('2023-12-25T00:00:00.000Z');
-      const formatted = formatDate(date);
-      
-      expect(formatted).toMatch(/December 25, 2023/);
-    });
+      const date = new Date('2023-12-25T00:00:00.000Z')
+      const formatted = formatDate(date)
+
+      expect(formatted).toMatch(/December 25, 2023/)
+    })
 
     it('handles string date input', () => {
-      const formatted = formatDate('2023-12-25');
-      
-      expect(formatted).toMatch(/December 25, 2023/);
-    });
-  });
-});
+      const formatted = formatDate('2023-12-25')
+
+      expect(formatted).toMatch(/December 25, 2023/)
+    })
+  })
+})
 ```
 
 ---
@@ -312,72 +316,76 @@ describe('Utility Functions', () => {
 ### API Integration Testing
 
 **Current Implementation Pattern:**
+
 ```typescript
 // ✅ Actual implemented API test pattern
 // src/lib/__tests__/api.test.ts
-import { createTrip, getTrip, listTrips } from '../api';
+import { createTrip, getTrip, listTrips } from '../api'
 
 // Mock fetch globally
-global.fetch = jest.fn();
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+global.fetch = jest.fn()
+const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>
 
 // Mock auth token
 jest.mock('../auth', () => ({
-  getAuthToken: jest.fn(() => Promise.resolve('mock-jwt-token'))
-}));
+  getAuthToken: jest.fn(() => Promise.resolve('mock-jwt-token')),
+}))
 
 describe('Trips API', () => {
   beforeEach(() => {
-    mockFetch.mockClear();
-    process.env.NEXT_PUBLIC_API_BASE = 'https://api.example.com';
-  });
+    mockFetch.mockClear()
+    process.env.NEXT_PUBLIC_API_BASE = 'https://api.example.com'
+  })
 
   describe('createTrip', () => {
     it('creates a trip successfully', async () => {
-      const mockResponse = { id: 'trip-123' };
+      const mockResponse = { id: 'trip-123' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 201,
         json: () => Promise.resolve(mockResponse),
-      } as Response);
+      } as Response)
 
       const result = await createTrip({
         title: 'Test Trip',
         startDate: '2024-03-01T10:00:00Z',
         endDate: '2024-03-05T10:00:00Z',
         isPrivate: false,
-      });
+      })
 
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual(mockResponse)
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.example.com/trips',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer mock-jwt-token',
+            Authorization: 'Bearer mock-jwt-token',
           }),
         })
-      );
-    });
+      )
+    })
 
     it('handles validation errors (400)', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: () => Promise.resolve({
-          error: 'Validation failed',
-          details: [{ field: 'title', message: 'Title is required' }]
-        }),
-      } as Response);
+        json: () =>
+          Promise.resolve({
+            error: 'Validation failed',
+            details: [{ field: 'title', message: 'Title is required' }],
+          }),
+      } as Response)
 
-      await expect(createTrip({
-        title: '',
-        startDate: '2024-03-01T10:00:00Z',
-        endDate: '2024-03-05T10:00:00Z',
-      })).rejects.toThrow('Failed to create trip');
-    });
-  });
+      await expect(
+        createTrip({
+          title: '',
+          startDate: '2024-03-01T10:00:00Z',
+          endDate: '2024-03-05T10:00:00Z',
+        })
+      ).rejects.toThrow('Failed to create trip')
+    })
+  })
 
   describe('getTrip', () => {
     it('fetches trip by ID successfully', async () => {
@@ -386,96 +394,97 @@ describe('Trips API', () => {
         title: 'Test Trip',
         ownerId: 'user-123',
         isPrivate: false,
-      };
+      }
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: () => Promise.resolve(mockTrip),
-      } as Response);
+      } as Response)
 
-      const result = await getTrip('trip-123');
+      const result = await getTrip('trip-123')
 
-      expect(result).toEqual(mockTrip);
+      expect(result).toEqual(mockTrip)
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.example.com/trips/trip-123',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({
-            'Authorization': 'Bearer mock-jwt-token',
+            Authorization: 'Bearer mock-jwt-token',
           }),
         })
-      );
-    });
+      )
+    })
 
     it('handles trip not found (404)', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
         json: () => Promise.resolve({ error: 'Trip not found' }),
-      } as Response);
+      } as Response)
 
-      await expect(getTrip('nonexistent')).rejects.toThrow('Failed to fetch trip');
-    });
-  });
+      await expect(getTrip('nonexistent')).rejects.toThrow('Failed to fetch trip')
+    })
+  })
 
   describe('listTrips', () => {
     it('lists own trips when no ownerId provided', async () => {
       const mockTrips = [
         { id: 'trip-1', title: 'Trip 1', ownerId: 'user-123', isPrivate: true },
         { id: 'trip-2', title: 'Trip 2', ownerId: 'user-123', isPrivate: false },
-      ];
+      ]
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: () => Promise.resolve(mockTrips),
-      } as Response);
+      } as Response)
 
-      const result = await listTrips();
+      const result = await listTrips()
 
-      expect(result).toEqual(mockTrips);
+      expect(result).toEqual(mockTrips)
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.example.com/trips',
         expect.objectContaining({
           method: 'GET',
         })
-      );
-    });
+      )
+    })
 
     it('lists other user public trips when ownerId provided', async () => {
       const mockPublicTrips = [
         { id: 'trip-3', title: 'Public Trip', ownerId: 'other-user', isPrivate: false },
-      ];
+      ]
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: () => Promise.resolve(mockPublicTrips),
-      } as Response);
+      } as Response)
 
-      const result = await listTrips('other-user');
+      const result = await listTrips('other-user')
 
-      expect(result).toEqual(mockPublicTrips);
+      expect(result).toEqual(mockPublicTrips)
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.example.com/trips?ownerId=other-user',
         expect.objectContaining({
           method: 'GET',
         })
-      );
-    });
-  });
-});
+      )
+    })
+  })
+})
 ```
 
 **Supabase Edge Function Testing Pattern:**
+
 ```typescript
 // ✅ Edge function test pattern
 // src/lib/api/__tests__/matching.test.ts
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client'
 
 // Mock Supabase client
-jest.mock('@/lib/supabase/client');
+jest.mock('@/lib/supabase/client')
 const mockSupabase = {
   auth: { getSession: jest.fn() },
   functions: { invoke: jest.fn() },
@@ -486,37 +495,39 @@ const mockSupabase = {
     eq: jest.fn().mockReturnThis(),
     single: jest.fn(),
   })),
-};
+}
 
-jest.mocked(createClient).mockReturnValue(mockSupabase as unknown as ReturnType<typeof createClient>);
+jest
+  .mocked(createClient)
+  .mockReturnValue(mockSupabase as unknown as ReturnType<typeof createClient>)
 
 describe('matching API', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
     mockSupabase.auth.getSession.mockResolvedValue({
       data: { session: { user: { id: 'user-123' } } },
-    });
-  });
+    })
+  })
 
   it('fetches potential matches', async () => {
     mockSupabase.functions.invoke.mockResolvedValue({
       data: [{ id: 'match-1', name: 'Test User', score: 0.85 }],
       error: null,
-    });
+    })
 
-    const result = await fetchPotentialMatches();
-    expect(result).toHaveLength(1);
-    expect(result[0].score).toBeGreaterThan(0.5);
-  });
+    const result = await fetchPotentialMatches()
+    expect(result).toHaveLength(1)
+    expect(result[0].score).toBeGreaterThan(0.5)
+  })
 
   it('handles auth errors gracefully', async () => {
     mockSupabase.auth.getSession.mockResolvedValue({
       data: { session: null },
-    });
+    })
 
-    await expect(fetchPotentialMatches()).rejects.toThrow('Not authenticated');
-  });
-});
+    await expect(fetchPotentialMatches()).rejects.toThrow('Not authenticated')
+  })
+})
 ```
 
 ### Component Integration Testing
@@ -600,8 +611,8 @@ describe('TripForm Integration', () => {
 // cypress/e2e/auth/login.spec.ts
 describe('Authentication Flow', () => {
   beforeEach(() => {
-    cy.visit('/login');
-  });
+    cy.visit('/login')
+  })
 
   it('allows user to login with valid credentials', () => {
     cy.intercept('POST', '/api/auth/login', {
@@ -614,16 +625,16 @@ describe('Authentication Flow', () => {
         },
         token: 'fake-jwt-token',
       },
-    }).as('loginRequest');
+    }).as('loginRequest')
 
-    cy.get('[data-testid="email-input"]').type('test@example.com');
-    cy.get('[data-testid="password-input"]').type('password123');
-    cy.get('[data-testid="login-button"]').click();
+    cy.get('[data-testid="email-input"]').type('test@example.com')
+    cy.get('[data-testid="password-input"]').type('password123')
+    cy.get('[data-testid="login-button"]').click()
 
-    cy.wait('@loginRequest');
-    cy.url().should('include', '/dashboard');
-    cy.get('[data-testid="user-menu"]').should('contain', 'John Doe');
-  });
+    cy.wait('@loginRequest')
+    cy.url().should('include', '/dashboard')
+    cy.get('[data-testid="user-menu"]').should('contain', 'John Doe')
+  })
 
   it('shows error message for invalid credentials', () => {
     cy.intercept('POST', '/api/auth/login', {
@@ -631,26 +642,26 @@ describe('Authentication Flow', () => {
       body: {
         message: 'Invalid credentials',
       },
-    }).as('loginRequest');
+    }).as('loginRequest')
 
-    cy.get('[data-testid="email-input"]').type('invalid@example.com');
-    cy.get('[data-testid="password-input"]').type('wrongpassword');
-    cy.get('[data-testid="login-button"]').click();
+    cy.get('[data-testid="email-input"]').type('invalid@example.com')
+    cy.get('[data-testid="password-input"]').type('wrongpassword')
+    cy.get('[data-testid="login-button"]').click()
 
-    cy.wait('@loginRequest');
+    cy.wait('@loginRequest')
     cy.get('[data-testid="error-message"]')
       .should('be.visible')
-      .and('contain', 'Invalid credentials');
-    cy.url().should('include', '/login');
-  });
+      .and('contain', 'Invalid credentials')
+    cy.url().should('include', '/login')
+  })
 
   it('redirects to dashboard if already authenticated', () => {
-    cy.setCookie('auth_token', 'fake-jwt-token');
-    cy.visit('/login');
+    cy.setCookie('auth_token', 'fake-jwt-token')
+    cy.visit('/login')
 
-    cy.url().should('include', '/dashboard');
-  });
-});
+    cy.url().should('include', '/dashboard')
+  })
+})
 ```
 
 ### E2E Test Organization
@@ -659,9 +670,9 @@ describe('Authentication Flow', () => {
 // cypress/e2e/trips/create-trip.spec.ts
 describe('Trip Creation Flow', () => {
   beforeEach(() => {
-    cy.login(); // Custom command for authentication
-    cy.visit('/trips/new');
-  });
+    cy.login() // Custom command for authentication
+    cy.visit('/trips/new')
+  })
 
   it('allows user to create a new trip', () => {
     // Mock API responses
@@ -674,38 +685,36 @@ describe('Trip Creation Flow', () => {
         startDate: '2024-01-01',
         endDate: '2024-01-07',
       },
-    }).as('createTrip');
+    }).as('createTrip')
 
     // Fill trip form
-    cy.get('[data-testid="trip-title"]').type('Paris Adventure');
-    cy.get('[data-testid="destination"]').type('Paris, France');
-    cy.get('[data-testid="start-date"]').type('2024-01-01');
-    cy.get('[data-testid="end-date"]').type('2024-01-07');
-    
+    cy.get('[data-testid="trip-title"]').type('Paris Adventure')
+    cy.get('[data-testid="destination"]').type('Paris, France')
+    cy.get('[data-testid="start-date"]').type('2024-01-01')
+    cy.get('[data-testid="end-date"]').type('2024-01-07')
+
     // Select privacy setting
-    cy.get('[data-testid="privacy-public"]').click();
+    cy.get('[data-testid="privacy-public"]').click()
 
     // Submit form
-    cy.get('[data-testid="create-trip-button"]').click();
+    cy.get('[data-testid="create-trip-button"]').click()
 
     // Verify creation
-    cy.wait('@createTrip');
-    cy.url().should('include', '/trips/1');
+    cy.wait('@createTrip')
+    cy.url().should('include', '/trips/1')
     cy.get('[data-testid="success-message"]')
       .should('be.visible')
-      .and('contain', 'Trip created successfully');
-  });
+      .and('contain', 'Trip created successfully')
+  })
 
   it('validates required fields', () => {
-    cy.get('[data-testid="create-trip-button"]').click();
+    cy.get('[data-testid="create-trip-button"]').click()
 
-    cy.get('[data-testid="title-error"]')
-      .should('be.visible')
-      .and('contain', 'Title is required');
+    cy.get('[data-testid="title-error"]').should('be.visible').and('contain', 'Title is required')
     cy.get('[data-testid="destination-error"]')
       .should('be.visible')
-      .and('contain', 'Destination is required');
-  });
+      .and('contain', 'Destination is required')
+  })
 
   it('allows user to add activities to trip', () => {
     // Create trip first
@@ -714,18 +723,17 @@ describe('Trip Creation Flow', () => {
       destination: 'Adventure Land',
       startDate: '2024-01-01',
       endDate: '2024-01-07',
-    });
+    })
 
     // Add activities
-    cy.get('[data-testid="add-activity-button"]').click();
-    cy.get('[data-testid="activity-name"]').type('Hiking');
-    cy.get('[data-testid="activity-description"]').type('Mountain hiking adventure');
-    cy.get('[data-testid="save-activity-button"]').click();
+    cy.get('[data-testid="add-activity-button"]').click()
+    cy.get('[data-testid="activity-name"]').type('Hiking')
+    cy.get('[data-testid="activity-description"]').type('Mountain hiking adventure')
+    cy.get('[data-testid="save-activity-button"]').click()
 
-    cy.get('[data-testid="activity-list"]')
-      .should('contain', 'Hiking');
-  });
-});
+    cy.get('[data-testid="activity-list"]').should('contain', 'Hiking')
+  })
+})
 ```
 
 ---
@@ -734,14 +742,15 @@ describe('Trip Creation Flow', () => {
 
 ### Coverage Targets
 
-| Category | Target Coverage | Critical Path Coverage |
-|----------|-----------------|------------------------|
-| Unit Tests | 80% | 95% |
-| Integration Tests | 70% | 90% |
-| E2E Tests | Critical flows only | 100% |
-| Overall | 75% | 85% |
+| Category          | Target Coverage     | Critical Path Coverage |
+| ----------------- | ------------------- | ---------------------- |
+| Unit Tests        | 80%                 | 95%                    |
+| Integration Tests | 70%                 | 90%                    |
+| E2E Tests         | Critical flows only | 100%                   |
+| Overall           | 75%                 | 85%                    |
 
 **Current Implementation Coverage:**
+
 - ✅ **Chat System**: Message sending, typing indicators, real-time subscriptions
 - ✅ **Authentication**: Supabase Auth session handling and error handling
 - ✅ **Matching & Connections**: Connection requests, wave flow, privacy checks
@@ -794,12 +803,12 @@ describe('Trip Creation Flow', () => {
 
 ```typescript
 // jest.config.ts
-import type { Config } from 'jest';
-import nextJest from 'next/jest.js';
+import type { Config } from 'jest'
+import nextJest from 'next/jest.js'
 
 const createJestConfig = nextJest({
   dir: './',
-});
+})
 
 const config: Config = {
   coverageProvider: 'v8',
@@ -817,16 +826,16 @@ const config: Config = {
     '!src/**/*.d.ts',
     '!src/**/*.stories.{js,jsx,ts,tsx}',
   ],
-};
+}
 
-export default createJestConfig(config);
+export default createJestConfig(config)
 ```
 
 ### Testing Library Setup
 
 ```typescript
 // jest.setup.ts
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'
 
 // Mock next/router
 jest.mock('next/router', () => ({
@@ -848,9 +857,9 @@ jest.mock('next/router', () => ({
         emit: jest.fn(),
       },
       isFallback: false,
-    };
+    }
   },
-}));
+}))
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -865,7 +874,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-});
+})
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -873,7 +882,7 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+}
 ```
 
 ---
@@ -884,7 +893,7 @@ global.IntersectionObserver = class IntersectionObserver {
 
 ```typescript
 // tests/fixtures/userFixtures.ts
-import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker'
 
 export const generateTestUser = (overrides = {}) => ({
   id: faker.string.uuid(),
@@ -893,7 +902,7 @@ export const generateTestUser = (overrides = {}) => ({
   avatar: faker.image.avatar(),
   createdAt: faker.date.past(),
   ...overrides,
-});
+})
 
 export const generateTestTrip = (overrides = {}) => ({
   id: faker.string.uuid(),
@@ -904,7 +913,7 @@ export const generateTestTrip = (overrides = {}) => ({
   description: faker.lorem.paragraph(),
   isPublic: faker.datatype.boolean(),
   ...overrides,
-});
+})
 ```
 
 ### Test Factories
@@ -920,7 +929,7 @@ export class UserFactory {
       avatar: 'https://example.com/avatar.jpg',
       createdAt: new Date(),
       ...overrides,
-    };
+    }
   }
 
   static withProfile(overrides = {}) {
@@ -929,7 +938,7 @@ export class UserFactory {
       location: 'Test City',
       birthDate: new Date('1990-01-01'),
       ...overrides,
-    });
+    })
   }
 }
 ```
@@ -953,40 +962,40 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-        
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run linting
         run: npm run lint
-        
+
       - name: Run type checking
         run: npm run typecheck
-        
+
       - name: Run unit tests
         run: npm run test:coverage
-        
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
-          
+
       - name: Build application
         run: npm run build
-        
+
       - name: Run E2E tests
         run: npm run test:e2e
         if: github.event_name == 'push'
@@ -1008,12 +1017,12 @@ jobs:
 ```typescript
 // Track test metrics
 interface TestMetrics {
-  totalTests: number;
-  passedTests: number;
-  failedTests: number;
-  skippedTests: number;
-  coverage: number;
-  executionTime: number;
+  totalTests: number
+  passedTests: number
+  failedTests: number
+  skippedTests: number
+  coverage: number
+  executionTime: number
 }
 
 const generateTestReport = (metrics: TestMetrics): void => {
@@ -1026,13 +1035,13 @@ const generateTestReport = (metrics: TestMetrics): void => {
   Skipped: ${metrics.skippedTests}
   Coverage: ${metrics.coverage}%
   Execution Time: ${metrics.executionTime}ms
-  `);
-  
+  `)
+
   // Send to monitoring service
   if (process.env.NODE_ENV === 'production') {
-    sendMetricsToMonitoring(metrics);
+    sendMetricsToMonitoring(metrics)
   }
-};
+}
 ```
 
 ---

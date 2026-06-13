@@ -9,7 +9,6 @@ interface TripMapProps {
 }
 
 export function TripMap({ tripId, className = '' }: TripMapProps) {
-
   // Default coordinates for demo (San Francisco)
   const defaultLat = 37.7749
   const defaultLng = -122.4194
@@ -28,11 +27,11 @@ export function TripMap({ tripId, className = '' }: TripMapProps) {
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Map Container */}
-      <div className="relative bg-muted rounded-xl overflow-hidden h-64 group">
+      <div className="group relative h-64 overflow-hidden rounded-xl bg-muted">
         {/* Static Map Placeholder - TODO: Replace with real map */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-100 to-sky-100 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-100 to-sky-100">
           <div className="text-center">
-            <MapPin className="w-12 h-12 text-brand-500 mx-auto mb-2" />
+            <MapPin className="mx-auto mb-2 h-12 w-12 text-brand-500" />
             <p className="text-sm font-medium text-foreground">{defaultLocation}</p>
             <p className="text-xs text-muted-foreground">
               {defaultLat.toFixed(4)}, {defaultLng.toFixed(4)}
@@ -41,29 +40,28 @@ export function TripMap({ tripId, className = '' }: TripMapProps) {
         </div>
 
         {/* Map Overlay Controls */}
-        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute right-3 top-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             onClick={handleExpandMap}
-            className="p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm hover:bg-white transition-colors"
+            className="rounded-lg bg-white/90 p-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
             title="Expand map"
           >
-            <Maximize2 className="w-4 h-4 text-muted-foreground" />
+            <Maximize2 className="h-4 w-4 text-muted-foreground" />
           </button>
           <button
             onClick={handleGetDirections}
-            className="p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm hover:bg-white transition-colors"
+            className="rounded-lg bg-white/90 p-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
             title="Get directions"
           >
-            <Navigation className="w-4 h-4 text-muted-foreground" />
+            <Navigation className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
-
       </div>
 
       {/* Map Info */}
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <MapPin className="w-4 h-4" />
+          <MapPin className="h-4 w-4" />
           <span>Trip Location</span>
         </div>
         <div className="text-right">
@@ -78,28 +76,29 @@ export function TripMap({ tripId, className = '' }: TripMapProps) {
       <div className="flex gap-2">
         <button
           onClick={handleGetDirections}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors text-sm"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm text-white transition-colors hover:bg-brand-600"
         >
-          <Navigation className="w-4 h-4" />
+          <Navigation className="h-4 w-4" />
           <span>Get Directions</span>
         </button>
         <button
           onClick={handleExpandMap}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors text-sm"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted/80"
         >
-          <Maximize2 className="w-4 h-4" />
+          <Maximize2 className="h-4 w-4" />
           <span>View Full Map</span>
         </button>
       </div>
 
       {/* Map Feature Notice */}
-      <div className="p-3 bg-sun-50 border border-sun-200 rounded-lg">
+      <div className="rounded-lg border border-sun-200 bg-sun-50 p-3">
         <div className="flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-sun-600 mt-0.5 flex-shrink-0" />
+          <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-sun-600" />
           <div className="text-sm">
             <p className="font-medium text-sun-800">Interactive Map Coming Soon</p>
-            <p className="text-sun-700 mt-1">
-              This is a placeholder for the trip location map. Real map integration with location markers will be available in a future update.
+            <p className="mt-1 text-sun-700">
+              This is a placeholder for the trip location map. Real map integration with location
+              markers will be available in a future update.
             </p>
           </div>
         </div>

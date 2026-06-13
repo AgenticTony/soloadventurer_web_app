@@ -51,9 +51,7 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
 
       {/* Main Content Area - Full width */}
       <main className="min-h-[calc(100vh-4rem)]">
-        <div className="pb-20 lg:pb-0">
-          {children}
-        </div>
+        <div className="pb-20 lg:pb-0">{children}</div>
       </main>
 
       {/* Bottom Tab Bar (Mobile) */}

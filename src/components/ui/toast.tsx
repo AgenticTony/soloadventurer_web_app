@@ -37,15 +37,15 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   const getIcon = () => {
     switch (toast.type) {
       case 'success':
-        return <CheckCircle className="w-5 h-5 text-emerald-500" />
+        return <CheckCircle className="h-5 w-5 text-emerald-500" />
       case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-500" />
+        return <AlertCircle className="h-5 w-5 text-red-500" />
       case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-amber-500" />
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />
       case 'info':
-        return <Info className="w-5 h-5 text-sky-500" />
+        return <Info className="h-5 w-5 text-sky-500" />
       default:
-        return <Info className="w-5 h-5 text-sky-500" />
+        return <Info className="h-5 w-5 text-sky-500" />
     }
   }
 
@@ -66,42 +66,31 @@ export function Toast({ toast, onDismiss }: ToastProps) {
 
   return (
     <div
-      className={`
-        transform transition-all duration-300 ease-out
-        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}
-        max-w-sm w-full bg-card border border-border rounded-lg shadow-lg p-4
-        ${getBgColor()}
-      `}
+      className={`transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-lg ${getBgColor()} `}
     >
       <div className="flex items-start space-x-3">
         {/* Icon */}
-        <div className="flex-shrink-0 mt-0.5">
-          {getIcon()}
-        </div>
+        <div className="mt-0.5 flex-shrink-0">{getIcon()}</div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h4 className="text-sm font-semibold text-foreground">
-                {toast.title}
-              </h4>
+              <h4 className="text-sm font-semibold text-foreground">{toast.title}</h4>
               {toast.description && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {toast.description}
-                </p>
+                <p className="mt-1 text-sm text-muted-foreground">{toast.description}</p>
               )}
             </div>
-            
+
             {/* Close button */}
             <button
               onClick={() => {
                 setIsVisible(false)
                 setTimeout(() => onDismiss(toast.id), 300)
               }}
-              className="flex-shrink-0 ml-4 p-1 rounded hover:bg-muted/50 transition-colors"
+              className="ml-4 flex-shrink-0 rounded p-1 transition-colors hover:bg-muted/50"
             >
-              <X className="w-4 h-4 text-muted-foreground" />
+              <X className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
 
@@ -110,7 +99,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
             <div className="mt-3">
               <button
                 onClick={toast.action.onClick}
-                className="text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors"
+                className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-600"
               >
                 {toast.action.label}
               </button>
@@ -130,7 +119,7 @@ interface ToastContainerProps {
 export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
     <div className="fixed bottom-4 right-4 z-50 space-y-2">
-      {toasts.map((toast) => (
+      {toasts.map(toast => (
         <Toast key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}
     </div>

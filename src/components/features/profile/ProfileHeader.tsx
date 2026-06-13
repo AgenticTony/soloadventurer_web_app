@@ -69,7 +69,7 @@ export function ProfileHeader({
             <img
               src={user.coverUrl}
               alt="Cover"
-              className="h-full w-full object-cover mask-letterbox"
+              className="mask-letterbox h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
           </>
@@ -118,15 +118,11 @@ export function ProfileHeader({
             className="-mt-20 sm:-mt-24"
           >
             <div className="relative">
-              <div className="h-[120px] w-[120px] overflow-hidden rounded-full ring-[3px] ring-background shadow-xl sm:h-[128px] sm:w-[128px]">
+              <div className="h-[120px] w-[120px] overflow-hidden rounded-full shadow-xl ring-[3px] ring-background sm:h-[128px] sm:w-[128px]">
                 {user.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={displayName}
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={user.avatar} alt={displayName} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-cover-warm">
+                  <div className="bg-cover-warm flex h-full w-full items-center justify-center">
                     <span className="font-display text-5xl font-bold text-white">{initials}</span>
                   </div>
                 )}
@@ -156,9 +152,7 @@ export function ProfileHeader({
               {displayName}
             </h1>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-              {handle && (
-                <span className="font-medium text-muted-foreground">@{handle}</span>
-              )}
+              {handle && <span className="font-medium text-muted-foreground">@{handle}</span>}
               {user.location && (
                 <span className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5 text-brand" />
@@ -170,7 +164,9 @@ export function ProfileHeader({
             {/* Bio — editorial excerpt */}
             {user.bio ? (
               <div className="mt-3">
-                <p className={`text-sm leading-relaxed text-text-secondary ${!bioExpanded && bioIsLong ? 'line-clamp-2' : ''}`}>
+                <p
+                  className={`text-text-secondary text-sm leading-relaxed ${!bioExpanded && bioIsLong ? 'line-clamp-2' : ''}`}
+                >
                   {user.bio}
                 </p>
                 {bioIsLong && (
@@ -179,7 +175,9 @@ export function ProfileHeader({
                     className="mt-1 flex items-center gap-0.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"
                   >
                     {bioExpanded ? 'Less' : 'Read more'}
-                    <ChevronDown className={`h-3 w-3 transition-transform ${bioExpanded ? 'rotate-180' : ''}`} />
+                    <ChevronDown
+                      className={`h-3 w-3 transition-transform ${bioExpanded ? 'rotate-180' : ''}`}
+                    />
                   </button>
                 )}
               </div>

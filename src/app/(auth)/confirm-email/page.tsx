@@ -15,7 +15,7 @@ function ConfirmEmailContent() {
   const { confirmSignUp, resendSignUpCode } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   // Pre-fill email if passed as query param
   useEffect(() => {
     const emailParam = searchParams.get('email')
@@ -62,7 +62,7 @@ function ConfirmEmailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Confirm Your Email</CardTitle>
@@ -81,11 +81,11 @@ function ConfirmEmailContent() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <label htmlFor="code" className="text-sm font-medium">
                 Verification Code
@@ -95,22 +95,20 @@ function ConfirmEmailContent() {
                 type="text"
                 placeholder="123456"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={e => setCode(e.target.value)}
                 required
               />
             </div>
 
             {error && (
-              <div className={`text-sm ${error.includes('sent') ? 'text-green-600' : 'text-red-600'}`}>
+              <div
+                className={`text-sm ${error.includes('sent') ? 'text-green-600' : 'text-red-600'}`}
+              >
                 {error}
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Confirming...' : 'Confirm Email'}
             </Button>
 
@@ -144,13 +142,15 @@ function ConfirmEmailContent() {
 
 export default function ConfirmEmailPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg">Loading...</div>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+          <div className="text-center">
+            <div className="text-lg">Loading...</div>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ConfirmEmailContent />
     </Suspense>
   )

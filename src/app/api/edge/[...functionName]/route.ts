@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ functionName: string[] }> },
+  { params }: { params: Promise<{ functionName: string[] }> }
 ) {
   const { functionName } = await params
   const fn = functionName.join('/')
@@ -28,7 +28,9 @@ export async function POST(
     },
   })
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
   // Call the edge function server-side (no CORS)
   const functionUrl = `${supabaseUrl}/functions/v1/${fn}`

@@ -1,16 +1,19 @@
-'use client';
+'use client'
 
-import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Dynamically import the heavy ExploreMapContainer to reduce initial bundle size
 const ExploreMapContainer = dynamic(
-  () => import('@/components/features/ExploreMapContainer').then(mod => ({ default: mod.ExploreMapContainer })),
+  () =>
+    import('@/components/features/ExploreMapContainer').then(mod => ({
+      default: mod.ExploreMapContainer,
+    })),
   {
     loading: () => (
-      <div className="h-screen w-full flex items-center justify-center bg-gray-50">
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
         <div className="text-center">
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-gray-600">Loading map components...</p>
@@ -19,7 +22,7 @@ const ExploreMapContainer = dynamic(
     ),
     ssr: false, // Disable SSR for client-side only components
   }
-);
+)
 
 function ExplorePageContent() {
   return (
@@ -28,19 +31,18 @@ function ExplorePageContent() {
         <ExploreMapContainer />
       </ErrorBoundary>
     </div>
-  );
+  )
 }
-
 
 function LoadingFallback() {
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-gray-50">
+    <div className="flex h-screen w-full items-center justify-center bg-gray-50">
       <div className="text-center">
         <LoadingSpinner size="lg" />
         <p className="mt-4 text-gray-600">Loading explore map...</p>
       </div>
     </div>
-  );
+  )
 }
 
 export default function ExplorePage() {
@@ -48,6 +50,5 @@ export default function ExplorePage() {
     <Suspense fallback={<LoadingFallback />}>
       <ExplorePageContent />
     </Suspense>
-  );
+  )
 }
-

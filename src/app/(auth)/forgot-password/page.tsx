@@ -32,18 +32,14 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            SoloAdventurer
-          </h1>
-          <p className="text-gray-600">
-            Reset your password
-          </p>
+        <div className="mb-8 text-center">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">SoloAdventurer</h1>
+          <p className="text-gray-600">Reset your password</p>
         </div>
-        
-        <Card className="w-full max-w-md mx-auto">
+
+        <Card className="mx-auto w-full max-w-md">
           <CardHeader>
             <CardTitle>Forgot Password?</CardTitle>
             <CardDescription>
@@ -61,24 +57,16 @@ export default function ForgotPasswordPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
 
-              {error && (
-                <div className="text-red-600 text-sm">{error}</div>
-              )}
+              {error && <div className="text-sm text-red-600">{error}</div>}
 
-              {message && (
-                <div className="text-green-600 text-sm">{message}</div>
-              )}
+              {message && <div className="text-sm text-green-600">{message}</div>}
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Sending Instructions...' : 'Send Reset Instructions'}
               </Button>
 

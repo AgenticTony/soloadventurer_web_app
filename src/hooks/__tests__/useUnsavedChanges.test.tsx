@@ -4,7 +4,7 @@ import { useUnsavedChanges } from '../useUnsavedChanges'
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
+  useRouter: jest.fn(),
 }))
 
 // Mock window.confirm
@@ -24,7 +24,7 @@ const mockRouter = {
   forward: jest.fn(),
   refresh: jest.fn(),
   replace: jest.fn(),
-  prefetch: jest.fn()
+  prefetch: jest.fn(),
 }
 
 describe('useUnsavedChanges', () => {
@@ -37,7 +37,7 @@ describe('useUnsavedChanges', () => {
   it('should not interfere with navigation when no unsaved changes', () => {
     renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: false
+        hasUnsavedChanges: false,
       })
     )
 
@@ -53,7 +53,7 @@ describe('useUnsavedChanges', () => {
   it('should show confirmation when navigating with unsaved changes', () => {
     renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: true
+        hasUnsavedChanges: true,
       })
     )
 
@@ -64,14 +64,16 @@ describe('useUnsavedChanges', () => {
       mockRouter.push('/some-path')
     })
 
-    expect(mockConfirm).toHaveBeenCalledWith('You have unsaved changes. Are you sure you want to leave?')
+    expect(mockConfirm).toHaveBeenCalledWith(
+      'You have unsaved changes. Are you sure you want to leave?'
+    )
     expect(mockPush).toHaveBeenCalledWith('/some-path')
   })
 
   it('should prevent navigation when user cancels confirmation', () => {
     renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: true
+        hasUnsavedChanges: true,
       })
     )
 
@@ -82,7 +84,9 @@ describe('useUnsavedChanges', () => {
       mockRouter.push('/some-path')
     })
 
-    expect(mockConfirm).toHaveBeenCalledWith('You have unsaved changes. Are you sure you want to leave?')
+    expect(mockConfirm).toHaveBeenCalledWith(
+      'You have unsaved changes. Are you sure you want to leave?'
+    )
     expect(mockPush).not.toHaveBeenCalledWith('/some-path')
   })
 
@@ -91,7 +95,7 @@ describe('useUnsavedChanges', () => {
     renderHook(() =>
       useUnsavedChanges({
         hasUnsavedChanges: true,
-        message: customMessage
+        message: customMessage,
       })
     )
 
@@ -105,7 +109,7 @@ describe('useUnsavedChanges', () => {
   it('should add beforeunload listener when hasUnsavedChanges is true', () => {
     renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: true
+        hasUnsavedChanges: true,
       })
     )
 
@@ -116,10 +120,10 @@ describe('useUnsavedChanges', () => {
     const { rerender } = renderHook(
       ({ hasUnsavedChanges }) =>
         useUnsavedChanges({
-          hasUnsavedChanges
+          hasUnsavedChanges,
         }),
       {
-        initialProps: { hasUnsavedChanges: true }
+        initialProps: { hasUnsavedChanges: true },
       }
     )
 
@@ -134,7 +138,7 @@ describe('useUnsavedChanges', () => {
   it('should clean up event listener on unmount', () => {
     const { unmount } = renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: true
+        hasUnsavedChanges: true,
       })
     )
 
@@ -146,7 +150,7 @@ describe('useUnsavedChanges', () => {
   it('should provide confirmNavigation helper function', () => {
     const { result } = renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: true
+        hasUnsavedChanges: true,
       })
     )
 
@@ -157,14 +161,16 @@ describe('useUnsavedChanges', () => {
       result.current.confirmNavigation(mockCallback)
     })
 
-    expect(mockConfirm).toHaveBeenCalledWith('You have unsaved changes. Are you sure you want to leave?')
+    expect(mockConfirm).toHaveBeenCalledWith(
+      'You have unsaved changes. Are you sure you want to leave?'
+    )
     expect(mockCallback).toHaveBeenCalled()
   })
 
   it('should not call callback when confirmNavigation is cancelled', () => {
     const { result } = renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: true
+        hasUnsavedChanges: true,
       })
     )
 
@@ -182,7 +188,7 @@ describe('useUnsavedChanges', () => {
   it('should call callback immediately when no unsaved changes', () => {
     const { result } = renderHook(() =>
       useUnsavedChanges({
-        hasUnsavedChanges: false
+        hasUnsavedChanges: false,
       })
     )
 

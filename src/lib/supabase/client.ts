@@ -3,23 +3,23 @@ import { createBrowserClient } from '@supabase/ssr'
 export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }
 
 // ── Edge Function Invoker ──────────────────────────────────────
 
-const DEFAULT_TIMEOUT_MS = 30_000;
-const MAX_RETRIES = 2;
-const RETRY_BASE_DELAY_MS = 1_000;
+const DEFAULT_TIMEOUT_MS = 30_000
+const MAX_RETRIES = 2
+const RETRY_BASE_DELAY_MS = 1_000
 
 export interface EdgeFunctionResult<T> {
-  data: T | null;
+  data: T | null
   error: {
-    message: string;
-    status?: number;
-    code?: string;
-  } | null;
+    message: string
+    status?: number
+    code?: string
+  } | null
 }
 
 /**
@@ -31,14 +31,14 @@ export interface EdgeFunctionResult<T> {
 export async function invokeEdgeFunction<T = unknown>(
   functionName: string,
   params: Record<string, unknown>,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number }
 ): Promise<EdgeFunctionResult<T>> {
-  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  let lastError: EdgeFunctionResult<T>['error'];
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
+  let lastError: EdgeFunctionResult<T>['error']
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
     try {
       // Route through Next.js API proxy to avoid CORS issues from browser
@@ -47,36 +47,36 @@ export async function invokeEdgeFunction<T = unknown>(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
         signal: controller.signal,
-      });
+      })
 
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body = await res.json().catch(() => ({}))
         const message = (body as Record<string, unknown>)?.error
           ? String((body as Record<string, unknown>).error)
-          : `Edge function "${functionName}" returned ${res.status}`;
-        const status = res.status;
+          : `Edge function "${functionName}" returned ${res.status}`
+        const status = res.status
 
         // 4xx = client error — do not retry
         if (status >= 400 && status < 500) {
-          return { data: null, error: { message, status, code: String(status) } };
+          return { data: null, error: { message, status, code: String(status) } }
         }
 
-        lastError = { message, status };
+        lastError = { message, status }
         if (attempt < MAX_RETRIES) {
-          await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt);
-          continue;
+          await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt)
+          continue
         }
-        return { data: null, error: lastError };
+        return { data: null, error: lastError }
       }
 
-      const data = (await res.json()) as T;
-      return { data, error: null };
+      const data = (await res.json()) as T
+      return { data, error: null }
     } catch (err) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
 
-      const isAbort = err instanceof DOMException && err.name === 'AbortError';
+      const isAbort = err instanceof DOMException && err.name === 'AbortError'
       lastError = {
         message: isAbort
           ? `Edge function "${functionName}" timed out after ${timeoutMs}ms`
@@ -84,19 +84,19 @@ export async function invokeEdgeFunction<T = unknown>(
             ? err.message
             : 'Unknown error invoking edge function',
         code: isAbort ? 'TIMEOUT' : 'FETCH_ERROR',
-      };
+      }
 
       if (attempt < MAX_RETRIES) {
-        await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt);
-        continue;
+        await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt)
+        continue
       }
-      return { data: null, error: lastError };
+      return { data: null, error: lastError }
     }
   }
 
-  return { data: null, error: lastError! };
+  return { data: null, error: lastError! }
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

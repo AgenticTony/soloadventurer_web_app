@@ -1,5 +1,5 @@
 // Export service instance and class
-export { tripService, TripService } from './tripService';
+export { tripService, TripService } from './tripService'
 
 // Export all types
 export type {
@@ -9,4 +9,4 @@ export type {
   ListTripsOptions,
   ListTripsResponse,
   UpdateTripInput,
-} from './types';
+} from './types'

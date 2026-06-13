@@ -44,12 +44,7 @@ export function ProfileDetailsCard({ user }: ProfileDetailsCardProps) {
       <CardContent className="space-y-5 p-5">
         {/* Bio — editorial feel */}
         {user.bio && (
-          <motion.div
-            custom={0}
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
             <div className="border-l-2 border-brand/30 pl-4">
               <p className="whitespace-pre-line text-sm leading-[1.7] text-foreground/90">
                 {user.bio}
@@ -68,7 +63,7 @@ export function ProfileDetailsCard({ user }: ProfileDetailsCardProps) {
             className="flex items-center gap-2"
           >
             <MapPin className="h-4 w-4 shrink-0 text-brand" />
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/8 px-3 py-1 text-xs font-semibold text-brand dark:bg-brand/15">
+            <span className="bg-brand/8 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold text-brand dark:bg-brand/15">
               {user.location}
             </span>
           </motion.div>
@@ -76,21 +71,16 @@ export function ProfileDetailsCard({ user }: ProfileDetailsCardProps) {
 
         {/* Travel preferences */}
         {user.travelPreferences && user.travelPreferences.length > 0 && (
-          <motion.div
-            custom={2}
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
             <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               <Compass className="h-3 w-3" />
               Travel Style
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {user.travelPreferences.map((pref) => (
+              {user.travelPreferences.map(pref => (
                 <span
                   key={pref}
-                  className="rounded-lg bg-brand/8 px-2.5 py-1 text-xs font-medium text-brand dark:bg-brand/15"
+                  className="bg-brand/8 rounded-lg px-2.5 py-1 text-xs font-medium text-brand dark:bg-brand/15"
                 >
                   {pref}
                 </span>
@@ -101,17 +91,12 @@ export function ProfileDetailsCard({ user }: ProfileDetailsCardProps) {
 
         {/* Interests */}
         {user.interests && user.interests.length > 0 && (
-          <motion.div
-            custom={3}
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
             <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               Interests
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {user.interests.map((interest) => (
+              {user.interests.map(interest => (
                 <span
                   key={interest}
                   className="rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"

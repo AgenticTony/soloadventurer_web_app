@@ -1,10 +1,10 @@
 // Social Privacy Component - Enhanced Privacy Controls
 // Sprint 3: Following official React patterns with Tailwind CSS
 
-'use client';
+'use client'
 
-import React, { useState, useCallback, useOptimistic, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useOptimistic, useId } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Hand,
   MessageCircle,
@@ -16,10 +16,14 @@ import {
   CheckCircle,
   WifiOff,
   Shield,
-  Info
-} from 'lucide-react';
-import { usePrivacy, SocialInteractionLevel, formatSocialInteractionLevel } from '@/contexts/PrivacyContext';
-import { clsx } from 'clsx';
+  Info,
+} from 'lucide-react'
+import {
+  usePrivacy,
+  SocialInteractionLevel,
+  formatSocialInteractionLevel,
+} from '@/contexts/PrivacyContext'
+import { clsx } from 'clsx'
 
 /**
  * Social Privacy Component
@@ -34,16 +38,16 @@ export const SocialPrivacy: React.FC = () => {
     toggleReadReceipts,
     toggleOnlineStatus,
     toggleActivityStatus,
-  } = usePrivacy();
+  } = usePrivacy()
 
-  const [isOnline] = useState(() => typeof window !== 'undefined' ? navigator.onLine : true);
+  const [isOnline] = useState(() => (typeof window !== 'undefined' ? navigator.onLine : true))
 
   // WAI-ARIA accessibility IDs following React.dev useId patterns
-  const waveControlId = useId();
-  const messageControlId = useId();
-  const readReceiptsId = useId();
-  const onlineStatusId = useId();
-  const activityStatusId = useId();
+  const waveControlId = useId()
+  const messageControlId = useId()
+  const readReceiptsId = useId()
+  const onlineStatusId = useId()
+  const activityStatusId = useId()
 
   // Optimistic updates following React.dev useOptimistic patterns
   const [optimisticSettings, addOptimistic] = useOptimistic(
@@ -52,54 +56,60 @@ export const SocialPrivacy: React.FC = () => {
       ...currentSettings,
       ...update,
     })
-  );
+  )
 
   /**
    * Handle wave permission change with optimistic updates
    */
-  const handleWaveChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const newLevel = event.target.value as SocialInteractionLevel;
+  const handleWaveChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newLevel = event.target.value as SocialInteractionLevel
 
-    // Optimistic update for immediate UI feedback
-    addOptimistic({ whoCanWave: newLevel });
+      // Optimistic update for immediate UI feedback
+      addOptimistic({ whoCanWave: newLevel })
 
-    // Actual update
-    updateWhoCanWave(newLevel);
-  }, [addOptimistic, updateWhoCanWave]);
+      // Actual update
+      updateWhoCanWave(newLevel)
+    },
+    [addOptimistic, updateWhoCanWave]
+  )
 
   /**
    * Handle message permission change with optimistic updates
    */
-  const handleMessageChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const newLevel = event.target.value as SocialInteractionLevel;
+  const handleMessageChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newLevel = event.target.value as SocialInteractionLevel
 
-    // Optimistic update for immediate UI feedback
-    addOptimistic({ whoCanMessage: newLevel });
+      // Optimistic update for immediate UI feedback
+      addOptimistic({ whoCanMessage: newLevel })
 
-    // Actual update
-    updateWhoCanMessage(newLevel);
-  }, [addOptimistic, updateWhoCanMessage]);
+      // Actual update
+      updateWhoCanMessage(newLevel)
+    },
+    [addOptimistic, updateWhoCanMessage]
+  )
 
   /**
    * Handle toggle switches with optimistic updates
    */
   const handleReadReceiptsToggle = useCallback(() => {
-    const newValue = !optimisticSettings.readReceipts;
-    addOptimistic({ readReceipts: newValue });
-    toggleReadReceipts();
-  }, [addOptimistic, optimisticSettings.readReceipts, toggleReadReceipts]);
+    const newValue = !optimisticSettings.readReceipts
+    addOptimistic({ readReceipts: newValue })
+    toggleReadReceipts()
+  }, [addOptimistic, optimisticSettings.readReceipts, toggleReadReceipts])
 
   const handleOnlineStatusToggle = useCallback(() => {
-    const newValue = !optimisticSettings.onlineStatus;
-    addOptimistic({ onlineStatus: newValue });
-    toggleOnlineStatus();
-  }, [addOptimistic, optimisticSettings.onlineStatus, toggleOnlineStatus]);
+    const newValue = !optimisticSettings.onlineStatus
+    addOptimistic({ onlineStatus: newValue })
+    toggleOnlineStatus()
+  }, [addOptimistic, optimisticSettings.onlineStatus, toggleOnlineStatus])
 
   const handleActivityStatusToggle = useCallback(() => {
-    const newValue = !optimisticSettings.activityStatus;
-    addOptimistic({ activityStatus: newValue });
-    toggleActivityStatus();
-  }, [addOptimistic, optimisticSettings.activityStatus, toggleActivityStatus]);
+    const newValue = !optimisticSettings.activityStatus
+    addOptimistic({ activityStatus: newValue })
+    toggleActivityStatus()
+  }, [addOptimistic, optimisticSettings.activityStatus, toggleActivityStatus])
 
   /**
    * Get icon for social interaction level
@@ -107,35 +117,36 @@ export const SocialPrivacy: React.FC = () => {
   const getInteractionIcon = useCallback((level: SocialInteractionLevel) => {
     switch (level) {
       case 'everyone':
-        return <Globe className="w-4 h-4" />;
+        return <Globe className="h-4 w-4" />
       case 'connections':
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />
       case 'none':
-        return <X className="w-4 h-4" />;
+        return <X className="h-4 w-4" />
       default:
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />
     }
-  }, []);
+  }, [])
 
   /**
    * Toggle Switch Component following controlled component patterns
    */
   const ToggleSwitch: React.FC<{
-    id: string;
-    checked: boolean;
-    onChange: () => void;
-    label: string;
-    description: string;
-    'aria-label': string;
+    id: string
+    checked: boolean
+    onChange: () => void
+    label: string
+    description: string
+    'aria-label': string
   }> = ({ id, checked, onChange, label, description, 'aria-label': ariaLabel }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+    <div className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
       <div className="flex-1">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
+        <label
+          htmlFor={id}
+          className="block cursor-pointer text-sm font-medium text-gray-900 dark:text-white"
+        >
           {label}
         </label>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-          {description}
-        </p>
+        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{description}</p>
       </div>
       <div className="relative">
         <input
@@ -150,32 +161,32 @@ export const SocialPrivacy: React.FC = () => {
         />
         <div
           className={clsx(
-            'w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 transition-colors cursor-pointer',
+            'peer h-6 w-11 cursor-pointer rounded-full bg-gray-200 transition-colors peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:bg-gray-700 dark:peer-focus:ring-blue-800',
             checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
           )}
           onClick={onChange}
         >
           <div
             className={clsx(
-              'absolute top-[2px] left-[2px] bg-white border-gray-300 border rounded-full h-5 w-5 transition-transform',
+              'absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-gray-300 bg-white transition-transform',
               checked ? 'translate-x-full border-white' : ''
             )}
           />
         </div>
       </div>
     </div>
-  );
+  )
 
   return (
     <motion.div
-      className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+      className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Users className="w-6 h-6 text-blue-600" />
+      <div className="mb-6 flex items-center gap-3">
+        <Users className="h-6 w-6 text-blue-600" />
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Social Features Privacy
         </h2>
@@ -190,8 +201,8 @@ export const SocialPrivacy: React.FC = () => {
             exit={{ opacity: 0, height: 0 }}
             className="mb-6"
           >
-            <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-              <WifiOff className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+              <WifiOff className="h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
               <p className="text-sm text-amber-700 dark:text-amber-300">
                 You&apos;re offline. Settings will sync when you reconnect.
               </p>
@@ -201,35 +212,24 @@ export const SocialPrivacy: React.FC = () => {
       </AnimatePresence>
 
       {/* Connection Status Indicator */}
-      <div className="flex items-center gap-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
-        <CheckCircle
-          className={clsx(
-            'w-4 h-4',
-            isOnline ? 'text-green-500' : 'text-red-500'
-          )}
-        />
-        <span>
-          {isOnline ? 'Connected' : 'Offline'} • Settings sync automatically
-        </span>
+      <div className="mb-6 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <CheckCircle className={clsx('h-4 w-4', isOnline ? 'text-green-500' : 'text-red-500')} />
+        <span>{isOnline ? 'Connected' : 'Offline'} • Settings sync automatically</span>
       </div>
 
       {/* Who Can Wave - Following native HTML patterns with Tailwind */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Hand className="w-5 h-5 text-blue-600" />
+        <div className="mb-4 flex items-center gap-2">
+          <Hand className="h-5 w-5 text-blue-600" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
             Who can wave to you?
           </h3>
         </div>
-        <div
-          role="radiogroup"
-          aria-labelledby={waveControlId}
-          className="space-y-2"
-        >
-          {(['everyone', 'connections', 'none'] as SocialInteractionLevel[]).map((level) => (
+        <div role="radiogroup" aria-labelledby={waveControlId} className="space-y-2">
+          {(['everyone', 'connections', 'none'] as SocialInteractionLevel[]).map(level => (
             <label
               key={level}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors group"
+              className="group flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <input
                 type="radio"
@@ -237,7 +237,7 @@ export const SocialPrivacy: React.FC = () => {
                 value={level}
                 checked={optimisticSettings.whoCanWave === level}
                 onChange={handleWaveChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
               />
               <div className="flex items-center gap-2">
                 {getInteractionIcon(level)}
@@ -250,25 +250,21 @@ export const SocialPrivacy: React.FC = () => {
         </div>
       </div>
 
-      <div className="border-t border-gray-200 dark:border-gray-700 my-6" />
+      <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
 
       {/* Who Can Message - Following native HTML patterns with Tailwind */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="w-5 h-5 text-blue-600" />
+        <div className="mb-4 flex items-center gap-2">
+          <MessageCircle className="h-5 w-5 text-blue-600" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
             Who can message you?
           </h3>
         </div>
-        <div
-          role="radiogroup"
-          aria-labelledby={messageControlId}
-          className="space-y-2"
-        >
-          {(['everyone', 'connections', 'none'] as SocialInteractionLevel[]).map((level) => (
+        <div role="radiogroup" aria-labelledby={messageControlId} className="space-y-2">
+          {(['everyone', 'connections', 'none'] as SocialInteractionLevel[]).map(level => (
             <label
               key={level}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors group"
+              className="group flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <input
                 type="radio"
@@ -276,7 +272,7 @@ export const SocialPrivacy: React.FC = () => {
                 value={level}
                 checked={optimisticSettings.whoCanMessage === level}
                 onChange={handleMessageChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
               />
               <div className="flex items-center gap-2">
                 {getInteractionIcon(level)}
@@ -289,15 +285,13 @@ export const SocialPrivacy: React.FC = () => {
         </div>
       </div>
 
-      <div className="border-t border-gray-200 dark:border-gray-700 my-6" />
+      <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
 
       {/* Status & Activity Settings - Following native HTML patterns with Tailwind */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Eye className="w-5 h-5 text-blue-600" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            Status & Activity
-          </h3>
+        <div className="mb-4 flex items-center gap-2">
+          <Eye className="h-5 w-5 text-blue-600" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Status & Activity</h3>
         </div>
 
         <div className="space-y-4">
@@ -334,17 +328,17 @@ export const SocialPrivacy: React.FC = () => {
       </div>
 
       {/* Privacy Notice */}
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
           <p className="text-sm text-blue-700 dark:text-blue-300">
-            <strong>Privacy Notice:</strong> Your settings are stored locally and synchronized securely.
-            Blocked users cannot interact with you regardless of these settings.
+            <strong>Privacy Notice:</strong> Your settings are stored locally and synchronized
+            securely. Blocked users cannot interact with you regardless of these settings.
           </p>
         </div>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default SocialPrivacy;
+export default SocialPrivacy

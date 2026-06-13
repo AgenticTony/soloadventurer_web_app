@@ -20,11 +20,11 @@ export function AnimatedGradientBackground({ className = '' }: AnimatedGradientB
     canvas.height = window.innerHeight
 
     const colors = [
-      { r: 59, g: 130, b: 246 },   // Blue
-      { r: 139, g: 92, b: 246 },   // Purple
-      { r: 236, g: 72, b: 153 },   // Pink
-      { r: 251, g: 146, b: 60 },   // Orange
-      { r: 34, g: 197, b: 94 },    // Green
+      { r: 59, g: 130, b: 246 }, // Blue
+      { r: 139, g: 92, b: 246 }, // Purple
+      { r: 236, g: 72, b: 153 }, // Pink
+      { r: 251, g: 146, b: 60 }, // Orange
+      { r: 34, g: 197, b: 94 }, // Green
     ]
 
     const particles: Array<{
@@ -33,7 +33,7 @@ export function AnimatedGradientBackground({ className = '' }: AnimatedGradientB
       vx: number
       vy: number
       radius: number
-      color: typeof colors[0]
+      color: (typeof colors)[0]
     }> = []
 
     // Create particles
@@ -44,13 +44,13 @@ export function AnimatedGradientBackground({ className = '' }: AnimatedGradientB
         vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
         radius: Math.random() * 200 + 100,
-        color: colors[Math.floor(Math.random() * colors.length)]
+        color: colors[Math.floor(Math.random() * colors.length)],
       })
     }
 
     function animate() {
       if (!ctx || !canvas) return
-      
+
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -70,8 +70,14 @@ export function AnimatedGradientBackground({ className = '' }: AnimatedGradientB
           particle.radius
         )
 
-        gradient.addColorStop(0, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, 0.8)`)
-        gradient.addColorStop(1, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, 0)`)
+        gradient.addColorStop(
+          0,
+          `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, 0.8)`
+        )
+        gradient.addColorStop(
+          1,
+          `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, 0)`
+        )
 
         ctx.fillStyle = gradient
         ctx.fillRect(

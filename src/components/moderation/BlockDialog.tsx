@@ -1,23 +1,23 @@
 // Block Dialog Component - User Blocking Interface
 // Sprint 3: Following official React dialog patterns and form validation
 
-'use client';
+'use client'
 
-import React, { useState, useCallback, useActionState, useId, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Shield, AlertTriangle, User } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { useToast } from '@/contexts/ToastContext';
-import { clsx } from 'clsx';
+import React, { useState, useCallback, useActionState, useId, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X, Shield, AlertTriangle, User } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/contexts/ToastContext'
+import { clsx } from 'clsx'
 
 /**
  * User interface for blocking operations
  */
 interface BlockableUser {
-  id: string;
-  username: string;
-  name: string;
-  avatar?: string;
+  id: string
+  username: string
+  name: string
+  avatar?: string
 }
 
 /**
@@ -25,15 +25,15 @@ interface BlockableUser {
  */
 export interface BlockDialogProps {
   /** Whether the dialog is open */
-  isOpen: boolean;
+  isOpen: boolean
   /** Function to close the dialog */
-  onClose: () => void;
+  onClose: () => void
   /** User to be blocked */
-  user: BlockableUser;
+  user: BlockableUser
   /** Callback when user is successfully blocked */
-  onUserBlocked?: (userId: string) => void;
+  onUserBlocked?: (userId: string) => void
   /** Custom CSS classes */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -44,7 +44,7 @@ enum BlockReason {
   SPAM = 'spam',
   INAPPROPRIATE = 'inappropriate',
   PRIVACY = 'privacy',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 /**
@@ -56,61 +56,62 @@ async function blockUserAction(
   formData: FormData
 ): Promise<{ error?: string; success?: boolean; userId?: string }> {
   try {
-    const targetUserId = formData.get('targetUserId') as string;
-    const reason = formData.get('reason') as string;
-    const customReason = formData.get('customReason') as string;
+    const targetUserId = formData.get('targetUserId') as string
+    const reason = formData.get('reason') as string
+    const customReason = formData.get('customReason') as string
 
     // OWASP allowlist validation
-    const allowedReasons = Object.values(BlockReason);
+    const allowedReasons = Object.values(BlockReason)
     if (!allowedReasons.includes(reason as BlockReason) && reason !== 'other') {
-      return { error: 'Invalid block reason selected' };
+      return { error: 'Invalid block reason selected' }
     }
 
-    const finalReason = reason === 'other' ? customReason : reason;
+    const finalReason = reason === 'other' ? customReason : reason
 
     // OWASP input validation - allowlist approach
     if (finalReason && finalReason.length > 500) {
-      return { error: 'Block reason must be 500 characters or less' };
+      return { error: 'Block reason must be 500 characters or less' }
     }
 
     if (reason === 'other') {
       if (!customReason || customReason.trim().length < 5) {
-        return { error: 'Custom reason must be at least 5 characters' };
+        return { error: 'Custom reason must be at least 5 characters' }
       }
 
       // OWASP security: allowlist validation for custom reason
-      const allowedCharPattern = /^[a-zA-Z0-9\s.,!?'-]*$/;
+      const allowedCharPattern = /^[a-zA-Z0-9\s.,!?'-]*$/
       if (!allowedCharPattern.test(customReason)) {
-        return { error: 'Custom reason contains invalid characters' };
+        return { error: 'Custom reason contains invalid characters' }
       }
     }
 
-    const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const supabase = createClient()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     if (!session?.user) {
-      return { error: 'You must be logged in to block a user.' };
+      return { error: 'You must be logged in to block a user.' }
     }
 
-    const { error: insertError } = await supabase
-      .from('blocked_users')
-      .insert({
-        blocker_id: session.user.id,
-        blocked_id: targetUserId,
-        reason: finalReason,
-      });
+    const { error: insertError } = await supabase.from('blocked_users').insert({
+      blocker_id: session.user.id,
+      blocked_id: targetUserId,
+      reason: finalReason,
+    })
 
     if (insertError) {
       if (insertError.code === '23505') {
-        return { success: true, userId: targetUserId };
+        return { success: true, userId: targetUserId }
       }
-      return { error: insertError.message || 'Failed to block user.' };
+      return { error: insertError.message || 'Failed to block user.' }
     }
 
-    return { success: true, userId: targetUserId };
+    return { success: true, userId: targetUserId }
   } catch (error) {
-    console.error('Block user action failed:', error);
-    const message = error instanceof Error ? error.message : 'Failed to block user. Please try again.';
-    return { error: message };
+    console.error('Block user action failed:', error)
+    const message =
+      error instanceof Error ? error.message : 'Failed to block user. Please try again.'
+    return { error: message }
   }
 }
 
@@ -124,29 +125,32 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
   onClose,
   user,
   onUserBlocked,
-  className
+  className,
 }) => {
-  const { showSuccess, showError } = useToast();
+  const { showSuccess, showError } = useToast()
 
   // React 19 official pattern: useActionState for form handling
-  const [state, formAction, isPending] = useActionState(blockUserAction, { error: undefined, success: false });
+  const [state, formAction, isPending] = useActionState(blockUserAction, {
+    error: undefined,
+    success: false,
+  })
 
   // Controlled form state for UI
-  const [selectedReason, setSelectedReason] = useState<BlockReason | ''>('');
-  const [customReason, setCustomReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState<BlockReason | ''>('')
+  const [customReason, setCustomReason] = useState('')
 
   // WAI-ARIA accessibility IDs
-  const dialogTitleId = useId();
-  const dialogDescId = useId();
-  const reasonFieldsetId = useId();
-  const customReasonId = useId();
-  const reasonGroupId = useId();
-  const customReasonLabelId = useId();
+  const dialogTitleId = useId()
+  const dialogDescId = useId()
+  const reasonFieldsetId = useId()
+  const customReasonId = useId()
+  const reasonGroupId = useId()
+  const customReasonLabelId = useId()
 
   // Focus management refs
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const firstFocusableRef = useRef<HTMLButtonElement>(null);
-  const lastFocusableRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const firstFocusableRef = useRef<HTMLButtonElement>(null)
+  const lastFocusableRef = useRef<HTMLButtonElement>(null)
 
   // WAI-ARIA focus management - official W3C pattern
   useEffect(() => {
@@ -154,9 +158,9 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
       // Focus first focusable element when dialog opens
       const focusableElements = dialogRef.current.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
+      )
       if (focusableElements.length > 0) {
-        (focusableElements[0] as HTMLElement).focus();
+        ;(focusableElements[0] as HTMLElement).focus()
       }
 
       // Trap focus within dialog
@@ -164,22 +168,22 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
         if (e.key === 'Tab') {
           if (e.shiftKey) {
             if (document.activeElement === focusableElements[0]) {
-              e.preventDefault();
-              (focusableElements[focusableElements.length - 1] as HTMLElement).focus();
+              e.preventDefault()
+              ;(focusableElements[focusableElements.length - 1] as HTMLElement).focus()
             }
           } else {
             if (document.activeElement === focusableElements[focusableElements.length - 1]) {
-              e.preventDefault();
-              (focusableElements[0] as HTMLElement).focus();
+              e.preventDefault()
+              ;(focusableElements[0] as HTMLElement).focus()
             }
           }
         }
-      };
+      }
 
-      document.addEventListener('keydown', handleTabKey);
-      return () => document.removeEventListener('keydown', handleTabKey);
+      document.addEventListener('keydown', handleTabKey)
+      return () => document.removeEventListener('keydown', handleTabKey)
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   // Handle successful form submission
   useEffect(() => {
@@ -187,22 +191,22 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
       showSuccess(
         'User Blocked',
         `${user.name} has been blocked. They won't be able to contact you or see your content.`
-      );
-      onUserBlocked?.(state.userId);
+      )
+      onUserBlocked?.(state.userId)
 
       // Reset form and close dialog
-      setSelectedReason('');
-      setCustomReason('');
-      onClose();
+      setSelectedReason('')
+      setCustomReason('')
+      onClose()
     }
-  }, [state.success, state.userId, showSuccess, user.name, onUserBlocked, onClose]);
+  }, [state.success, state.userId, showSuccess, user.name, onUserBlocked, onClose])
 
   // Handle form errors
   useEffect(() => {
     if (state.error) {
-      showError('Failed to Block User', state.error);
+      showError('Failed to Block User', state.error)
     }
-  }, [state.error, showError]);
+  }, [state.error, showError])
 
   /**
    * Get user-friendly reason labels
@@ -212,8 +216,8 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
     [BlockReason.SPAM]: 'Spam or unwanted content',
     [BlockReason.INAPPROPRIATE]: 'Inappropriate behavior',
     [BlockReason.PRIVACY]: 'Privacy concerns',
-    [BlockReason.OTHER]: 'Other (please specify)'
-  };
+    [BlockReason.OTHER]: 'Other (please specify)',
+  }
 
   /**
    * Handle dialog close with confirmation if form has data
@@ -222,40 +226,40 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
     if ((selectedReason || customReason) && !isPending) {
       const confirmClose = window.confirm(
         'Are you sure you want to cancel? Your changes will be lost.'
-      );
-      if (!confirmClose) return;
+      )
+      if (!confirmClose) return
     }
 
     // Reset form state
-    setSelectedReason('');
-    setCustomReason('');
-    onClose();
-  }, [selectedReason, customReason, isPending, onClose]);
+    setSelectedReason('')
+    setCustomReason('')
+    onClose()
+  }, [selectedReason, customReason, isPending, onClose])
 
   /**
    * Handle reason selection
    */
   const handleReasonChange = useCallback((reason: BlockReason) => {
-    setSelectedReason(reason);
+    setSelectedReason(reason)
 
     // Clear custom reason if not "Other"
     if (reason !== BlockReason.OTHER) {
-      setCustomReason('');
+      setCustomReason('')
     }
-  }, []);
+  }, [])
 
   /**
    * Handle custom reason input with OWASP allowlist validation
    */
   const handleCustomReasonChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+    const value = e.target.value
 
     // OWASP allowlist validation in real-time
-    const allowedCharPattern = /^[a-zA-Z0-9\s.,!?'-]*$/;
+    const allowedCharPattern = /^[a-zA-Z0-9\s.,!?'-]*$/
     if (value === '' || allowedCharPattern.test(value)) {
-      setCustomReason(value);
+      setCustomReason(value)
     }
-  }, []);
+  }, [])
 
   return (
     <AnimatePresence>
@@ -279,7 +283,7 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               ref={dialogRef}
               className={clsx(
-                'relative w-full max-w-md bg-white dark:bg-gray-900 rounded-lg shadow-xl',
+                'relative w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-900',
                 'max-h-[90vh] overflow-hidden',
                 className
               )}
@@ -289,13 +293,16 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
               aria-describedby={dialogDescId}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-700">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-                    <Shield className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  <div className="rounded-full bg-red-100 p-2 dark:bg-red-900/30">
+                    <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <h2 id={dialogTitleId} className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h2
+                      id={dialogTitleId}
+                      className="text-lg font-semibold text-gray-900 dark:text-white"
+                    >
                       Block User
                     </h2>
                     <p id={dialogDescId} className="text-sm text-gray-600 dark:text-gray-400">
@@ -306,27 +313,27 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                 <button
                   onClick={handleClose}
                   disabled={isPending}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   aria-label="Close block user dialog"
                   type="button"
                 >
-                  <X className="w-5 h-5" aria-hidden="true" />
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="p-6 max-h-[60vh] overflow-y-auto">
+              <div className="max-h-[60vh] overflow-y-auto p-6">
                 {/* User info */}
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-6">
+                <div className="mb-6 flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 dark:bg-gray-600">
+                      <User className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     </div>
                   )}
                   <div>
@@ -336,13 +343,13 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                 </div>
 
                 {/* Warning */}
-                <div className="flex gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg mb-6">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div className="mb-6 flex gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
                   <div className="text-sm">
-                    <p className="font-medium text-yellow-800 dark:text-yellow-300 mb-1">
+                    <p className="mb-1 font-medium text-yellow-800 dark:text-yellow-300">
                       Before you block this user:
                     </p>
-                    <ul className="text-yellow-700 dark:text-yellow-400 space-y-1 list-disc list-inside">
+                    <ul className="list-inside list-disc space-y-1 text-yellow-700 dark:text-yellow-400">
                       <li>They won&apos;t be able to message you or see your posts</li>
                       <li>You won&apos;t see their content or receive notifications from them</li>
                       <li>You can unblock them later from your privacy settings</li>
@@ -359,25 +366,30 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
 
                   {/* General error */}
                   {state.error && (
-                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
                       <p className="text-sm text-red-700 dark:text-red-400">{state.error}</p>
                     </div>
                   )}
 
                   {/* Reason selection - WAI-ARIA fieldset pattern */}
                   <fieldset>
-                    <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    <legend className="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Why are you blocking this user? (Required)
                     </legend>
-                    <div className="space-y-2" role="radiogroup" aria-labelledby={reasonFieldsetId} aria-required="true">
+                    <div
+                      className="space-y-2"
+                      role="radiogroup"
+                      aria-labelledby={reasonFieldsetId}
+                      aria-required="true"
+                    >
                       {Object.entries(reasonLabels).map(([value, label]) => (
                         <label
                           key={value}
                           className={clsx(
-                            'flex items-center p-3 border rounded-lg cursor-pointer transition-colors',
+                            'flex cursor-pointer items-center rounded-lg border p-3 transition-colors',
                             selectedReason === value
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                              : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
                           )}
                         >
                           <input
@@ -386,12 +398,16 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                             value={value}
                             checked={selectedReason === value}
                             onChange={() => handleReasonChange(value as BlockReason)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                             disabled={isPending}
-                            aria-describedby={value === BlockReason.OTHER ? customReasonLabelId : undefined}
+                            aria-describedby={
+                              value === BlockReason.OTHER ? customReasonLabelId : undefined
+                            }
                             required
                           />
-                          <span className="ml-3 text-sm text-gray-900 dark:text-white">{label}</span>
+                          <span className="ml-3 text-sm text-gray-900 dark:text-white">
+                            {label}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -400,7 +416,11 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                   {/* Custom reason textarea */}
                   {selectedReason === BlockReason.OTHER && (
                     <div>
-                      <label htmlFor={customReasonId} id={customReasonLabelId} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label
+                        htmlFor={customReasonId}
+                        id={customReasonLabelId}
+                        className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      >
                         Please specify your reason (Required, 5-500 characters)
                       </label>
                       <textarea
@@ -409,10 +429,10 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                         onChange={handleCustomReasonChange}
                         placeholder="Describe why you want to block this user..."
                         className={clsx(
-                          'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                          'resize-none h-24',
+                          'w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500',
+                          'h-24 resize-none',
                           'border-gray-300 dark:border-gray-600',
-                          'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+                          'bg-white text-gray-900 dark:bg-gray-800 dark:text-white'
                         )}
                         disabled={isPending}
                         maxLength={500}
@@ -422,8 +442,11 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
                         aria-describedby={`${customReasonId}-help`}
                         aria-invalid={customReason.length > 0 && customReason.length < 5}
                       />
-                      <div className="flex justify-between mt-1">
-                        <p id={`${customReasonId}-help`} className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                      <div className="mt-1 flex justify-between">
+                        <p
+                          id={`${customReasonId}-help`}
+                          className="ml-auto text-xs text-gray-500 dark:text-gray-400"
+                        >
                           {customReason.length}/500 characters
                         </p>
                       </div>
@@ -433,30 +456,37 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700">
                 <button
                   type="button"
                   onClick={handleClose}
                   disabled={isPending}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   form="blockUserForm"
-                  disabled={isPending || !selectedReason || (selectedReason === BlockReason.OTHER && !customReason.trim())}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  aria-describedby={isPending ? undefined : "block-user-action"}
+                  disabled={
+                    isPending ||
+                    !selectedReason ||
+                    (selectedReason === BlockReason.OTHER && !customReason.trim())
+                  }
+                  className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-describedby={isPending ? undefined : 'block-user-action'}
                 >
                   {isPending ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+                      <div
+                        className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                        aria-hidden="true"
+                      />
                       Blocking...
                     </>
                   ) : (
                     <>
-                      <Shield className="w-4 h-4" aria-hidden="true" />
+                      <Shield className="h-4 w-4" aria-hidden="true" />
                       Block User
                     </>
                   )}
@@ -467,7 +497,7 @@ export const BlockDialog: React.FC<BlockDialogProps> = ({
         </>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}
 
-export default BlockDialog;
+export default BlockDialog

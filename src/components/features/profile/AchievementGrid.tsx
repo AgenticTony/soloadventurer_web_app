@@ -1,14 +1,6 @@
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  Shield,
-  Calendar,
-  Zap,
-  MapPin,
-  Globe,
-  Users,
-  Star
-} from "lucide-react"
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Shield, Calendar, Zap, MapPin, Globe, Users, Star } from 'lucide-react'
 
 interface AchievementBadgeProps {
   icon: React.ComponentType<{ className?: string }>
@@ -17,74 +9,72 @@ interface AchievementBadgeProps {
   unlocked: boolean
   progress?: number
   maxProgress?: number
-  variant?: "default" | "country" | "city" | "special"
+  variant?: 'default' | 'country' | 'city' | 'special'
 }
 
-export function AchievementBadge({ 
-  icon: Icon, 
-  label, 
-  description, 
-  unlocked, 
+export function AchievementBadge({
+  icon: Icon,
+  label,
+  description,
+  unlocked,
   progress,
   maxProgress = 1,
-  variant = "default" 
+  variant = 'default',
 }: AchievementBadgeProps) {
   const getVariantStyles = () => {
-    if (!unlocked) return "bg-gray-100 opacity-50 dark:bg-gray-900"
-    
+    if (!unlocked) return 'bg-gray-100 opacity-50 dark:bg-gray-900'
+
     switch (variant) {
-      case "country":
-        return "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 border-blue-300 dark:border-blue-700"
-      case "city":
-        return "bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 border-purple-300 dark:border-purple-700"
-      case "special":
-        return "bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 border-yellow-300 dark:border-yellow-700"
+      case 'country':
+        return 'bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 border-blue-300 dark:border-blue-700'
+      case 'city':
+        return 'bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 border-purple-300 dark:border-purple-700'
+      case 'special':
+        return 'bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 border-yellow-300 dark:border-yellow-700'
       default:
-        return "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900"
+        return 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900'
     }
   }
 
   const getIconStyles = () => {
-    if (!unlocked) return "bg-gray-300 text-gray-500 dark:bg-gray-700"
-    
+    if (!unlocked) return 'bg-gray-300 text-gray-500 dark:bg-gray-700'
+
     switch (variant) {
-      case "country":
-        return "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
-      case "city":
-        return "bg-gradient-to-br from-purple-500 to-purple-600 text-white"
-      case "special":
-        return "bg-gradient-to-br from-yellow-500 to-yellow-600 text-white"
+      case 'country':
+        return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
+      case 'city':
+        return 'bg-gradient-to-br from-purple-500 to-purple-600 text-white'
+      case 'special':
+        return 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white'
       default:
-        return "bg-gradient-to-br from-blue-500 to-purple-600 text-white"
+        return 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
     }
   }
 
   return (
     <Card className={`h-full transition-all hover:scale-105 ${getVariantStyles()} border`}>
       <CardContent className="p-4 text-center">
-        <div
-          className={`mx-auto mb-3 inline-flex rounded-full p-3 ${getIconStyles()}`}
-        >
+        <div className={`mx-auto mb-3 inline-flex rounded-full p-3 ${getIconStyles()}`}>
           <Icon className="h-6 w-6" />
         </div>
-        
-        <h3 className="mb-1 font-semibold text-sm">{label}</h3>
+
+        <h3 className="mb-1 text-sm font-semibold">{label}</h3>
         <p className="mb-3 text-xs text-muted-foreground">{description}</p>
-        
+
         {progress !== undefined && maxProgress > 1 && (
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground">
               {progress}/{maxProgress}
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
-              <div 
-                className="bg-blue-600 h-1.5 rounded-full transition-all"
+            <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-1.5 rounded-full bg-blue-600 transition-all"
                 style={{ width: `${(progress / maxProgress) * 100}%` }}
               />
             </div>
           </div>
         )}
-        
+
         {unlocked && (
           <Badge variant="secondary" className="mt-2 text-xs">
             Unlocked
@@ -114,97 +104,96 @@ export function AchievementGrid({
   hasRecommendedFriend,
   hasCreatedTrip,
   emailVerified,
-  memberSince
+  memberSince,
 }: AchievementGridProps) {
-  
   const achievements: AchievementBadgeProps[] = [
     // Profile Achievements
     {
       icon: Shield,
-      label: "Profile Verified",
-      description: "Email verified",
+      label: 'Profile Verified',
+      description: 'Email verified',
       unlocked: emailVerified,
-      variant: "special"
+      variant: 'special',
     },
     {
       icon: Calendar,
-      label: "Early Adopter",
+      label: 'Early Adopter',
       description: `Joined ${new Date(memberSince).getFullYear()}`,
       unlocked: true,
-      variant: "special"
+      variant: 'special',
     },
     {
       icon: Zap,
-      label: "Profile Complete",
-      description: "All sections filled",
+      label: 'Profile Complete',
+      description: 'All sections filled',
       unlocked: hasCompletedBio && hasProfilePhoto,
-      variant: "special"
+      variant: 'special',
     },
-    
+
     // Travel Achievements - Country based
     {
       icon: Globe,
-      label: "First Country",
-      description: "Visit your first country",
+      label: 'First Country',
+      description: 'Visit your first country',
       unlocked: countriesVisited >= 1,
-      variant: "country",
+      variant: 'country',
       progress: Math.min(countriesVisited, 1),
-      maxProgress: 1
+      maxProgress: 1,
     },
     {
       icon: Globe,
-      label: "World Explorer",
-      description: "Visit 5 countries",
+      label: 'World Explorer',
+      description: 'Visit 5 countries',
       unlocked: countriesVisited >= 5,
-      variant: "country",
+      variant: 'country',
       progress: countriesVisited,
-      maxProgress: 5
+      maxProgress: 5,
     },
     {
       icon: Globe,
-      label: "Globe Trotter",
-      description: "Visit 10 countries",
+      label: 'Globe Trotter',
+      description: 'Visit 10 countries',
       unlocked: countriesVisited >= 10,
-      variant: "country",
+      variant: 'country',
       progress: countriesVisited,
-      maxProgress: 10
+      maxProgress: 10,
     },
-    
+
     // Travel Achievements - City based
     {
       icon: MapPin,
-      label: "City Explorer",
-      description: "Visit 5 cities",
+      label: 'City Explorer',
+      description: 'Visit 5 cities',
       unlocked: citiesExplored >= 5,
-      variant: "city",
+      variant: 'city',
       progress: citiesExplored,
-      maxProgress: 5
+      maxProgress: 5,
     },
     {
       icon: MapPin,
-      label: "Urban Adventurer",
-      description: "Visit 20 cities",
+      label: 'Urban Adventurer',
+      description: 'Visit 20 cities',
       unlocked: citiesExplored >= 20,
-      variant: "city",
+      variant: 'city',
       progress: citiesExplored,
-      maxProgress: 20
+      maxProgress: 20,
     },
-    
+
     // Social Achievements
     {
       icon: Users,
-      label: "Social Connector",
-      description: "Recommend a friend",
+      label: 'Social Connector',
+      description: 'Recommend a friend',
       unlocked: hasRecommendedFriend,
-      variant: "special"
+      variant: 'special',
     },
     {
       icon: Star,
-      label: "Trip Creator",
-      description: "Create your first trip",
+      label: 'Trip Creator',
+      description: 'Create your first trip',
       unlocked: hasCreatedTrip,
-      variant: "special"
-    }
+      variant: 'special',
+    },
   ]
 
   return (

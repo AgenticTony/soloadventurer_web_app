@@ -34,13 +34,15 @@ function FeedContent() {
       <div className="space-y-8">
         <div className="border-b border-border pb-4">
           <h1 className="text-2xl font-bold text-foreground">Traveler Stories</h1>
-          <p className="mt-1 text-sm text-muted-foreground">See what fellow adventurers are up to</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            See what fellow adventurers are up to
+          </p>
         </div>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="card-base p-4 animate-pulse">
-              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-muted rounded w-1/2"></div>
+            <div key={i} className="card-base animate-pulse p-4">
+              <div className="mb-2 h-4 w-3/4 rounded bg-muted"></div>
+              <div className="h-3 w-1/2 rounded bg-muted"></div>
             </div>
           ))}
         </div>
@@ -53,13 +55,13 @@ function FeedContent() {
       <div className="space-y-8">
         <div className="border-b border-border pb-4">
           <h1 className="text-2xl font-bold text-foreground">Traveler Stories</h1>
-          <p className="mt-1 text-sm text-muted-foreground">See what fellow adventurers are up to</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            See what fellow adventurers are up to
+          </p>
         </div>
         <div className="card-base p-6 text-center">
-          <h3 className="text-lg font-semibold text-destructive mb-2">Unable to load stories</h3>
-          <p className="text-muted-foreground">
-            Something went wrong. Please try again later.
-          </p>
+          <h3 className="mb-2 text-lg font-semibold text-destructive">Unable to load stories</h3>
+          <p className="text-muted-foreground">Something went wrong. Please try again later.</p>
         </div>
       </div>
     )
@@ -80,19 +82,17 @@ function FeedContent() {
       <div className="space-y-6">
         {feedItems.length === 0 ? (
           <div className="card-base p-8 text-center">
-            <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No stories yet</h3>
+            <TrendingUp className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-semibold">No stories yet</h3>
             <p className="text-muted-foreground">
               Connect with travelers or share your own adventure to get started!
             </p>
           </div>
         ) : (
-          feedItems.map((item) => (
+          feedItems.map(item => (
             <div key={item.id} className="card-base p-4">
-              <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-              {item.excerpt && (
-                <p className="text-muted-foreground mb-2">{item.excerpt}</p>
-              )}
+              <h3 className="mb-2 text-lg font-semibold">{item.title}</h3>
+              {item.excerpt && <p className="mb-2 text-muted-foreground">{item.excerpt}</p>}
               <div className="text-sm text-muted-foreground">
                 {new Date(item.createdAt).toLocaleDateString()}
               </div>

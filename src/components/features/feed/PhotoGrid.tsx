@@ -21,13 +21,13 @@ interface PhotoGridProps {
   className?: string
 }
 
-export function PhotoGrid({ 
-  photos, 
-  onLike, 
-  onComment, 
-  onShare, 
+export function PhotoGrid({
+  photos,
+  onLike,
+  onComment,
+  onShare,
   onView,
-  className = '' 
+  className = '',
 }: PhotoGridProps) {
   const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null)
 
@@ -59,17 +59,13 @@ export function PhotoGrid({
       {photos.map((photo, index) => (
         <div
           key={photo.id}
-          className={`
-            relative group cursor-pointer overflow-hidden rounded-lg
-            ${getGridItemClass(index, photos.length)}
-            bg-muted
-          `}
+          className={`group relative cursor-pointer overflow-hidden rounded-lg ${getGridItemClass(index, photos.length)} bg-muted`}
           onMouseEnter={() => setHoveredPhoto(photo.id)}
           onMouseLeave={() => setHoveredPhoto(null)}
           onClick={() => onView?.(photo.id)}
         >
           {/* Photo */}
-          <div className="relative w-full h-full aspect-square">
+          <div className="relative aspect-square h-full w-full">
             <Image
               src={photo.url}
               alt={photo.caption || 'Photo'}
@@ -80,24 +76,20 @@ export function PhotoGrid({
           </div>
 
           {/* Overlay */}
-          <div 
-            className={`
-              absolute inset-0 bg-black/40 backdrop-blur-sm
-              transition-opacity duration-300
-              ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}
-            `}
+          <div
+            className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'} `}
           >
             <div className="absolute inset-0 flex flex-col justify-between p-3">
               {/* Top Actions */}
               <div className="flex justify-end">
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation()
                     onView?.(photo.id)
                   }}
-                  className="p-2 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-colors"
+                  className="rounded-lg bg-white/20 p-2 backdrop-blur-sm transition-colors hover:bg-white/30"
                 >
-                  <ZoomIn className="w-4 h-4 text-white" />
+                  <ZoomIn className="h-4 w-4 text-white" />
                 </button>
               </div>
 
@@ -106,35 +98,33 @@ export function PhotoGrid({
                 {/* Location */}
                 {photo.location && (
                   <div className="flex items-center space-x-1">
-                    <span className="text-xs text-white font-medium">
-                      {photo.location}
-                    </span>
+                    <span className="text-xs font-medium text-white">{photo.location}</span>
                   </div>
                 )}
 
                 {/* Engagement Stats */}
                 <div className="flex items-center space-x-4 text-white">
                   <button
-                    onClick={(e) => handleLike(photo.id, e)}
-                    className="flex items-center space-x-1 hover:text-coral-400 transition-colors"
+                    onClick={e => handleLike(photo.id, e)}
+                    className="flex items-center space-x-1 transition-colors hover:text-coral-400"
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className="h-4 w-4" />
                     <span className="text-xs font-medium">{photo.likes}</span>
                   </button>
-                  
+
                   <button
-                    onClick={(e) => handleComment(photo.id, e)}
-                    className="flex items-center space-x-1 hover:text-sky-400 transition-colors"
+                    onClick={e => handleComment(photo.id, e)}
+                    className="flex items-center space-x-1 transition-colors hover:text-sky-400"
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    <MessageCircle className="h-4 w-4" />
                     <span className="text-xs font-medium">{photo.comments}</span>
                   </button>
-                  
+
                   <button
-                    onClick={(e) => handleShare(photo.id, e)}
-                    className="hover:text-brand-400 transition-colors"
+                    onClick={e => handleShare(photo.id, e)}
+                    className="transition-colors hover:text-brand-400"
                   >
-                    <Share className="w-4 h-4" />
+                    <Share className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -143,10 +133,8 @@ export function PhotoGrid({
 
           {/* Caption (always visible on larger grids) */}
           {photo.caption && photos.length <= 4 && (
-            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-              <p className="text-xs text-white line-clamp-2">
-                {photo.caption}
-              </p>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+              <p className="line-clamp-2 text-xs text-white">{photo.caption}</p>
             </div>
           )}
         </div>
@@ -155,15 +143,11 @@ export function PhotoGrid({
       {/* Empty State */}
       {photos.length === 0 && (
         <div className="col-span-2 py-12 text-center">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <ZoomIn className="w-8 h-8 text-muted-foreground" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <ZoomIn className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            No photos yet
-          </h3>
-          <p className="text-muted-foreground">
-            Photos will appear here when they&apos;re added.
-          </p>
+          <h3 className="mb-2 text-lg font-semibold text-foreground">No photos yet</h3>
+          <p className="text-muted-foreground">Photos will appear here when they&apos;re added.</p>
         </div>
       )}
     </div>
@@ -175,10 +159,7 @@ export function PhotoGridSkeleton({ count = 6 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 gap-1 md:gap-2">
       {Array.from({ length: count }).map((_, index) => (
-        <div
-          key={index}
-          className="relative overflow-hidden rounded-lg bg-muted animate-pulse"
-        >
+        <div key={index} className="relative animate-pulse overflow-hidden rounded-lg bg-muted">
           <div className="aspect-square w-full bg-muted-foreground/20" />
         </div>
       ))}

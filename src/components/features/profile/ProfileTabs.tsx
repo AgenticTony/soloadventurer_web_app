@@ -28,8 +28,8 @@ interface ProfileTabsProps {
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   return (
     <div className="border-b border-border/60">
-      <div className="mx-auto flex max-w-4xl gap-0 overflow-x-auto px-4 sm:px-6 no-scrollbar">
-        {TABS.map((tab) => {
+      <div className="no-scrollbar mx-auto flex max-w-4xl gap-0 overflow-x-auto px-4 sm:px-6">
+        {TABS.map(tab => {
           const isActive = activeTab === tab.id
           return (
             <button
@@ -37,9 +37,7 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
               onClick={() => onTabChange(tab.id)}
               className={cn(
                 'relative flex shrink-0 items-center gap-2 px-5 py-3.5 text-sm font-medium transition-colors',
-                isActive
-                  ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-foreground/80',
+                isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'
               )}
               role="tab"
               aria-selected={isActive}
@@ -49,7 +47,7 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
               {isActive && (
                 <motion.div
                   layoutId="profile-tab-underline"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand rounded-full"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-brand"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}

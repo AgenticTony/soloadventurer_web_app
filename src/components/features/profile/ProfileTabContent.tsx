@@ -33,10 +33,7 @@ export function ProfileTabContent({
       )
     case 'gallery':
       return (
-        <GalleryTab
-          isOwnProfile={isOwnProfile}
-          onUpload={() => router.push('/profile/edit')}
-        />
+        <GalleryTab isOwnProfile={isOwnProfile} onUpload={() => router.push('/profile/edit')} />
       )
     case 'map':
       return (
@@ -45,9 +42,7 @@ export function ProfileTabContent({
         </div>
       )
     case 'stats':
-      return (
-        <StatsTab visitedCountries={visitedCountries} />
-      )
+      return <StatsTab visitedCountries={visitedCountries} />
     default:
       return null
   }
@@ -66,13 +61,11 @@ function AdventuresTab({
     return (
       <div className="py-12 text-center">
         <Mountain className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
-        <h3 className="mb-1 text-lg font-semibold text-foreground">
-          No Adventures Yet
-        </h3>
+        <h3 className="mb-1 text-lg font-semibold text-foreground">No Adventures Yet</h3>
         <p className="mb-4 text-sm text-muted-foreground">
           {isOwnProfile
             ? 'Start your journey by planning your first trip!'
-            : 'This traveler hasn\'t shared any adventures yet.'}
+            : "This traveler hasn't shared any adventures yet."}
         </p>
         {isOwnProfile && (
           <Button onClick={onAddTrip} size="sm" className="gap-1.5">
@@ -100,21 +93,13 @@ function AdventuresTab({
   )
 }
 
-function GalleryTab({
-  isOwnProfile,
-  onUpload,
-}: {
-  isOwnProfile: boolean
-  onUpload: () => void
-}) {
+function GalleryTab({ isOwnProfile, onUpload }: { isOwnProfile: boolean; onUpload: () => void }) {
   return (
     <div className="py-12 text-center">
       <Camera className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
       <h3 className="mb-1 text-lg font-semibold text-foreground">No Photos Yet</h3>
       <p className="mb-4 text-sm text-muted-foreground">
-        {isOwnProfile
-          ? 'Share your travel memories with the community!'
-          : 'No photos shared yet.'}
+        {isOwnProfile ? 'Share your travel memories with the community!' : 'No photos shared yet.'}
       </p>
       {isOwnProfile && (
         <Button onClick={onUpload} size="sm" className="gap-1.5">
@@ -136,12 +121,10 @@ function StatsTab({ visitedCountries }: { visitedCountries: string[] }) {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {stats.map((stat) => (
+      {stats.map(stat => (
         <Card key={stat.label}>
           <CardContent className="p-4">
-            <div className="mb-1 text-2xl font-bold text-foreground">
-              {stat.value}
-            </div>
+            <div className="mb-1 text-2xl font-bold text-foreground">{stat.value}</div>
             <p className="text-sm text-muted-foreground">{stat.label}</p>
           </CardContent>
         </Card>

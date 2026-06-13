@@ -37,9 +37,7 @@ export default function ProfileViewPage() {
       <ProfileLayout>
         <div className="flex min-h-screen items-center justify-center p-4">
           <div className="card-base max-w-sm p-8 text-center">
-            <p className="mb-4 text-muted-foreground">
-              Please log in to view your profile.
-            </p>
+            <p className="mb-4 text-muted-foreground">Please log in to view your profile.</p>
             <button
               onClick={() => router.push('/sign-in')}
               className="btn-primary rounded-xl px-6 py-2 text-sm font-medium"
@@ -80,11 +78,7 @@ export default function ProfileViewPage() {
           onEdit={() => router.push('/profile/edit')}
         />
 
-        <TravelStatus
-          currentCity={currentCity}
-          headingTo={headingTo}
-          headingDates={headingDates}
-        />
+        <TravelStatus currentCity={currentCity} headingTo={headingTo} headingDates={headingDates} />
 
         <ProfileStatsBar
           countriesVisited={countriesVisited.length}

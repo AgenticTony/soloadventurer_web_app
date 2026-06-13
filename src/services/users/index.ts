@@ -1,5 +1,5 @@
 // Export service instance and class
-export { userService, UserService } from './userService';
+export { userService, UserService } from './userService'
 
 // Export all types
 export type {
@@ -9,7 +9,7 @@ export type {
   UserSearchOptions,
   UserConnection,
   UserStats,
-} from './types';
+} from './types'
 
 // Export API error for consumers
-export { ApiError } from '../base/ApiClient';
+export { ApiError } from '../base/ApiClient'

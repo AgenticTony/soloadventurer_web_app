@@ -18,6 +18,7 @@ SoloAdventurer is a social platform designed specifically for solo travelers to 
 ## Technology Stack
 
 ### Frontend (Web)
+
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript 5.2 with strict mode
 - **Styling**: TailwindCSS 3.4 with shadcn/ui components
@@ -27,6 +28,7 @@ SoloAdventurer is a social platform designed specifically for solo travelers to 
 - **Icons**: Lucide React
 
 ### Backend & Infrastructure
+
 - **API**: GraphQL with AWS AppSync
 - **Authentication**: AWS Cognito + Amplify
 - **Database**: Amazon Aurora (MySQL-compatible) with read replicas
@@ -37,6 +39,7 @@ SoloAdventurer is a social platform designed specifically for solo travelers to 
 - **CI/CD**: GitHub Actions
 
 ### Development Tools
+
 - **Code Quality**: ESLint + TypeScript strict mode
 - **Testing**: Jest + Testing Library + Cypress
 - **Package Management**: npm
@@ -60,6 +63,7 @@ src/
 ## Development Setup
 
 ### Prerequisites
+
 - Node.js 18.0.0 or higher
 - npm or yarn package manager
 - AWS account with appropriate permissions
@@ -67,23 +71,27 @@ src/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/AgenticTony/soloadventurer_web_app.git
    cd soloadventurer_web_app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your actual values
    ```
 
 4. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -93,19 +101,20 @@ src/
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Type checking |
-| `npm run test` | Run tests |
-| `npm run deploy` | Deploy application |
+| Command             | Description              |
+| ------------------- | ------------------------ |
+| `npm run dev`       | Start development server |
+| `npm run build`     | Build for production     |
+| `npm run start`     | Start production server  |
+| `npm run lint`      | Run ESLint               |
+| `npm run typecheck` | Type checking            |
+| `npm run test`      | Run tests                |
+| `npm run deploy`    | Deploy application       |
 
 ### Development Workflow
 
 1. **Create a new branch** for your feature or bugfix
+
    ```bash
    git checkout -b feature/S##-T##-short-description
    ```
@@ -113,11 +122,13 @@ src/
 2. **Make your changes** following the coding standards
 
 3. **Run quality checks**
+
    ```bash
    npm run lint && npm run typecheck && npm run test
    ```
 
 4. **Commit your changes** with conventional commit messages
+
    ```bash
    git commit -m "feat: add user authentication"
    ```
@@ -127,6 +138,7 @@ src/
 ## Architecture
 
 ### Clean Architecture
+
 The application follows clean architecture principles with distinct layers:
 
 - **Presentation Layer**: Next.js components and pages
@@ -135,6 +147,7 @@ The application follows clean architecture principles with distinct layers:
 - **Infrastructure Layer**: External services and databases
 
 ### GraphQL Schema
+
 The application uses a schema-first GraphQL approach:
 
 1. Define GraphQL schema in `schema.graphql`
@@ -143,6 +156,7 @@ The application uses a schema-first GraphQL approach:
 4. Optimize queries with DataLoader for N+1 prevention
 
 ### Security
+
 - **Authentication**: AWS Cognito JWT tokens
 - **Authorization**: IAM roles + GraphQL resolver authorization
 - **Data Encryption**: KMS for encryption at rest and in transit
@@ -152,21 +166,25 @@ The application uses a schema-first GraphQL approach:
 ## Testing Strategy
 
 ### Unit Tests
+
 - Test all business logic and utility functions
 - Target 80%+ code coverage
 - Use Jest with TypeScript support
 
 ### Component Tests
+
 - Test React components with Testing Library
 - Verify rendering, user interactions, and accessibility
 
 ### End-to-End Tests
+
 - Test critical user flows with Cypress
 - Cover authentication, trip creation, messaging, and safety features
 
 ## Deployment
 
 ### Infrastructure
+
 Infrastructure is managed using Terraform:
 
 ```bash
@@ -177,6 +195,7 @@ terraform apply
 ```
 
 ### Application
+
 The application is deployed using Amplify or equivalent pipeline:
 
 ```bash
@@ -200,6 +219,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For support and questions:
+
 - Create an [issue](https://github.com/AgenticTony/soloadventurer_web_app/issues)
 - Check our [documentation](./docs/)
 - Join our community discussions
@@ -211,4 +231,4 @@ See [WEB_APP_SPRINTS.md](./WEB_APP_SPRINTS.md) for our development roadmap and s
 ---
 
 **SoloAdventurer Team**  
-*Connecting solo travelers worldwide*
+_Connecting solo travelers worldwide_

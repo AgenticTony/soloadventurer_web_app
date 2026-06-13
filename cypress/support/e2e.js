@@ -1,5 +1,5 @@
 // Cypress support file
-import './commands';
+import './commands'
 
 // Import Cypress plugins
-require('cypress-mochawesome-reporter/register');
+require('cypress-mochawesome-reporter/register')

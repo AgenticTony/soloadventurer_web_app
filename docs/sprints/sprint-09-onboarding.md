@@ -16,6 +16,7 @@ Build a first-run onboarding flow that guides new users through profile setup, i
 ## Why This Sprint Exists
 
 The mobile app has a comprehensive onboarding flow that converts signups into engaged users:
+
 - Interactive interest selection with visual chips
 - Budget range selection
 - Destination recommendations based on interests
@@ -29,6 +30,7 @@ The web app currently dumps users onto the homepage after signup with no guidanc
 ## Mobile App Reference
 
 ### Onboarding Flow (5 steps)
+
 1. **Welcome** — intro to SoloAdventurer, what to expect
 2. **Travel Interests** — select from activity categories (same activities table)
 3. **Budget & Style** — budget range (Budget / Mid-range / Luxury), travel style (Solo / Group / Adventure / Cultural)
@@ -36,6 +38,7 @@ The web app currently dumps users onto the homepage after signup with no guidanc
 5. **Profile Completion** — upload photo, write bio, set home country
 
 ### Key Components
+
 - `onboarding_screen.dart` — multi-step wizard with progress indicator
 - `travel_interest_chip.dart` — interactive interest selection chips with emojis
 - `generate_starter_itinerary.dart` — AI-powered trip generation from interests

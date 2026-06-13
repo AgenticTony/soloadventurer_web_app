@@ -1,14 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import {
-  Globe,
-  MapPin,
-  Users,
-  Mountain,
-  Plus,
-  type LucideIcon,
-} from 'lucide-react'
+import { Globe, MapPin, Users, Mountain, Plus, type LucideIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface StatItem {
@@ -89,8 +82,8 @@ export function ProfileStatsBar({
               variants={fadeUp}
               initial="hidden"
               animate="visible"
-              whileHover={(!hasValue && isOwnProfile) ? { scale: 1.02 } : {}}
-              whileTap={(!hasValue && isOwnProfile) ? { scale: 0.98 } : {}}
+              whileHover={!hasValue && isOwnProfile ? { scale: 1.02 } : {}}
+              whileTap={!hasValue && isOwnProfile ? { scale: 0.98 } : {}}
               className={`bg-grain flex flex-col items-center gap-2 rounded-2xl px-4 py-5 text-center transition-colors ${
                 hasValue
                   ? 'card-base'
@@ -102,18 +95,20 @@ export function ProfileStatsBar({
               role={!hasValue && isOwnProfile ? 'button' : undefined}
               tabIndex={!hasValue && isOwnProfile ? 0 : undefined}
             >
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${
-                hasValue ? 'bg-brand/10' : 'bg-muted'
-              }`}>
+              <div
+                className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                  hasValue ? 'bg-brand/10' : 'bg-muted'
+                }`}
+              >
                 <stat.icon
-                  className={`h-4 w-4 ${
-                    hasValue ? 'text-brand' : 'text-muted-foreground'
-                  }`}
+                  className={`h-4 w-4 ${hasValue ? 'text-brand' : 'text-muted-foreground'}`}
                 />
               </div>
-              <span className={`text-3xl font-display font-bold tracking-tight ${
-                hasValue ? 'text-foreground' : 'text-muted-foreground/60'
-              }`}>
+              <span
+                className={`font-display text-3xl font-bold tracking-tight ${
+                  hasValue ? 'text-foreground' : 'text-muted-foreground/60'
+                }`}
+              >
                 {stat.value}
               </span>
               <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

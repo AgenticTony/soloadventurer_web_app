@@ -13,16 +13,12 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Dashboard
-          </h2>
-          <p className="text-gray-600">
-            Welcome to your SoloAdventurer dashboard
-          </p>
+          <h2 className="mb-2 text-3xl font-bold text-gray-900">Dashboard</h2>
+          <p className="text-gray-600">Welcome to your SoloAdventurer dashboard</p>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="mb-8 grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle>Profile Completion</CardTitle>
@@ -64,23 +60,23 @@ export default function DashboardPage() {
             <CardDescription>Get started with these common tasks</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <Link href="/profile">
-                <Button className="h-20 flex-col w-full">
-                  <span className="text-lg mb-1">📝</span>
+                <Button className="h-20 w-full flex-col">
+                  <span className="mb-1 text-lg">📝</span>
                   <span>Complete Profile</span>
                 </Button>
               </Link>
               <Button variant="outline" className="h-20 flex-col">
-                <span className="text-lg mb-1">🗺️</span>
+                <span className="mb-1 text-lg">🗺️</span>
                 <span>Plan Trip</span>
               </Button>
               <Button variant="outline" className="h-20 flex-col">
-                <span className="text-lg mb-1">🔍</span>
+                <span className="mb-1 text-lg">🔍</span>
                 <span>Explore</span>
               </Button>
               <Button variant="outline" className="h-20 flex-col">
-                <span className="text-lg mb-1">💬</span>
+                <span className="mb-1 text-lg">💬</span>
                 <span>Messages</span>
               </Button>
             </div>

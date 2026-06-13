@@ -16,6 +16,7 @@ Build a travel journal feature that allows users to create rich text entries wit
 ## Why This Sprint Exists
 
 The mobile app has a comprehensive journal feature:
+
 - Rich text editor with formatting
 - Photo/video uploads with compression
 - Location tagging with geocoding
@@ -31,6 +32,7 @@ The web app has no journal functionality. This sprint builds the browser-compati
 ## Mobile App Reference
 
 ### Journal Data Model
+
 ```
 JournalEntry:
   id, userId, tripId, title, content (rich text),
@@ -41,6 +43,7 @@ JournalEntry:
 ```
 
 ### Key Features
+
 - Rich text editor (Flutter Quill on mobile)
 - Media picker with compression
 - Geocoding for location names

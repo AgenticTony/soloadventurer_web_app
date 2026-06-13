@@ -4,7 +4,7 @@ export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
-  
+
   // Protected routes
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
@@ -12,7 +12,7 @@ export const ROUTES = {
   TRIP_DETAILS: (id: string) => `/trips/${id}`,
   CREATE_TRIP: '/trips/create',
   EDIT_TRIP: (id: string) => `/trips/${id}/edit`,
-  
+
   // Settings
   SETTINGS: '/settings',
   ACCOUNT_SETTINGS: '/settings/account',
@@ -30,14 +30,14 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
   },
-  
+
   // User endpoints
   USER: {
     PROFILE: '/user/profile',
     UPDATE_PROFILE: '/user/profile',
     CHANGE_PASSWORD: '/user/change-password',
   },
-  
+
   // Trip endpoints
   TRIPS: {
     LIST: '/trips',

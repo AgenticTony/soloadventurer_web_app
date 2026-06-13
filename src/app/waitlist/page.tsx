@@ -62,19 +62,25 @@ export default function WaitlistPage() {
 
   /* ── Live counter ── */
   useEffect(() => {
-    const id = setInterval(() => {
-      setCounter((c) => c + 1)
-      setBump(true)
-      setTimeout(() => setBump(false), 350)
-    }, 4200 + Math.random() * 2000)
+    const id = setInterval(
+      () => {
+        setCounter(c => c + 1)
+        setBump(true)
+        setTimeout(() => setBump(false), 350)
+      },
+      4200 + Math.random() * 2000
+    )
     return () => clearInterval(id)
   }, [])
 
   /* ── Scarcity counter ── */
   useEffect(() => {
-    const id = setInterval(() => {
-      setScarcityLeft((c) => Math.max(c - 1, 400))
-    }, 15000 + Math.random() * 10000)
+    const id = setInterval(
+      () => {
+        setScarcityLeft(c => Math.max(c - 1, 400))
+      },
+      15000 + Math.random() * 10000
+    )
     return () => clearInterval(id)
   }, [])
 
@@ -90,12 +96,10 @@ export default function WaitlistPage() {
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
-    const targets = root.querySelectorAll(
-      '.unlock-item, .step, .safety-item, .founder-grid > *'
-    )
+    const targets = root.querySelectorAll('.unlock-item, .step, .safety-item, .founder-grid > *')
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             ;(entry.target as HTMLElement).style.opacity = '1'
             ;(entry.target as HTMLElement).style.transform = 'translateY(0)'
@@ -105,7 +109,7 @@ export default function WaitlistPage() {
       },
       { threshold: 0.15 }
     )
-    targets.forEach((el) => {
+    targets.forEach(el => {
       const htmlEl = el as HTMLElement
       htmlEl.style.opacity = '0'
       htmlEl.style.transform = 'translateY(24px)'
@@ -125,13 +129,10 @@ export default function WaitlistPage() {
     [email]
   )
 
-  const handleEnrichment = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      setFormState('referral')
-    },
-    []
-  )
+  const handleEnrichment = useCallback((e: React.FormEvent) => {
+    e.preventDefault()
+    setFormState('referral')
+  }, [])
 
   const handleCopy = useCallback(() => {
     const link = `https://soloadventurer.com/r/${Math.random().toString(36).slice(2, 8)}`
@@ -190,9 +191,9 @@ export default function WaitlistPage() {
             <div
               className={`form-card${
                 formState === 'success'
-                  ? ' state-success'
+                  ? 'state-success'
                   : formState === 'referral'
-                    ? ' state-referral'
+                    ? 'state-referral'
                     : ''
               }`}
             >
@@ -206,7 +207,7 @@ export default function WaitlistPage() {
                         type="email"
                         placeholder="you@email.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={e => setEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -234,9 +235,9 @@ export default function WaitlistPage() {
                       type="text"
                       placeholder="First name"
                       value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      onChange={e => setFirstName(e.target.value)}
                     />
-                    <select value={city} onChange={(e) => setCity(e.target.value)}>
+                    <select value={city} onChange={e => setCity(e.target.value)}>
                       <option value="">Your city</option>
                       <option value="nyc">New York</option>
                       <option value="lon">London</option>
@@ -278,13 +279,36 @@ export default function WaitlistPage() {
                   <button onClick={handleCopy}>{copied ? 'Copied!' : 'Copy'}</button>
                 </div>
                 <div className="share-socials">
-                  <button onClick={() => window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(referralLink), '_blank')}>
+                  <button
+                    onClick={() =>
+                      window.open(
+                        'https://twitter.com/intent/tweet?url=' + encodeURIComponent(referralLink),
+                        '_blank'
+                      )
+                    }
+                  >
                     Twitter
                   </button>
-                  <button onClick={() => window.open('https://wa.me/?text=' + encodeURIComponent('Join me on SoloAdventurer! ' + referralLink), '_blank')}>
+                  <button
+                    onClick={() =>
+                      window.open(
+                        'https://wa.me/?text=' +
+                          encodeURIComponent('Join me on SoloAdventurer! ' + referralLink),
+                        '_blank'
+                      )
+                    }
+                  >
                     WhatsApp
                   </button>
-                  <button onClick={() => window.open('mailto:?subject=SoloAdventurer&body=' + encodeURIComponent('Join me! ' + referralLink), '_blank')}>
+                  <button
+                    onClick={() =>
+                      window.open(
+                        'mailto:?subject=SoloAdventurer&body=' +
+                          encodeURIComponent('Join me! ' + referralLink),
+                        '_blank'
+                      )
+                    }
+                  >
                     Email
                   </button>
                 </div>
@@ -315,7 +339,9 @@ export default function WaitlistPage() {
             <div className="ticket">
               <div className="row">
                 <span className="route">NYC &rarr; TYO</span>
-                <span className="mono" style={{ fontSize: 11, color: 'var(--wl-ink-mute)' }}>Jul 12</span>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--wl-ink-mute)' }}>
+                  Jul 12
+                </span>
               </div>
               <div className="meta">3 travelers matched</div>
               <hr />
@@ -325,16 +351,17 @@ export default function WaitlistPage() {
                   <span />
                   <span />
                 </div>
-                <span className="mono" style={{ fontSize: 11, color: 'var(--wl-ink-mute)' }}>+2 nearby</span>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--wl-ink-mute)' }}>
+                  +2 nearby
+                </span>
               </div>
             </div>
 
             <div className="media-caption">
-              <span className="q">
-                &ldquo;I met three amazing people in my first week.&rdquo;
-              </span>
+              <span className="q">&ldquo;I met three amazing people in my first week.&rdquo;</span>
               <span className="who">
-                Sarah, 28<br />
+                Sarah, 28
+                <br />
                 Barcelona &rarr; Lisbon
               </span>
             </div>
@@ -354,18 +381,34 @@ export default function WaitlistPage() {
           <div className="unlock-grid">
             <div className="unlock-item">
               <div className="unlock-glyph">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                 </svg>
               </div>
               <span className="unlock-num">01</span>
               <h3>Global community</h3>
-              <p>Connect with verified solo travelers in 120+ cities worldwide before you even land.</p>
+              <p>
+                Connect with verified solo travelers in 120+ cities worldwide before you even land.
+              </p>
             </div>
             <div className="unlock-item">
               <div className="unlock-glyph">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
               </div>
@@ -375,7 +418,14 @@ export default function WaitlistPage() {
             </div>
             <div className="unlock-item">
               <div className="unlock-glyph">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M20 12v10H4V12" />
                   <path d="M2 7h20v5H2z" />
                   <path d="M12 22V7" />
@@ -385,7 +435,10 @@ export default function WaitlistPage() {
               </div>
               <span className="unlock-num">03</span>
               <h3>Exclusive perks</h3>
-              <p>Partner discounts on flights, hostels, experiences, and travel insurance — just for members.</p>
+              <p>
+                Partner discounts on flights, hostels, experiences, and travel insurance — just for
+                members.
+              </p>
             </div>
           </div>
         </div>
@@ -424,7 +477,9 @@ export default function WaitlistPage() {
                 </div>
               </div>
               <h4>Where are you headed?</h4>
-              <p>Enter your destination and travel dates. We&apos;ll find travelers on the same path.</p>
+              <p>
+                Enter your destination and travel dates. We&apos;ll find travelers on the same path.
+              </p>
             </div>
 
             {/* Step 02 */}
@@ -465,7 +520,10 @@ export default function WaitlistPage() {
                 </div>
               </div>
               <h4>Browse your matches</h4>
-              <p>See verified travelers heading to the same city, same week. Pick who you want to meet.</p>
+              <p>
+                See verified travelers heading to the same city, same week. Pick who you want to
+                meet.
+              </p>
             </div>
 
             {/* Step 03 */}
@@ -484,7 +542,9 @@ export default function WaitlistPage() {
                   <span className="when mono">Jul 14, 3pm</span>
                 </div>
                 <div className="confirm-body">
-                  <div className="line">You, Mika, and James are confirmed for coffee at Onibus Coffee in Shibuya.</div>
+                  <div className="line">
+                    You, Mika, and James are confirmed for coffee at Onibus Coffee in Shibuya.
+                  </div>
                 </div>
                 <div className="confirm-attendees">
                   <div className="stack2">
@@ -519,8 +579,8 @@ export default function WaitlistPage() {
             </div>
           </div>
           <p className="who-text">
-            Built for people who book their own flights, pack light, and want someone to grab dinner with
-            in a city where they know <em>no one</em>.
+            Built for people who book their own flights, pack light, and want someone to grab dinner
+            with in a city where they know <em>no one</em>.
           </p>
         </div>
       </section>
@@ -541,7 +601,9 @@ export default function WaitlistPage() {
               </div>
               <div>
                 <blockquote>
-                  &ldquo;I spent two years traveling solo across 30 countries. The best moments were never the sights &mdash; they were the people I met along the way. I built SoloAdventurer so you don&apos;t have to rely on luck to find your people.&rdquo;
+                  &ldquo;I spent two years traveling solo across 30 countries. The best moments were
+                  never the sights &mdash; they were the people I met along the way. I built
+                  SoloAdventurer so you don&apos;t have to rely on luck to find your people.&rdquo;
                 </blockquote>
                 <div className="signature">Anthony</div>
                 <div className="attr">
@@ -562,13 +624,17 @@ export default function WaitlistPage() {
               <span className="kicker">04 / Trust &amp; safety</span>
               <h2>Your safety is non-negotiable</h2>
             </div>
-            <p className="lead">Every feature is designed so you feel confident meeting strangers in a new city.</p>
+            <p className="lead">
+              Every feature is designed so you feel confident meeting strangers in a new city.
+            </p>
           </div>
           <div className="safety-grid">
             <div className="safety-item">
               <div className="check">&#10003;</div>
               <h4>Photo verification</h4>
-              <p>Real-time selfie verification ensures every profile matches the person you meet.</p>
+              <p>
+                Real-time selfie verification ensures every profile matches the person you meet.
+              </p>
             </div>
             <div className="safety-item">
               <div className="check">&#10003;</div>
@@ -578,7 +644,10 @@ export default function WaitlistPage() {
             <div className="safety-item">
               <div className="check">&#10003;</div>
               <h4>Meetup check-ins</h4>
-              <p>Automated safety check-ins during meetups with one-tap &ldquo;I&apos;m safe&rdquo; confirmation.</p>
+              <p>
+                Automated safety check-ins during meetups with one-tap &ldquo;I&apos;m safe&rdquo;
+                confirmation.
+              </p>
             </div>
             <div className="safety-item">
               <div className="check">&#10003;</div>
@@ -600,16 +669,14 @@ export default function WaitlistPage() {
             <div className="bar">
               <span style={{ width: `${((1000 - scarcityLeft) / 1000) * 100}%` }} />
             </div>
-            <div className="right">
-              {scarcityLeft.toLocaleString()} / 1,000 left
-            </div>
+            <div className="right">{scarcityLeft.toLocaleString()} / 1,000 left</div>
           </div>
           <h2>
             Don&apos;t travel solo, <em>travel connected</em>
           </h2>
           <form
             className="inline-form"
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault()
               const input = (e.target as HTMLFormElement).querySelector('input')
               if (input?.value && /\S+@\S+\.\S+/.test(input.value)) {
@@ -639,7 +706,7 @@ export default function WaitlistPage() {
 
       {/* ── Tweaks panel ── */}
       <button
-        onClick={() => setTweaksOpen((v) => !v)}
+        onClick={() => setTweaksOpen(v => !v)}
         style={{
           position: 'fixed',
           bottom: 20,
@@ -681,13 +748,29 @@ export default function WaitlistPage() {
           }}
         >
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontFamily: 'var(--font-geist), monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '.12em', color: 'var(--wl-ink-mute)' }}>Headline</span>
+            <span
+              style={{
+                fontFamily: 'var(--font-geist), monospace',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: '.12em',
+                color: 'var(--wl-ink-mute)',
+              }}
+            >
+              Headline
+            </span>
             <select
               value={tweaks.headline}
-              onChange={(e) => setTweaks((t) => ({ ...t, headline: e.target.value }))}
+              onChange={e => setTweaks(t => ({ ...t, headline: e.target.value }))}
               style={{
-                height: 32, borderRadius: 8, border: '1px solid var(--wl-rule)',
-                background: 'var(--wl-bg)', padding: '0 8px', font: 'inherit', fontSize: 12, color: 'var(--wl-ink)',
+                height: 32,
+                borderRadius: 8,
+                border: '1px solid var(--wl-rule)',
+                background: 'var(--wl-bg)',
+                padding: '0 8px',
+                font: 'inherit',
+                fontSize: 12,
+                color: 'var(--wl-ink)',
               }}
             >
               <option value="your-people">Your people are already there</option>
@@ -697,13 +780,29 @@ export default function WaitlistPage() {
             </select>
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontFamily: 'var(--font-geist), monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '.12em', color: 'var(--wl-ink-mute)' }}>CTA copy</span>
+            <span
+              style={{
+                fontFamily: 'var(--font-geist), monospace',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: '.12em',
+                color: 'var(--wl-ink-mute)',
+              }}
+            >
+              CTA copy
+            </span>
             <select
               value={tweaks.cta}
-              onChange={(e) => setTweaks((t) => ({ ...t, cta: e.target.value }))}
+              onChange={e => setTweaks(t => ({ ...t, cta: e.target.value }))}
               style={{
-                height: 32, borderRadius: 8, border: '1px solid var(--wl-rule)',
-                background: 'var(--wl-bg)', padding: '0 8px', font: 'inherit', fontSize: 12, color: 'var(--wl-ink)',
+                height: 32,
+                borderRadius: 8,
+                border: '1px solid var(--wl-rule)',
+                background: 'var(--wl-bg)',
+                padding: '0 8px',
+                font: 'inherit',
+                fontSize: 12,
+                color: 'var(--wl-ink)',
               }}
             >
               <option value="default">Save my spot</option>
@@ -712,13 +811,29 @@ export default function WaitlistPage() {
             </select>
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontFamily: 'var(--font-geist), monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '.12em', color: 'var(--wl-ink-mute)' }}>Hero layout</span>
+            <span
+              style={{
+                fontFamily: 'var(--font-geist), monospace',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: '.12em',
+                color: 'var(--wl-ink-mute)',
+              }}
+            >
+              Hero layout
+            </span>
             <select
               value={tweaks.heroLayout}
-              onChange={(e) => setTweaks((t) => ({ ...t, heroLayout: e.target.value }))}
+              onChange={e => setTweaks(t => ({ ...t, heroLayout: e.target.value }))}
               style={{
-                height: 32, borderRadius: 8, border: '1px solid var(--wl-rule)',
-                background: 'var(--wl-bg)', padding: '0 8px', font: 'inherit', fontSize: 12, color: 'var(--wl-ink)',
+                height: 32,
+                borderRadius: 8,
+                border: '1px solid var(--wl-rule)',
+                background: 'var(--wl-bg)',
+                padding: '0 8px',
+                font: 'inherit',
+                fontSize: 12,
+                color: 'var(--wl-ink)',
               }}
             >
               <option value="split">Split</option>
@@ -727,13 +842,29 @@ export default function WaitlistPage() {
             </select>
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontFamily: 'var(--font-geist), monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '.12em', color: 'var(--wl-ink-mute)' }}>Theme</span>
+            <span
+              style={{
+                fontFamily: 'var(--font-geist), monospace',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: '.12em',
+                color: 'var(--wl-ink-mute)',
+              }}
+            >
+              Theme
+            </span>
             <select
               value={tweaks.theme}
-              onChange={(e) => setTweaks((t) => ({ ...t, theme: e.target.value }))}
+              onChange={e => setTweaks(t => ({ ...t, theme: e.target.value }))}
               style={{
-                height: 32, borderRadius: 8, border: '1px solid var(--wl-rule)',
-                background: 'var(--wl-bg)', padding: '0 8px', font: 'inherit', fontSize: 12, color: 'var(--wl-ink)',
+                height: 32,
+                borderRadius: 8,
+                border: '1px solid var(--wl-rule)',
+                background: 'var(--wl-bg)',
+                padding: '0 8px',
+                font: 'inherit',
+                fontSize: 12,
+                color: 'var(--wl-ink)',
               }}
             >
               <option value="warm">Warm</option>
@@ -742,13 +873,29 @@ export default function WaitlistPage() {
             </select>
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontFamily: 'var(--font-geist), monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '.12em', color: 'var(--wl-ink-mute)' }}>Founder section</span>
+            <span
+              style={{
+                fontFamily: 'var(--font-geist), monospace',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: '.12em',
+                color: 'var(--wl-ink-mute)',
+              }}
+            >
+              Founder section
+            </span>
             <select
               value={tweaks.founder ? 'show' : 'hide'}
-              onChange={(e) => setTweaks((t) => ({ ...t, founder: e.target.value === 'show' }))}
+              onChange={e => setTweaks(t => ({ ...t, founder: e.target.value === 'show' }))}
               style={{
-                height: 32, borderRadius: 8, border: '1px solid var(--wl-rule)',
-                background: 'var(--wl-bg)', padding: '0 8px', font: 'inherit', fontSize: 12, color: 'var(--wl-ink)',
+                height: 32,
+                borderRadius: 8,
+                border: '1px solid var(--wl-rule)',
+                background: 'var(--wl-bg)',
+                padding: '0 8px',
+                font: 'inherit',
+                fontSize: 12,
+                color: 'var(--wl-ink)',
               }}
             >
               <option value="show">Show</option>

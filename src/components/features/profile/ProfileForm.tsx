@@ -23,7 +23,7 @@ export function ProfileForm() {
     location: '',
     website: '',
     instagram: '',
-    twitter: ''
+    twitter: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -31,7 +31,7 @@ export function ProfileForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }))
   }
 
@@ -44,7 +44,7 @@ export function ProfileForm() {
       // TODO: Implement actual profile update to backend
       console.log('Updating profile:', formData)
       setMessage('Profile updated successfully!')
-      
+
       // Update local user context
       if (user) {
         const updatedUser = { ...user, name: formData.name }
@@ -58,19 +58,17 @@ export function ProfileForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Edit Profile</CardTitle>
-        <CardDescription>
-          Update your profile information and travel preferences
-        </CardDescription>
+        <CardDescription>Update your profile information and travel preferences</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Basic Information</h3>
-            
+
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">
                 Full Name *
@@ -94,7 +92,7 @@ export function ProfileForm() {
                 id="bio"
                 name="bio"
                 rows={4}
-                className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 placeholder="Tell us about yourself and your travel style..."
                 value={formData.bio}
                 onChange={handleChange}
@@ -119,7 +117,7 @@ export function ProfileForm() {
           {/* Social Links */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Social Links</h3>
-            
+
             <div className="space-y-2">
               <label htmlFor="website" className="text-sm font-medium">
                 Website
@@ -164,16 +162,14 @@ export function ProfileForm() {
           </div>
 
           {message && (
-            <div className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
+            <div
+              className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}
+            >
               {message}
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Saving...' : 'Save Profile'}
           </Button>
         </form>

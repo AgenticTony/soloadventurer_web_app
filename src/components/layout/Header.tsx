@@ -17,7 +17,7 @@ import {
   Bell,
   Menu,
   X,
-  Users
+  Users,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { clsx } from 'clsx'
@@ -40,7 +40,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
     // Check for saved theme preference or default to light mode
     const savedTheme = localStorage.getItem('theme')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    
+
     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
       setDarkMode(true)
       document.documentElement.classList.add('dark')
@@ -59,7 +59,7 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode
     setDarkMode(newDarkMode)
-    
+
     if (newDarkMode) {
       document.documentElement.classList.add('dark')
       localStorage.setItem('theme', 'dark')
@@ -70,7 +70,10 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-card shadow-header border-b border-border" role="banner">
+    <header
+      className="sticky top-0 z-50 border-b border-border bg-card shadow-header"
+      role="banner"
+    >
       <nav className="mx-auto" role="navigation" aria-label="Main navigation">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -79,38 +82,40 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={onMenuToggle}
-                className="lg:hidden p-2 hover:bg-muted rounded-2xl transition-colors"
+                className="rounded-2xl p-2 transition-colors hover:bg-muted lg:hidden"
                 aria-label="Toggle menu"
               >
                 {isMenuOpen ? (
-                  <X className="w-5 h-5 text-foreground" />
+                  <X className="h-5 w-5 text-foreground" />
                 ) : (
-                  <Menu className="w-5 h-5 text-foreground" />
+                  <Menu className="h-5 w-5 text-foreground" />
                 )}
               </button>
-              
+
               {/* Logo */}
               <Link href="/" className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center shadow-sm">
-                  <Compass className="w-6 h-6 text-primary-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary shadow-sm">
+                  <Compass className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <span className="hidden sm:block text-xl font-bold text-foreground">SoloAdventurer</span>
+                <span className="hidden text-xl font-bold text-foreground sm:block">
+                  SoloAdventurer
+                </span>
               </Link>
             </div>
 
             {/* Center: Search */}
-            <div className="hidden md:flex items-center flex-1 max-w-xl mx-8">
+            <div className="mx-8 hidden max-w-xl flex-1 items-center md:flex">
               <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search travelers, cities, trips..."
                   className={clsx(
-                    "w-full pl-10 pr-4 py-2.5 bg-muted rounded-2xl border transition-all duration-200",
-                    "placeholder:text-muted-foreground text-foreground",
+                    'w-full rounded-2xl border bg-muted py-2.5 pl-10 pr-4 transition-all duration-200',
+                    'text-foreground placeholder:text-muted-foreground',
                     isSearchFocused
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-border hover:border-border/80"
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-border hover:border-border/80'
                   )}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setIsSearchFocused(false)}
@@ -122,68 +127,80 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
               {/* Create Button */}
-              <button className="hidden sm:flex p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 group" aria-label="Create new post">
-                <Plus className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+              <button
+                className="group hidden rounded-2xl p-2.5 transition-all duration-200 hover:bg-muted sm:flex"
+                aria-label="Create new post"
+              >
+                <Plus className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
               </button>
-              
+
               {/* Connections */}
               {isAuthenticated && (
                 <Link
                   href="/connections"
-                  className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group"
+                  className="group relative rounded-2xl p-2.5 transition-all duration-200 hover:bg-muted"
                   aria-label="Connections"
                 >
-                  <Users className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                  <Users className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
                 </Link>
               )}
 
               {/* Messages */}
               <Link
                 href="/chat"
-                className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group"
+                className="group relative rounded-2xl p-2.5 transition-all duration-200 hover:bg-muted"
                 aria-label="Messages"
               >
-                <MessageCircle className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                <MessageCircle className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
                 {isAuthenticated && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse" aria-hidden="true"></span>
+                  <span
+                    className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-primary"
+                    aria-hidden="true"
+                  ></span>
                 )}
               </Link>
 
               {/* Notifications */}
-              <button className="p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 relative group" aria-label="Notifications">
-                <Bell className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+              <button
+                className="group relative rounded-2xl p-2.5 transition-all duration-200 hover:bg-muted"
+                aria-label="Notifications"
+              >
+                <Bell className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
                 {isAuthenticated && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-coral-500 rounded-full animate-pulse" aria-hidden="true"></span>
+                  <span
+                    className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-coral-500"
+                    aria-hidden="true"
+                  ></span>
                 )}
               </button>
-              
+
               {/* Dark Mode Toggle */}
               {mounted && (
                 <button
                   onClick={toggleDarkMode}
-                  className="hidden sm:flex p-2.5 hover:bg-muted rounded-2xl transition-all duration-200 group"
+                  className="group hidden rounded-2xl p-2.5 transition-all duration-200 hover:bg-muted sm:flex"
                   aria-label="Toggle dark mode"
                 >
                   {darkMode ? (
-                    <Sun className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                    <Sun className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
                   ) : (
-                    <Moon className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                    <Moon className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
                   )}
                 </button>
               )}
-              
+
               {/* User Menu */}
               {isAuthenticated && user ? (
                 <div className="relative ml-2">
                   <button
                     type="button"
-                    className="flex items-center gap-2 p-1 rounded-2xl hover:bg-muted transition-all duration-200 group"
+                    className="group flex items-center gap-2 rounded-2xl p-1 transition-all duration-200 hover:bg-muted"
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     aria-expanded={isUserMenuOpen}
                     aria-haspopup="menu"
                   >
                     <span className="sr-only">Open user menu</span>
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center ring-2 ring-border group-hover:ring-primary transition-all">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary ring-2 ring-border transition-all group-hover:ring-primary">
                       <span className="text-sm font-medium text-primary-foreground">
                         {user.name?.charAt(0).toUpperCase() || 'U'}
                       </span>
@@ -192,69 +209,72 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
 
                   {/* Dropdown menu */}
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-2xl bg-card py-2 shadow-lg ring-1 ring-border animate-in" role="menu">
-                      <div className="px-4 py-3 border-b border-border">
+                    <div
+                      className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-2xl bg-card py-2 shadow-lg ring-1 ring-border animate-in"
+                      role="menu"
+                    >
+                      <div className="border-b border-border px-4 py-3">
                         <p className="text-sm font-medium text-foreground">{user.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{user.email}</p>
                       </div>
-                      
+
                       <Link
                         href="/profile"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <User className="w-4 h-4" />
+                        <User className="h-4 w-4" />
                         Your Profile
                       </Link>
 
                       <Link
                         href="/connections"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <Users className="w-4 h-4" />
+                        <Users className="h-4 w-4" />
                         <span>Connections</span>
                       </Link>
-                      
+
                       <Link
                         href="/settings"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <Settings className="w-4 h-4" />
+                        <Settings className="h-4 w-4" />
                         Settings & Privacy
                       </Link>
-                      
+
                       <button
                         onClick={() => {
                           toggleDarkMode()
                           setIsUserMenuOpen(false)
                         }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors sm:hidden"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted sm:hidden"
                       >
-                        {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                        {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                         {darkMode ? 'Light Mode' : 'Dark Mode'}
                       </button>
-                      
+
                       <Link
                         href="/help"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <HelpCircle className="w-4 h-4" />
+                        <HelpCircle className="h-4 w-4" />
                         Help & Support
                       </Link>
-                      
+
                       <div className="my-2 border-t border-border" />
-                      
+
                       <button
                         onClick={() => {
                           handleSignOut()
                           setIsUserMenuOpen(false)
                         }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="h-4 w-4" />
                         Sign Out
                       </button>
                     </div>
@@ -264,13 +284,13 @@ export function Header({ onMenuToggle, isMenuOpen = false }: HeaderProps) {
                 <div className="flex items-center gap-3">
                   <Link
                     href="/sign-in"
-                    className="text-foreground hover:text-foreground/80 px-4 py-2 text-sm font-medium transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-foreground/80"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/signup"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="rounded-2xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md"
                   >
                     Get Started
                   </Link>

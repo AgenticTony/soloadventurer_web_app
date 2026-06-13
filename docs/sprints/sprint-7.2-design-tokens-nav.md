@@ -23,11 +23,11 @@ All three UI/UX reviews agree: the generic cyan-on-black palette feels clinical,
 
 Three semantic color channels — every color means something:
 
-| Channel | Color | Usage | Surface % |
-|---------|-------|-------|-----------|
-| **Brand / Navigation** | Deep Teal-Ocean `#0EA5A4` (light) / `#2DD4BF` (dark) | Logo, active nav, links, primary CTAs | ~10% |
-| **Connection / Social** | Warm Coral-Sunset `#F97066` / `#FB7185` | "Say hi", "Connect", "Invite", new-message dots, match highlights | ~5% |
-| **Trust / Achievement** | Golden Sand `#F5B971` / `#FBBF24` | Verification badges, achievements, premium content | ~2% |
+| Channel                 | Color                                                | Usage                                                             | Surface % |
+| ----------------------- | ---------------------------------------------------- | ----------------------------------------------------------------- | --------- |
+| **Brand / Navigation**  | Deep Teal-Ocean `#0EA5A4` (light) / `#2DD4BF` (dark) | Logo, active nav, links, primary CTAs                             | ~10%      |
+| **Connection / Social** | Warm Coral-Sunset `#F97066` / `#FB7185`              | "Say hi", "Connect", "Invite", new-message dots, match highlights | ~5%       |
+| **Trust / Achievement** | Golden Sand `#F5B971` / `#FBBF24`                    | Verification badges, achievements, premium content                | ~2%       |
 
 Neutrals — warm-tinted. Dark: bg `#0B1012`, surfaces `#141A1E`, borders `#1F272C`, text `#E6E8EB`, muted `#8A949C`. Light: bg `#FAFAF7`, surfaces `#FFFFFF`, borders `#E7E5E0`, text `#1A1D1F`, muted `#6B7178`.
 

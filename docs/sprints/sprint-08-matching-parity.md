@@ -29,14 +29,16 @@ The edge functions and RPC functions already exist in Supabase (deployed from th
 ## Mobile App Reference
 
 ### Edge Functions (Already Deployed)
-| Function | Purpose |
-|----------|---------|
+
+| Function                          | Purpose                                                |
+| --------------------------------- | ------------------------------------------------------ |
 | `find-potential-matches-semantic` | AI-powered composite matching (params: user_id, limit) |
-| `find-overlapping-trips` | Geographic fallback matching |
-| `request-connection` | Validated connection request with notifications |
-| `respond-connection` | Accept/decline with chat creation on accept |
+| `find-overlapping-trips`          | Geographic fallback matching                           |
+| `request-connection`              | Validated connection request with notifications        |
+| `respond-connection`              | Accept/decline with chat creation on accept            |
 
 ### Composite Scoring Weights
+
 ```
 semantic:     0.40  (pgvector cosine similarity on profile embeddings)
 date_overlap: 0.25  (percentage of trip dates that overlap)
@@ -46,6 +48,7 @@ age:          0.10  (proximity in predefined age ranges)
 ```
 
 ### Mobile App Fallback Flow
+
 1. Try `find-potential-matches-semantic` edge function
 2. If it fails or returns invalid data → fall back to `find-overlapping-trips` RPC
 3. If RPC also fails → fall back to local client-side computation (current Sprint 7 code)
@@ -189,6 +192,7 @@ Add real-time typing status to chat.
 ## Post-Sprint Note
 
 After Sprint 8 completes, Sprint 7.5 (UI/UX Overhaul) should run to:
+
 - Commit the 47-file working tree cleanup (dead code removal from Sprints 7-8)
 - Fix ESLint errors blocking `npm run build`
 - Restore CI/CD pipeline (`.github/workflows/ci.yml` was deleted)
@@ -213,23 +217,23 @@ After Sprint 8 completes, Sprint 7.5 (UI/UX Overhaul) should run to:
 
 ## Files Created
 
-| File | Purpose |
-|------|---------|
-| `src/lib/supabase/client.ts` | Edge function invoker utility with retry, timeout, and typed error handling |
-| `src/types/matching.ts` | Semantic match types: SemanticMatchResult, CompositeMatch, MatchFactors, MatchConfidence |
-| `src/components/features/matching/NearbyTravelersSection.tsx` | Nearby travelers section with activity filter chips and grouped match display |
-| `src/components/features/matching/__tests__/MatchCard.test.tsx` | MatchCard component tests (28 tests) |
-| `src/components/features/matching/__tests__/NearbyTravelersSection.test.tsx` | NearbyTravelersSection + activity filter tests (12 tests) |
-| `src/lib/api/__tests__/matching.test.ts` | Matching API tests including Tier 3 activity overlap (43 tests) |
-| `src/types/__tests__/matching.test.ts` | Matching type validation tests |
+| File                                                                         | Purpose                                                                                  |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `src/lib/supabase/client.ts`                                                 | Edge function invoker utility with retry, timeout, and typed error handling              |
+| `src/types/matching.ts`                                                      | Semantic match types: SemanticMatchResult, CompositeMatch, MatchFactors, MatchConfidence |
+| `src/components/features/matching/NearbyTravelersSection.tsx`                | Nearby travelers section with activity filter chips and grouped match display            |
+| `src/components/features/matching/__tests__/MatchCard.test.tsx`              | MatchCard component tests (28 tests)                                                     |
+| `src/components/features/matching/__tests__/NearbyTravelersSection.test.tsx` | NearbyTravelersSection + activity filter tests (12 tests)                                |
+| `src/lib/api/__tests__/matching.test.ts`                                     | Matching API tests including Tier 3 activity overlap (43 tests)                          |
+| `src/types/__tests__/matching.test.ts`                                       | Matching type validation tests                                                           |
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
-| `src/lib/api/matching.ts` | 3-tier fallback with activity overlap; client-side computes Jaccard similarity on shared activities |
-| `src/components/features/matching/MatchCard.tsx` | Activity-specific Lucide icons, scored-activity highlighting (purple ring), composite score display |
-| `src/app/(main)/discover/page.tsx` | Refactored to import NearbyTravelersSection from extracted component |
-| `src/lib/api/matching.ts` | Edge function integration for requestConnection and respondToConnection with fallback + error mapping |
-| `src/components/users/UserCard.tsx` | Toast error notifications on connection failures |
-| `docs/sprints/sprint-08-matching-parity.md` | This sprint plan |
+| File                                             | Change                                                                                                |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `src/lib/api/matching.ts`                        | 3-tier fallback with activity overlap; client-side computes Jaccard similarity on shared activities   |
+| `src/components/features/matching/MatchCard.tsx` | Activity-specific Lucide icons, scored-activity highlighting (purple ring), composite score display   |
+| `src/app/(main)/discover/page.tsx`               | Refactored to import NearbyTravelersSection from extracted component                                  |
+| `src/lib/api/matching.ts`                        | Edge function integration for requestConnection and respondToConnection with fallback + error mapping |
+| `src/components/users/UserCard.tsx`              | Toast error notifications on connection failures                                                      |
+| `docs/sprints/sprint-08-matching-parity.md`      | This sprint plan                                                                                      |

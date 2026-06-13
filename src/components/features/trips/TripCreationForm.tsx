@@ -1,23 +1,22 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { tripService } from '@/services/trips/tripService';
-import { TripsApiError } from '@/lib/api';
-import { MapPin, Save, X, Sparkles } from 'lucide-react';
-import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema';
-
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { tripService } from '@/services/trips/tripService'
+import { TripsApiError } from '@/lib/api'
+import { MapPin, Save, X, Sparkles } from 'lucide-react'
+import { tripFormSchema, type TripFormData } from '@/lib/validations/trip.schema'
 
 export function TripCreationForm() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState<string>('');
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [apiError, setApiError] = useState<string>('')
 
   const {
     register,
@@ -34,13 +33,13 @@ export function TripCreationForm() {
       endDate: '',
       isPrivate: false,
     },
-  });
+  })
 
-  const watchedValues = watch();
+  const watchedValues = watch()
 
   const onSubmit = async (data: TripFormData) => {
-    setIsSubmitting(true);
-    setApiError('');
+    setIsSubmitting(true)
+    setApiError('')
 
     try {
       // Convert dates to ISO strings
@@ -49,34 +48,32 @@ export function TripCreationForm() {
         startDate: new Date(data.startDate).toISOString(),
         endDate: new Date(data.endDate).toISOString(),
         isPrivate: data.isPrivate,
-      };
+      }
 
-      const response = await tripService.createTrip(tripData);
+      const response = await tripService.createTrip(tripData)
 
       // Success - redirect to created trip
-      router.push(`/trips/${response.id}`);
-
+      router.push(`/trips/${response.id}`)
     } catch (error: unknown) {
-      console.error('Error creating trip:', error);
+      console.error('Error creating trip:', error)
 
       // Handle API validation errors
       if (error instanceof TripsApiError) {
-        setApiError(error.message);
+        setApiError(error.message)
       } else {
-        setApiError('Failed to create trip');
+        setApiError('Failed to create trip')
       }
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
-
+  }
 
   const handleCancel = () => {
-    router.push('/trips');
-  };
+    router.push('/trips')
+  }
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="mx-auto max-w-2xl">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -94,7 +91,11 @@ export function TripCreationForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* General Error */}
           {apiError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md" role="alert" aria-live="polite">
+            <div
+              className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+              role="alert"
+              aria-live="polite"
+            >
               {apiError}
             </div>
           )}
@@ -116,7 +117,9 @@ export function TripCreationForm() {
               required
             />
             {errors.title && (
-              <p id="title-error" className="text-sm text-red-600" role="alert">{errors.title.message}</p>
+              <p id="title-error" className="text-sm text-red-600" role="alert">
+                {errors.title.message}
+              </p>
             )}
             <p id="title-hint" className="text-xs text-muted-foreground">
               {watchedValues.title?.length || 0}/80 characters
@@ -138,7 +141,7 @@ export function TripCreationForm() {
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label htmlFor="startDate" className="text-sm font-medium text-foreground">
                 Start Date *
@@ -153,7 +156,9 @@ export function TripCreationForm() {
                 required
               />
               {errors.startDate && (
-                <p id="startDate-error" className="text-sm text-red-600" role="alert">{errors.startDate.message}</p>
+                <p id="startDate-error" className="text-sm text-red-600" role="alert">
+                  {errors.startDate.message}
+                </p>
               )}
             </div>
 
@@ -172,7 +177,9 @@ export function TripCreationForm() {
                 required
               />
               {errors.endDate && (
-                <p id="endDate-error" className="text-sm text-red-600" role="alert">{errors.endDate.message}</p>
+                <p id="endDate-error" className="text-sm text-red-600" role="alert">
+                  {errors.endDate.message}
+                </p>
               )}
             </div>
           </div>
@@ -198,36 +205,29 @@ export function TripCreationForm() {
 
           {/* Form Actions */}
           <div className="flex gap-4 pt-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={isSubmitting} className="flex-1">
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" aria-hidden="true" />
+                  <div
+                    className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                    aria-hidden="true"
+                  />
                   Creating Trip...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save className="mr-2 h-4 w-4" />
                   Create Trip
                 </>
               )}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
-              <X className="w-4 h-4 mr-2" />
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+              <X className="mr-2 h-4 w-4" />
               Cancel
             </Button>
           </div>
         </form>
       </CardContent>
-
     </Card>
-  );
+  )
 }
