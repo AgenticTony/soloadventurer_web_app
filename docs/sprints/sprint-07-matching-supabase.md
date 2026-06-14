@@ -227,8 +227,11 @@ Wire everything into the main navigation flow.
   - [x] LeftNav: already had Messages link pointing to `/chat`
   - [x] BottomTabBar: already had Chat tab pointing to `/chat`
 
-- [ ] **Update user profile pages**
+- [x] **Update user profile pages**
   - Profile view pages (`/profile/[username]`) already have Connect/Message buttons from Sprint 6 cleanup
+  - [x] Real profile lookup by username (getProfileByUsername) replaces the stub user; loading / not-found / error states
+  - [x] Connect wired to requestConnection; Message navigates to /chat
+  - [x] Fixed latent React 18 crash: page was using `use(params)` (React 19 only) — split into a server page that `await`s params + a client component
 
 ---
 

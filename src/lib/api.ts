@@ -140,6 +140,48 @@ export async function getProfile(userId: string): Promise<Profile> {
   }
 }
 
+/** Public profile fields for viewing another user by username. */
+export interface PublicProfile {
+  id: string
+  name: string
+  username: string
+  bio?: string
+  avatar?: string
+}
+
+/**
+ * Look up another user's public profile by username. Throws `TripsApiError`
+ * ('Profile not found') when the username doesn't exist. Email and other
+ * private fields are intentionally NOT selected — the viewer only ever sees
+ * public profile data (RLS enforces this server-side too).
+ */
+export async function getProfileByUsername(username: string): Promise<PublicProfile> {
+  try {
+    const { supabase } = await getAuthContext()
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, bio, avatar_url')
+      .eq('username', username)
+      .maybeSingle()
+
+    if (error) throw error
+    if (!data) throw new TripsApiError('Profile not found')
+
+    return {
+      id: data.id as string,
+      name: (data.display_name as string | undefined) ?? username,
+      username: username,
+      bio: data.bio as string | undefined,
+      avatar: data.avatar_url as string | undefined,
+    }
+  } catch (error) {
+    if (error instanceof TripsApiError) throw error
+    console.error('Error fetching profile by username:', error)
+    throw new TripsApiError('Failed to fetch profile')
+  }
+}
+
 // ── Trips ─────────────────────────────────────────────────────
 function mapTrip(row: Record<string, unknown>): Trip {
   return {
