@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { TripCard, TripCardSkeleton } from './TripCard'
 import { Button } from '@/components/ui/button'
 import { useTrips } from '@/hooks/useTrips'
-import { Calendar, Plus } from 'lucide-react'
+import { tripMatchesSearch } from '@/lib/trips'
+import { Calendar, Plus, Search, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface TripListProps {
@@ -15,6 +16,14 @@ export const TripList = memo(function TripList({ className = '' }: TripListProps
   const router = useRouter()
   const { trips, loading, error, hasMore, loadMore, refresh } = useTrips()
   const [loadingMore, setLoadingMore] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Client-side search over the loaded trips. Composes on the paginated set —
+  // "Load more" surfaces additional pages so a search can find later matches.
+  const filteredTrips = useMemo(
+    () => trips.filter(trip => tripMatchesSearch(trip, searchQuery)),
+    [trips, searchQuery]
+  )
 
   const handleLoadMore = async () => {
     setLoadingMore(true)
@@ -30,9 +39,8 @@ export const TripList = memo(function TripList({ className = '' }: TripListProps
     router.push(`/trips/${tripId}/edit`)
   }
 
-  const handleTripDelete = async (tripId: string) => {
-    // TODO: Implement trip deletion
-    console.log('Delete trip:', tripId)
+  // TODO: implement trip deletion (the trip id will be passed by TripCard's onDelete)
+  const handleTripDelete = async () => {
     // After successful deletion, refresh the list
     await refresh()
   }
@@ -77,49 +85,88 @@ export const TripList = memo(function TripList({ className = '' }: TripListProps
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Trip Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {trips.map(trip => (
-          <TripCard
-            key={trip.id}
-            trip={{
-              id: trip.id,
-              title: trip.title,
-              destination: 'Travel Destination', // TODO: Add location field to API
-              startDate: trip.startDate,
-              endDate: trip.endDate,
-              duration: getDuration(trip.startDate, trip.endDate),
-              status: getStatus(trip.startDate, trip.endDate),
-              activities: [], // TODO: Add activities to API
-              companions: [], // TODO: Add companions to API
-              isPublic: !trip.isPrivate,
-              createdAt: trip.createdAt,
-              updatedAt: trip.createdAt,
-              description: undefined, // TODO: Add description to API
-            }}
-            variant="compact"
-            onView={handleTripView}
-            onEdit={handleTripEdit}
-            onDelete={handleTripDelete}
-            showActions={true}
-          />
-        ))}
+      {/* Search */}
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Search trips by title, destination, or description"
+          aria-label="Search trips"
+          className="w-full rounded-2xl border border-border bg-muted py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
-      {/* Load More Button */}
-      {hasMore && (
-        <div className="pt-6 text-center">
-          <Button onClick={handleLoadMore} disabled={loadingMore} variant="outline">
-            {loadingMore ? (
-              <>
-                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
-                Loading...
-              </>
-            ) : (
-              'Load More Trips'
-            )}
+      {filteredTrips.length === 0 ? (
+        <div className="py-12 text-center">
+          <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-semibold text-foreground">No matching trips</h3>
+          <p className="mb-4 text-muted-foreground">
+            No trips match &ldquo;{searchQuery}&rdquo;.
+            {hasMore && ' Try loading more trips to expand your search.'}
+          </p>
+          <Button onClick={() => setSearchQuery('')} variant="outline">
+            Clear Search
           </Button>
         </div>
+      ) : (
+        <>
+          {/* Trip Cards */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredTrips.map(trip => (
+              <TripCard
+                key={trip.id}
+                trip={{
+                  id: trip.id,
+                  title: trip.title,
+                  destination: 'Travel Destination', // TODO: Add location field to API
+                  startDate: trip.startDate,
+                  endDate: trip.endDate,
+                  duration: getDuration(trip.startDate, trip.endDate),
+                  status: getStatus(trip.startDate, trip.endDate),
+                  activities: [], // TODO: Add activities to API
+                  companions: [], // TODO: Add companions to API
+                  isPublic: !trip.isPrivate,
+                  createdAt: trip.createdAt,
+                  updatedAt: trip.createdAt,
+                  description: undefined, // TODO: Add description to API
+                }}
+                variant="compact"
+                onView={handleTripView}
+                onEdit={handleTripEdit}
+                onDelete={handleTripDelete}
+                showActions={true}
+              />
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="pt-6 text-center">
+              <Button onClick={handleLoadMore} disabled={loadingMore} variant="outline">
+                {loadingMore ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load More Trips'
+                )}
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
