@@ -1,4 +1,4 @@
-import { createTrip, getTrip, listTrips, TripsApiError } from '../api'
+import { createTrip, getTrip, listTrips } from '../api'
 
 // Mock Supabase client — full mock with auth, rpc, and from() chain
 jest.mock('@/lib/supabase/client', () => {
@@ -192,5 +192,78 @@ describe('listTrips', () => {
     })
 
     await expect(listTrips()).rejects.toThrow('User not authenticated')
+  })
+
+  const tripRow = (id: string, name: string) => ({
+    id,
+    name,
+    description: 'd',
+    destination_name: 'Rome, Italy',
+    start_date: '2024-03-01T10:00:00Z',
+    end_date: '2024-03-05T10:00:00Z',
+    is_public: false,
+    user_id: 'user-123',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+  })
+
+  it('requests the first page at offset 0 and asks for limit+1 rows', async () => {
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
+    })
+    rpc.mockResolvedValue({ data: [], error: null })
+
+    await listTrips(undefined, { limit: 10 })
+
+    expect(rpc).toHaveBeenCalledWith('list_my_trips', { p_limit: 11, p_offset: 0 })
+  })
+
+  it('advances the page using the nextToken offset cursor (the bug this fixes)', async () => {
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
+    })
+    rpc.mockResolvedValue({ data: [], error: null })
+
+    await listTrips(undefined, { limit: 10, nextToken: '10' })
+
+    // Previously p_offset was hardcoded to 0 — loadMore re-fetched page 0 forever.
+    expect(rpc).toHaveBeenCalledWith('list_my_trips', { p_limit: 11, p_offset: 10 })
+  })
+
+  it('returns a nextToken pointing at the next page when more rows exist', async () => {
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
+    })
+    // 11 rows for a page size of 10 — the 11th is the hasMore signal.
+    const page = Array.from({ length: 11 }, (_, i) => tripRow(`trip-${i + 1}`, `Trip ${i + 1}`))
+    rpc.mockResolvedValue({ data: page, error: null })
+
+    const result = await listTrips(undefined, { limit: 10 })
+
+    expect(result.items).toHaveLength(10) // extra row trimmed
+    expect(result.nextToken).toBe('10') // offset of the next page
+  })
+
+  it('omits nextToken on the last page', async () => {
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
+    })
+    rpc.mockResolvedValue({ data: [tripRow('trip-1', 'Only Trip')], error: null })
+
+    const result = await listTrips(undefined, { limit: 10 })
+
+    expect(result.items).toHaveLength(1)
+    expect(result.nextToken).toBeUndefined()
+  })
+
+  it('resets to the first page on a malformed nextToken', async () => {
+    auth.getSession.mockResolvedValue({
+      data: { session: { access_token: 'mock-token', user: { id: 'user-123' } } },
+    })
+    rpc.mockResolvedValue({ data: [], error: null })
+
+    await listTrips(undefined, { limit: 10, nextToken: 'not-a-number' })
+
+    expect(rpc).toHaveBeenCalledWith('list_my_trips', { p_limit: 11, p_offset: 0 })
   })
 })

@@ -203,6 +203,16 @@ export async function getTrip(tripId: string): Promise<Trip> {
   }
 }
 
+/**
+ * The `nextToken` is an opaque offset cursor — the row offset of the next page.
+ * A missing or malformed token resets to page 0 rather than throwing.
+ */
+function parseNextOffset(nextToken?: string): number {
+  if (!nextToken) return 0
+  const n = Number.parseInt(nextToken, 10)
+  return Number.isFinite(n) && n > 0 ? n : 0
+}
+
 export async function listTrips(
   ownerId?: string,
   options?: ListTripsOptions
@@ -211,10 +221,11 @@ export async function listTrips(
     const { supabase } = await getAuthContext()
 
     const limit = Math.min(options?.limit ?? 50, 100)
+    const offset = parseNextOffset(options?.nextToken)
 
     const { data, error } = await supabase.rpc('list_my_trips', {
       p_limit: limit + 1,
-      p_offset: 0,
+      p_offset: offset,
     })
 
     if (error) throw error
@@ -225,7 +236,7 @@ export async function listTrips(
 
     return {
       items: items.map(mapTrip),
-      nextToken: hasMore ? String(items[items.length - 1]?.id) : undefined,
+      nextToken: hasMore ? String(offset + limit) : undefined,
     }
   } catch (error) {
     if (error instanceof TripsApiError) throw error
