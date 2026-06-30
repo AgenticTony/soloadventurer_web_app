@@ -1,0 +1,3 @@
+# Docs are not application code — don't lint the playbook build scripts
+# (CommonJS require is correct for Node build tooling) or any research content.
+docs/
