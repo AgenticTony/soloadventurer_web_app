@@ -1,0 +1,30 @@
+{
+  "jest": {
+    "tests": 464,
+    "suites": 44,
+    "captured": "2026-06-14",
+    "command": "npm test -- --ci",
+    "note": "main baseline after PR #13 (07 profile pages, +9/+2) merged on top of #8–#12. 455/42 -> 464/44. Verifier FAILs if passing test count drops below `tests` without an intentional, stated removal; bump when new tests land."
+  },
+  "known_typecheck_errors": {
+    "captured": "2026-06-13",
+    "command": "npm run typecheck",
+    "count": 0,
+    "files": {},
+    "status": "RESOLVED 2026-06-13 by PR #4 (fix/test-supabase-mock-typing) — cast supabase auth mocks as `unknown as { ... jest.Mock }` in api.test.ts + AuthContext.test.tsx. main now passes `npm run typecheck` clean.",
+    "rule": "main is typecheck-clean. ANY typecheck error is now diff-attributable -> FAIL (no pre-existing exemption list remains). If a new pre-existing baseline emerges, capture exact file:line here before the verifier runs."
+  },
+  "ci_status": {
+    "captured": "2026-06-13",
+    "overall": "GREEN — main CI fully passes as of PR #5 merge (commit 1212264). Chain: install (PR #3 lockfile) + typecheck (PR #4 mock typing) + build (PR #5 Supabase public env as repo variables, wired into both workflows).",
+    "install_npm_ci": "GREEN",
+    "typecheck": "GREEN (18 pre-existing errors -> 0 via PR #4)",
+    "lint": "GREEN (warnings only)",
+    "test": "GREEN (425/37)",
+    "build": "GREEN — NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY set as repo Actions VARIABLES (public/RLS-protected) and mapped at workflow env level.",
+    "node_version": "GREEN — both workflows now Node 20 (PR #6 aligned api-tests.yml from 18).",
+    "prettier": "FULLY CLEAN — PR #6 (251 files) + PR #7 (last 3: cypress.config.js, jest.config.js, jest.setup.ts). No drift remains anywhere.",
+    "remaining_gate_hole": "CLOSED (PR #7) — eslint override scopes @typescript-eslint/no-var-requires off for *.config.js/*.config.cjs (legit CommonJS require); jest.setup.ts any fixed; those 3 files prettier-formatted. PR #7 also replaced a JWT-shaped test placeholder anon key with a plain string (GitGuardian had flagged the shape once prettier exposed the line). Every file is now eslint-clean on touch + prettier-clean. No latent gate holes remain.",
+    "gitguardian": "GREEN — PR #7 remediated the only finding (JWT-shaped placeholder in jest.setup.ts; not a real credential). Dashboard incident may still need acknowledgment."
+  }
+}

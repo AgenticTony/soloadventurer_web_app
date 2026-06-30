@@ -65,3 +65,9 @@ terraform.rc
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# Workspace-level (lived above the app pre-flatten; now at repo root)
+/.remember/
+/SoloAdventurer_ML_Matching_Plan.md
+/SoloAdventurer_SPRINT_PLAN.md
+/SoloAdventurer-handoff.zip
