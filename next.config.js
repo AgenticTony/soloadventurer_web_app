@@ -28,12 +28,11 @@ const nextConfig = {
     CUSTOM_DOMAIN: process.env.CUSTOM_DOMAIN,
   },
   async redirects() {
+    // NOTE: no redirect for '/' — config redirects run BEFORE middleware, so a
+    // root redirect makes the public landing page unreachable to anonymous
+    // visitors (acquisition surface, FOUNDATIONS §3.5). Authenticated users are
+    // routed '/' → '/discover' by src/middleware.ts instead.
     return [
-      {
-        source: '/',
-        destination: '/discover',
-        permanent: false,
-      },
       {
         source: '/dashboard',
         destination: '/discover',
