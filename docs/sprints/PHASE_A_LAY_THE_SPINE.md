@@ -9,7 +9,7 @@ Web consumes the new L0/reputation tables (read-only) for public profile reputat
 
 ## Scope
 
-**IN:** read `member_reviews` / `get_reputation` on public profiles; scaffold public trip/profile/destination share pages.
+**IN:** read `member_reviews` / `reputation_score` on public profiles; scaffold public trip/profile/destination share pages.
 **OUT:** outcome-trained matcher (mobile Phase B); web matching UI (web ≠ duplicate mobile, §3.5).
 **Guardrails (§10):** shared-backend reads cross-checked; read-only.
 
@@ -17,7 +17,7 @@ Web consumes the new L0/reputation tables (read-only) for public profile reputat
 
 ### Story A.1 — Read reputation/outcomes on public profiles [safety: true]
 
-- [ ] Consume `member_reviews` / `get_reputation` on `/profile/[username]`
+- [ ] Consume `member_reviews` / `reputation_score` on `/profile/[username]`
 - [ ] RLS-verified read-only; expose only intended fields
 
 ### Story A.2 — Public share-page scaffolding
