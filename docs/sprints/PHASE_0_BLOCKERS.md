@@ -32,6 +32,12 @@ Stand up web analytics + the acquisition funnel north-star, audit public-page pr
 - [ ] Track shared Supabase service-role key rotation (mobile-led, FOUNDATIONS §10)
 - [ ] Verify web CI/env carries no service-role key
 
+### Story 0.4 — Fix unreachable landing page _(added 2026-07-05; review finding W2)_
+
+- [ ] Remove the `/` → `/discover` redirect in `next.config.js` — config redirects run before middleware, so anonymous visitors never reach the public landing page (fatal for an acquisition surface). Middleware already routes authed users to `/discover`.
+- [ ] Keep `/feed` + `/dashboard` redirects (they suppress guardrail-violating legacy surfaces per §7 — do NOT expose them)
+- [ ] Regression test: `next.config.redirects()` contains no `source: '/'`
+
 ## Definition of Done / Acceptance Criteria
 
 - [ ] Analytics firing; acquisition funnel instrumented

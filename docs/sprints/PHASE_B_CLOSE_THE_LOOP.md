@@ -13,6 +13,8 @@ Web surfaces outcome-derived social proof and consumes the improved matcher only
 **OUT:** heavy matching UI (mobile lane); agent surfaces (Phase C).
 **Guardrails (§3.5):** web is acquisition; do not rebuild mobile's matching experience.
 
+> **Resolved discovery model (2026-07-05) — canonical spec: PRODUCT §3/§5.** The discovery surface is **presence-as-count** ("N verified travelers in [city] this week", derived from declared city / `trips` itinerary — never GPS pins) + **filterable verified profile cards** + **concierge intros** (so a thin network still shows something) + chat. **No pin-map of user locations** (§6/§7). **Women-only is bidirectional and RLS-enforced** — a user set to "only meet women" is only shown to, and only sees, women. This surface runs on the existing heuristic matcher; it is NOT gated on Phase B's ML ranker.
+
 ## Stories
 
 ### Story B.1 — Social proof on public surfaces

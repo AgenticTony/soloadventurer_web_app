@@ -25,6 +25,12 @@ Web makes trust visible publicly — reputation + verified-human on public profi
 - [ ] Rich Open-Graph image previews for trip / profile / destination share pages
 - [ ] Previews render the trust signals (the share payload, Part 3.12)
 
+### Story D.3 — Trusted-contact check-in page (viral Loop 1) _(added 2026-07-05)_
+
+- [ ] Public, no-install web page rendering a guardian-armed meetup's live check-in for the traveler's **trusted contact** (contact-side experience; supersedes archived SPRINT_6.7.3). Reads the existing safety pillar (check-ins / location shares) — can start early, not gated on later phases.
+- [ ] Reassuring UX + acquisition CTA ("She met safely — both verified. Traveling soon yourself?") — the highest-leverage byproduct viral loop (Playbook Part 3.17: the Hotmail signature)
+- [ ] **Safety-sensitive** — exposes location/meetup data to a non-user via a link: expiring signed links, strict scoping, no PII beyond the check-in. Flag before editing.
+
 ## Definition of Done / Acceptance Criteria
 
 - [ ] Public profiles show verified reputation
