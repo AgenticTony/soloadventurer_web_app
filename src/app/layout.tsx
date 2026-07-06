@@ -1,7 +1,11 @@
 import '../styles/globals.css'
+import { Suspense } from 'react'
 import { DM_Sans, Playfair_Display, Instrument_Serif, Geist } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { AnalyticsProvider } from '@/contexts/AnalyticsContext'
+import { PageViewTracker } from '@/components/analytics/PageViewTracker'
+import { ConsentBanner } from '@/components/analytics/ConsentBanner'
 import { ThemeProvider } from 'next-themes'
 
 const dmSans = DM_Sans({
@@ -52,9 +56,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <ToastProvider>{children}</ToastProvider>
-          </AuthProvider>
+          <AnalyticsProvider>
+            <AuthProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </AuthProvider>
+            <Suspense fallback={null}>
+              <PageViewTracker />
+            </Suspense>
+            <ConsentBanner />
+          </AnalyticsProvider>
         </ThemeProvider>
       </body>
     </html>
