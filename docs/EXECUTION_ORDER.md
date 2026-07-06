@@ -28,11 +28,12 @@
 - ✅ **Mobile PR #13 (step 4 — A.4)** — `report_no_show` + `cancel_meetup` RPCs — **merged 2026-07-06**, closes reward-fn v0.1 (no-show penalty now wired + attributed to the absent party). pgTAP 22→36. Phase A backend fully shipped.
 - ✅ **Mobile PR #15 (step 5 — 0.3)** — PostHog analytics + consent gate + north-star **`meetup_completed` locked to `meetup_outcomes`** (reconciled from the stale `meetup_checkins`) — **merged 2026-07-06**. `docs/analytics-v0.1.md`.
 - ✅ **Web (step 6 — 0.1)** — PostHog-js acquisition funnel + GDPR consent, **same PostHog project** as mobile — **merged 2026-07-06** (web PR #20).
-- 🔶 **Web (step 8 — 0.2/0.3 privacy/RLS audit)** — audit clean (no service-role key; anon-key only); **found + fixed a PII leak** (`select('*')` on profiles → other users' email/phone/DOB); durable backend fix flagged. **PR open, in review.** Report: `docs/reports/web-privacy-rls-audit-2026-07-06.md`.
-- 🔶 **Mobile (step 7 — 0.2 safety hardening)** — in progress.
+- ✅ **Web (step 8 — 0.2/0.3 privacy/RLS audit)** — **merged 2026-07-06** (web PR #21). No service-role key; anon-key only; **fixed a PII leak** (`select('*')` on profiles → other users' email/phone/DOB) via a non-PII projection. Report: `docs/reports/web-privacy-rls-audit-2026-07-06.md`.
+- ✅ **Mobile (step 7 — 0.2 safety audit)** — **merged 2026-07-06** (mobile PR #16). Safety surface is mature; tested the missed-check-in detector + **fixed a `dispose()` bug**. On-device/edge-load safety validation remains **human-led** (launch-gating). Report: `docs/reports/safety-hardening-audit-2026-07-06.md`.
+- 🔶 **Mobile (step 9 — Phase A finish)** — north-star **TIME indexes** shipping; **city cohort deferred** (`trips.destination_city` is a dead column — no city source exists yet); `events` table deferred to Phase B. **PR open.** Scope: `docs/design/step-9-phase-a-finish-scope.md`.
 - 🔶 **Credential purge** (mobile 0.1, step 3) — Anthony-owned. Still gates launch.
 
-**Remaining Stage 0:** step 7 (mobile safety ⚠) + step 8 merge. **Backend follow-up from the step-8 audit (⚠, mobile lane, needs sign-off):** a public-safe `profiles` projection (view / column REVOKE) so RLS — not just the client — withholds `email`/`phone`/`date_of_birth` from non-owners. Then step 9 opens Stage A (needs the `meetups` city data-model call).
+**Stage 0 closed** (steps 1–8 merged). **Launch-gating remainder = human-led:** the credential purge (step 3) + on-device safety validation (step 7 report). **Open backend follow-ups (⚠, mobile, need sign-off):** (a) a public-safe `profiles` projection (view / column REVOKE) from the step-8 audit; (b) the north-star **city** cohort + the server-side PostHog trigger, once a real city source lands (step-9 scope). Next feature work: **step 10 (web) — consume `reputation_score` on public `/profile/[username]`** (Stage A, now unblocked — Phase A backend fully shipped).
 
 ---
 
