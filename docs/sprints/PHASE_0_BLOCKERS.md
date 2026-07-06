@@ -17,9 +17,9 @@ Stand up web analytics + the acquisition funnel north-star, audit public-page pr
 
 ### Story 0.1 — Web analytics + acquisition funnel [needs_human: true]
 
-- [ ] Pick analytics provider (docs-grounded)
-- [ ] Instrument visits → install, share → install, referral conversion
-- [ ] Privacy / consent gate (GDPR, opt-in)
+- [x] Pick analytics provider (docs-grounded) — **PostHog** (`posthog-js`, EU Cloud), **same PostHog project as mobile** so the `visit→install→meetup_completed` funnel stitches across surfaces (decided 2026-07-06; see `docs/analytics-v0.1.md`)
+- [x] Instrument visits → install, share → install, referral conversion — event taxonomy + consent-gated client shipped: `$pageview` (visit), `install_click`, `share_click`, `referral_landing`, `waitlist_signup`; `PageViewTracker` fires on route change. **Wiring the helpers into the actual CTAs is the deferred follow-up** (helpers + gate ready).
+- [x] Privacy / consent gate (GDPR, opt-in) — PostHog starts `opt_out_capturing_by_default`; `ConsentBanner` (Accept/Decline) + `AnalyticsContext`; nothing captured until opt-in; `sanitize_properties` scrubs PII. Jest tests green.
 
 ### Story 0.2 — Public-page privacy / RLS audit [safety: true]
 

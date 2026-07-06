@@ -26,9 +26,11 @@
 - ✅ **Landing-page fix** (web Story 0.4) — merged (web PR #17).
 - ✅ **Doc-cleanup PRs** (web #15/#16) — merged.
 - ✅ **Mobile PR #13 (step 4 — A.4)** — `report_no_show` + `cancel_meetup` RPCs — **merged 2026-07-06**, closes reward-fn v0.1 (no-show penalty now wired + attributed to the absent party). pgTAP 22→36. Phase A backend fully shipped.
+- ✅ **Mobile PR #15 (step 5 — 0.3)** — PostHog analytics + consent gate + north-star **`meetup_completed` locked to `meetup_outcomes`** (reconciled from the stale `meetup_checkins`) — **merged 2026-07-06**. `docs/analytics-v0.1.md`.
+- 🔶 **Web (step 6 — 0.1)** — PostHog-js acquisition funnel + GDPR consent, **same PostHog project** as mobile (visit→install→meetup stitches) — **PR open, in review**.
 - 🔶 **Credential purge** (mobile 0.1, step 3) — in progress, Anthony-owned. Still gates launch.
 
-**Start here:** step 9 (mobile Phase A finish — north-star city/time indexes; decide the deferred `events` table) unblocks now. Steps 5 (mobile analytics ⚠), 7 (mobile safety ⚠), 8 (web privacy/RLS audit ⚠) remain human-gated per the ⚠ rule. Step 9's city index needs a data-model decision first (`meetups` has no city column — where does city come from: meetup location geocode vs. a new column?).
+**Start here:** after step 6 merges → step 7 (mobile safety ⚠) and step 8 (web privacy/RLS audit ⚠) are the remaining Stage-0 work (both ⚠ human-gated). Then step 9 (mobile Phase A finish — north-star city/time indexes) opens Stage A; its city index needs a data-model decision first (`meetups` has no city column — meetup-location geocode vs. a new column?).
 
 ---
 
