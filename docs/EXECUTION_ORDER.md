@@ -27,10 +27,12 @@
 - ✅ **Doc-cleanup PRs** (web #15/#16) — merged.
 - ✅ **Mobile PR #13 (step 4 — A.4)** — `report_no_show` + `cancel_meetup` RPCs — **merged 2026-07-06**, closes reward-fn v0.1 (no-show penalty now wired + attributed to the absent party). pgTAP 22→36. Phase A backend fully shipped.
 - ✅ **Mobile PR #15 (step 5 — 0.3)** — PostHog analytics + consent gate + north-star **`meetup_completed` locked to `meetup_outcomes`** (reconciled from the stale `meetup_checkins`) — **merged 2026-07-06**. `docs/analytics-v0.1.md`.
-- 🔶 **Web (step 6 — 0.1)** — PostHog-js acquisition funnel + GDPR consent, **same PostHog project** as mobile (visit→install→meetup stitches) — **PR open, in review**.
-- 🔶 **Credential purge** (mobile 0.1, step 3) — in progress, Anthony-owned. Still gates launch.
+- ✅ **Web (step 6 — 0.1)** — PostHog-js acquisition funnel + GDPR consent, **same PostHog project** as mobile — **merged 2026-07-06** (web PR #20).
+- 🔶 **Web (step 8 — 0.2/0.3 privacy/RLS audit)** — audit clean (no service-role key; anon-key only); **found + fixed a PII leak** (`select('*')` on profiles → other users' email/phone/DOB); durable backend fix flagged. **PR open, in review.** Report: `docs/reports/web-privacy-rls-audit-2026-07-06.md`.
+- 🔶 **Mobile (step 7 — 0.2 safety hardening)** — in progress.
+- 🔶 **Credential purge** (mobile 0.1, step 3) — Anthony-owned. Still gates launch.
 
-**Start here:** after step 6 merges → step 7 (mobile safety ⚠) and step 8 (web privacy/RLS audit ⚠) are the remaining Stage-0 work (both ⚠ human-gated). Then step 9 (mobile Phase A finish — north-star city/time indexes) opens Stage A; its city index needs a data-model decision first (`meetups` has no city column — meetup-location geocode vs. a new column?).
+**Remaining Stage 0:** step 7 (mobile safety ⚠) + step 8 merge. **Backend follow-up from the step-8 audit (⚠, mobile lane, needs sign-off):** a public-safe `profiles` projection (view / column REVOKE) so RLS — not just the client — withholds `email`/`phone`/`date_of_birth` from non-owners. Then step 9 opens Stage A (needs the `meetups` city data-model call).
 
 ---
 

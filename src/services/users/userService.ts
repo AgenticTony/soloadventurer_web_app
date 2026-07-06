@@ -2,6 +2,20 @@ import { createClient } from '@/lib/supabase/client'
 import { ApiError } from '../base/ApiClient'
 import type { UserProfile, UpdateUserProfileInput, FeedItem } from './types'
 
+/**
+ * Non-PII profile columns safe to read for OTHER users / search.
+ *
+ * SECURITY (Phase 0 / Story 0.2 audit): `profiles` RLS grants full-ROW read of
+ * public profiles to any authenticated user (Postgres RLS is row-level, not
+ * column-level), so `select('*')` leaks `email` / `phone` / `date_of_birth` over
+ * the wire. Reads that can target another user MUST use this projection. A
+ * user's own email comes from the auth session, never the profiles row.
+ * (Durable backend fix — a public-safe view / column REVOKE — is tracked as a
+ * mobile-repo follow-up; see docs/reports/web-privacy-rls-audit-2026-07-06.md.)
+ */
+const PUBLIC_PROFILE_COLUMNS =
+  'id, username, display_name, full_name, bio, avatar_url, created_at, updated_at'
+
 async function getAuthContext() {
   const supabase = createClient()
   const {
@@ -14,12 +28,13 @@ async function getAuthContext() {
 export class UserService {
   async getUserProfile(identifier: string): Promise<UserProfile> {
     try {
-      const { supabase } = await getAuthContext()
+      const { supabase, userId } = await getAuthContext()
 
-      // Try by ID first, then by username
+      // Try by ID first, then by username. Non-PII columns only (see
+      // PUBLIC_PROFILE_COLUMNS) — email/phone/DOB must never leave the DB here.
       let { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(PUBLIC_PROFILE_COLUMNS)
         .eq('id', identifier)
         .single()
 
@@ -27,7 +42,7 @@ export class UserService {
         // Try username lookup
         const result = await supabase
           .from('profiles')
-          .select('*')
+          .select(PUBLIC_PROFILE_COLUMNS)
           .eq('username', identifier)
           .single()
         data = result.data
@@ -36,10 +51,17 @@ export class UserService {
 
       if (error || !data) throw new ApiError('User not found')
 
+      // Own email comes from the session (source of truth), never another user's.
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser()
+      const isSelf = data.id === userId
+      const email = isSelf ? (authUser?.email ?? '') : ''
+
       return {
         id: data.id,
         username: data.username ?? data.display_name ?? '',
-        email: data.email ?? '',
+        email,
         name: data.display_name ?? data.full_name ?? '',
         bio: data.bio ?? '',
         avatarUrl: data.avatar_url ?? null,
@@ -142,7 +164,8 @@ export class UserService {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        // Non-PII projection — search must never pull email/phone/DOB over the wire.
+        .select(PUBLIC_PROFILE_COLUMNS)
         .or(`username.ilike.%${query}%,display_name.ilike.%${query}%,full_name.ilike.%${query}%`)
         .limit(limit)
 

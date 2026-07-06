@@ -23,14 +23,14 @@ Stand up web analytics + the acquisition funnel north-star, audit public-page pr
 
 ### Story 0.2 — Public-page privacy / RLS audit [safety: true]
 
-- [ ] Audit which surfaces go public (trip/profile/destination share pages)
-- [ ] Ensure RLS exposes only intended fields; no PII leakage
-- [ ] Confirm web uses only the publishable anon key (no service-role in web CI)
+- [x] Audit which surfaces go public — only `/`, `/waitlist`, auth pages are anonymous; `/profile`, `/discover`, feed, etc. are gated in `src/middleware.ts`. Public profile/share pages are Stage A (step 10), not live yet. (Report: `docs/reports/web-privacy-rls-audit-2026-07-06.md`)
+- [x] Ensure RLS exposes only intended fields; no PII leakage — **found + fixed** a PII leak: `userService.searchUsers`/`getUserProfile` used `select('*')`, pulling other users' `email`/`phone`/`date_of_birth` over the wire (profiles RLS is row-level). Now use a non-PII projection; own email comes from the session. Regression test added. **Durable backend fix (public-safe view / column REVOKE) required — mobile lane, ⚠ needs sign-off** (see report).
+- [x] Confirm web uses only the publishable anon key (no service-role in web CI) — verified: all clients + edge proxy use the anon key; zero service-role references in `src/`/env/CI.
 
 ### Story 0.3 — Secrets coordination [needs_human: true] [safety: true]
 
-- [ ] Track shared Supabase service-role key rotation (mobile-led, FOUNDATIONS §10)
-- [ ] Verify web CI/env carries no service-role key
+- [x] Track shared Supabase service-role key rotation (mobile-led, FOUNDATIONS §10) — **still Anthony-owned / mobile-led (execution-order step 3); gates launch.** No web action.
+- [x] Verify web CI/env carries no service-role key — verified clean (Story 0.2 audit).
 
 ### Story 0.4 — Fix unreachable landing page _(added 2026-07-05; review finding W2)_
 
