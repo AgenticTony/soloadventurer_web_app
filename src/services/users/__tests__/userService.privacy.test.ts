@@ -72,7 +72,7 @@ describe('userService — non-PII projection (Story 0.2)', () => {
     const single = jest
       .fn()
       .mockResolvedValue({ data: { id: 'me', username: 'me', display_name: 'Me' }, error: null })
-    const selectAfterUpdate = jest.fn(() => ({ single }))
+    const selectAfterUpdate = jest.fn().mockReturnValue({ single })
     const eq = jest.fn(() => ({ select: selectAfterUpdate }))
     updateMock.mockReturnValue({ eq })
 
