@@ -5,6 +5,7 @@
  */
 
 const selectMock = jest.fn()
+const updateMock = jest.fn()
 const authGetUser = jest.fn()
 const authGetSession = jest.fn()
 
@@ -12,7 +13,7 @@ jest.mock('@/lib/supabase/client', () => {
   return {
     createClient: () => ({
       auth: { getUser: authGetUser, getSession: authGetSession },
-      from: () => ({ select: selectMock }),
+      from: () => ({ select: selectMock, update: updateMock }),
     }),
   }
 })
@@ -65,5 +66,21 @@ describe('userService — non-PII projection (Story 0.2)', () => {
     const profile = await userService.getUserProfile('me')
 
     expect(profile.email).toBe('me@x.io')
+  })
+
+  it('updateUserProfile returns own email from the session and never selects PII', async () => {
+    const single = jest
+      .fn()
+      .mockResolvedValue({ data: { id: 'me', username: 'me', display_name: 'Me' }, error: null })
+    const selectAfterUpdate = jest.fn(() => ({ single }))
+    const eq = jest.fn(() => ({ select: selectAfterUpdate }))
+    updateMock.mockReturnValue({ eq })
+
+    const profile = await userService.updateUserProfile({ name: 'Me' })
+
+    expect(profile.email).toBe('me@x.io')
+    const cols = selectAfterUpdate.mock.calls[0][0] as string
+    expect(cols).not.toBe('*')
+    for (const field of PII) expect(cols).not.toContain(field)
   })
 })
