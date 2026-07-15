@@ -87,19 +87,26 @@ export class UserService {
       if (updates.bio !== undefined) updateData.bio = updates.bio
       if (updates.username !== undefined) updateData.username = updates.username
 
+      // Return only non-PII columns — email/phone/date_of_birth are
+      // column-REVOKE'd from the authenticated role, so `select('*')` (RETURNING *)
+      // would fail. Email comes from the session below (own profile only).
       const { data, error } = await supabase
         .from('profiles')
         .update(updateData)
         .eq('id', userId)
-        .select('*')
+        .select(PUBLIC_PROFILE_COLUMNS)
         .single()
 
       if (error) throw new ApiError(error.message)
 
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser()
+
       return {
         id: data.id,
         username: data.username ?? '',
-        email: data.email ?? '',
+        email: authUser?.email ?? '',
         name: data.display_name ?? data.full_name ?? '',
         bio: data.bio ?? '',
         avatarUrl: data.avatar_url ?? null,

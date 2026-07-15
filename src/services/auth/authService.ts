@@ -100,15 +100,29 @@ export class AuthService {
 
   async getUserProfile(userId: string): Promise<UserProfile | null> {
     const supabase = createClient()
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+    // Non-PII columns only — email/phone/date_of_birth are column-REVOKE'd from
+    // the authenticated role (see the profiles PII column-privileges migration),
+    // so `select('*')` would fail. Email is sourced from the auth session below.
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, bio, avatar_url, location, created_at, updated_at')
+      .eq('id', userId)
+      .single()
 
     if (error || !data) return null
 
+    // Email is the user's own, from the session source of truth — never another
+    // user's, and never read from the profiles table.
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+    const email = authUser?.id === userId ? (authUser?.email ?? '') : ''
+
     return {
       userId: data.id,
-      email: data.email ?? '',
+      email,
       emailVerified: true,
-      name: data.name ?? data.full_name ?? '',
+      name: data.full_name ?? '',
       bio: data.bio ?? '',
       avatarUrl: data.avatar_url ?? null,
       location: data.location ?? '',
