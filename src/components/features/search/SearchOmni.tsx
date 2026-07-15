@@ -29,9 +29,41 @@ interface SearchOmniProps {
   shortcut?: string[]
 }
 
+// Default search implementation
+const defaultOnSearch = async (query: string): Promise<SearchResult[]> => {
+  // Mock search implementation
+  // In a real app, this would call your search API
+  const mockResults: SearchResult[] = [
+    {
+      id: '1',
+      type: 'user',
+      title: 'Sarah Chen',
+      subtitle: '@sarahchen',
+      description: 'Adventure seeker and solo traveler',
+      url: '/profile/sarahchen',
+      metadata: { location: 'San Francisco, CA', followers: 89 },
+    },
+    {
+      id: '2',
+      type: 'city',
+      title: 'Tokyo',
+      subtitle: 'Japan',
+      description: 'Vibrant metropolis blending tradition and modernity',
+      url: '/cities/tokyo',
+      metadata: { rating: 4.8 },
+    },
+  ]
+
+  return mockResults.filter(
+    result =>
+      result.title.toLowerCase().includes(query.toLowerCase()) ||
+      result.description?.toLowerCase().includes(query.toLowerCase())
+  )
+}
+
 export function SearchOmni({
   placeholder = 'Search anything...',
-  onSearch,
+  onSearch = defaultOnSearch,
   onSelect,
   className = '',
   shortcut = ['⌘', 'K'],
@@ -387,38 +419,4 @@ export function SearchOmni({
       )}
     </div>
   )
-}
-
-// Default search implementation
-SearchOmni.defaultProps = {
-  onSearch: async (query: string): Promise<SearchResult[]> => {
-    // Mock search implementation
-    // In a real app, this would call your search API
-    const mockResults: SearchResult[] = [
-      {
-        id: '1',
-        type: 'user',
-        title: 'Sarah Chen',
-        subtitle: '@sarahchen',
-        description: 'Adventure seeker and solo traveler',
-        url: '/profile/sarahchen',
-        metadata: { location: 'San Francisco, CA', followers: 89 },
-      },
-      {
-        id: '2',
-        type: 'city',
-        title: 'Tokyo',
-        subtitle: 'Japan',
-        description: 'Vibrant metropolis blending tradition and modernity',
-        url: '/cities/tokyo',
-        metadata: { rating: 4.8 },
-      },
-    ]
-
-    return mockResults.filter(
-      result =>
-        result.title.toLowerCase().includes(query.toLowerCase()) ||
-        result.description?.toLowerCase().includes(query.toLowerCase())
-    )
-  },
 }

@@ -39,4 +39,4 @@ export interface ListTripsResponse {
   nextToken?: string
 }
 
-export interface UpdateTripInput extends Partial<CreateTripInput> {}
+export type UpdateTripInput = Partial<CreateTripInput>
