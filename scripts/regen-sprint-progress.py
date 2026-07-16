@@ -7,13 +7,16 @@ The state file is contractually "derived solely from checkbox state" (see its
 every merged PR. This script keeps it current.
 
 Refreshed (checkbox-derived):
-  - per sprint: ``checkboxes.{done,total}``, ``completion_pct``, ``done``
+  - per sprint: ``checkboxes.{done,todo,total}``, ``completion_pct``, ``done``
   - per story (best-effort, via ``###`` section headings, exact name match):
     ``done_count``, ``todo_count``, ``total``, ``completion_pct``, ``done``
-  - ``summary.completed_100pct``
-Preserved (NOT derivable from checkboxes): ``needs_human_review``,
-``verified``, ``review_reasons``, ``git_reconciliation``, ``flagged``,
-``flag_reason``, and the ``generated_note`` methodology text.
+  - ``summary.completed_100pct``, ``summary.needs_human_review``, ``sprint_count``
+Created: a sprint doc with no state entry is materialized (see ``build_sprint``)
+rather than skipped. Skipping is what let PHASE_W and PHASE_A_PUBLIC_SURFACE stay
+invisible to the loop for eight days after they were written.
+Preserved on EXISTING entries (NOT derivable from checkboxes):
+``needs_human_review``, ``verified``, ``review_reasons``, ``git_reconciliation``,
+``flagged``, ``flag_reason``, and the ``generated_note`` methodology text.
 
 Usage:
   python3 scripts/regen-sprint-progress.py         # update in place
@@ -28,6 +31,8 @@ import glob
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -38,6 +43,23 @@ SPRINT_DIR = os.path.join(REPO, "docs", "sprints")
 DONE_RE = re.compile(r"- \[x\]", re.IGNORECASE)
 TODO_RE = re.compile(r"- \[ \]")
 H3_RE = re.compile(r"^###\s+(.+?)\s*$")
+# An H2 closes the current story bucket. Without this, the "Definition of Done"
+# boxes (an H2 section) get attributed to whichever story happened to be last.
+H2_RE = re.compile(r"^##\s+(?!#)(.+?)\s*$")
+NEEDS_HUMAN_RE = re.compile(r"\[needs_human:\s*true\]", re.IGNORECASE)
+
+# Phase id -> sprint_number. New phase docs must be registered here so the
+# generated entry carries the FOUNDATIONS §9 letter rather than a guess.
+SPRINT_NUMBERS = {
+    "PHASE_0_BLOCKERS": "0",
+    "PHASE_A_LAY_THE_SPINE": "A",
+    "PHASE_A_PUBLIC_SURFACE": "A",
+    "PHASE_B_CLOSE_THE_LOOP": "B",
+    "PHASE_C_AGENT_LAYER": "C",
+    "PHASE_D_TRUST_LAYER": "D",
+    "PHASE_E_SCALE": "E",
+    "PHASE_W_FOUNDATION_UPGRADE": "W",
+}
 
 
 def norm(name: str) -> str:
@@ -46,16 +68,30 @@ def norm(name: str) -> str:
 
 
 def count_file(path: str):
-    """Return (done, total, {norm_section: {done, total}}) for one sprint .md."""
+    """Return (done, total, sections, needs_human) for one sprint .md.
+
+    ``sections`` is keyed by the normalized ``###`` heading and preserves both
+    the original heading (``name``) and document order, so a missing sprint can
+    be materialized into the state file from the doc alone.
+    """
     done = total = 0
-    sections: dict[str, dict[str, int]] = {}
+    sections: dict[str, dict] = {}
+    needs_human = False
     current = None
     with open(path, encoding="utf-8") as fh:
         for line in fh:
+            if NEEDS_HUMAN_RE.search(line):
+                needs_human = True
             heading = H3_RE.match(line)
             if heading:
-                current = norm(heading.group(1))
-                sections.setdefault(current, {"done": 0, "total": 0})
+                original = heading.group(1)
+                current = norm(original)
+                sections.setdefault(current, {"name": original, "done": 0, "total": 0})
+                continue
+            if H2_RE.match(line):
+                # Leaving the Stories section — subsequent boxes (Definition of
+                # Done, etc.) belong to the sprint, not to the preceding story.
+                current = None
                 continue
             is_done = bool(DONE_RE.search(line))
             is_todo = bool(TODO_RE.search(line))
@@ -67,7 +103,82 @@ def count_file(path: str):
                     sections[current]["total"] += 1
                     if is_done:
                         sections[current]["done"] += 1
-    return done, total, sections
+    return done, total, sections, needs_human
+
+
+def build_sprint(sid: str, md: str, sections: dict, needs_human: bool) -> dict:
+    """Materialize a state entry for a sprint doc that has none yet.
+
+    Judgment fields get conservative defaults: ``needs_human_review`` follows the
+    established convention (a ``[needs_human: true]`` annotation anywhere in the
+    doc — a ``[safety: true]`` alone does not trigger it, matching every
+    hand-set entry), and ``verified`` starts empty for a human to fill.
+    """
+    if sid not in SPRINT_NUMBERS:
+        print(
+            f"warning: {sid} is not in SPRINT_NUMBERS — sprint_number will be null; "
+            "add it to the map",
+            file=sys.stderr,
+        )
+    stories = [
+        {
+            "name": sec["name"],
+            "done": None if sec["total"] == 0 else (sec["done"] == sec["total"]),
+            "done_count": sec["done"],
+            "todo_count": sec["total"] - sec["done"],
+            "total": sec["total"],
+            "completion_pct": pct(sec["done"], sec["total"]),
+        }
+        for sec in sections.values()
+        if sec["name"].lower().startswith("story")
+    ]
+    return {
+        "id": sid,
+        "sprint_number": SPRINT_NUMBERS.get(sid),
+        "repo": "web",
+        "file": md,
+        "checkboxes": {"done": 0, "todo": 0, "total": 0},
+        "completion_pct": None,
+        "done": None,
+        "verified": {
+            "section": "Definition of Done / Acceptance Criteria",
+            "done": 0,
+            "todo": 0,
+            "total": 0,
+            "all_checked": False,
+        },
+        "needs_human_review": needs_human,
+        "review_reasons": (
+            ["Phase has needs-human/safety stories (see .md annotations)"] if needs_human else []
+        ),
+        "flagged": False,
+        "flag_reason": None,
+        "git_reconciliation": f"Entry materialized from {os.path.basename(md)} by regen-sprint-progress.py",
+        "story_count": len(stories),
+        "stories": stories,
+    }
+
+
+def prettier_format(path: str) -> None:
+    """Normalize ``path`` with the repo's prettier.
+
+    ``json.dump`` always explodes arrays onto multiple lines; prettier collapses
+    short ones. Without this the script's own output fails the repo's format
+    gate, so a regen could never be committed as-is.
+    """
+    if not shutil.which("npx"):
+        print("warning: npx not found — skipping prettier; run it before committing", file=sys.stderr)
+        return
+    try:
+        subprocess.run(
+            ["npx", "--no-install", "prettier", "--write", path],
+            cwd=REPO,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.CalledProcessError, OSError):
+        print("warning: prettier failed — run it before committing", file=sys.stderr)
 
 
 def pct(done: int, total: int) -> float | None:
@@ -98,18 +209,25 @@ def main() -> int:
 
     for md in sorted(glob.glob(os.path.join(SPRINT_DIR, "*.md"))):
         sid = os.path.splitext(os.path.basename(md))[0]
+        done, total, sections, needs_human = count_file(md)
+
         sprint = by_id.get(sid)
         if not sprint:
-            changes.append((sid, "NO_JSON_ENTRY", "—", "—"))
-            continue
+            # A new phase doc: materialize an entry rather than silently skipping
+            # it. Skipping is what let PHASE_W / PHASE_A_PUBLIC_SURFACE sit
+            # invisible to the loop from 2026-07-08 to 2026-07-16.
+            sprint = build_sprint(sid, md, sections, needs_human)
+            data.setdefault("sprints", []).append(sprint)
+            by_id[sid] = sprint
+            changes.append((sid, "CREATED_JSON_ENTRY", "—", f"{done}/{total}"))
 
-        done, total, sections = count_file(md)
-
-        cb = sprint.setdefault("checkboxes", {"done": 0, "total": 0})
+        cb = sprint.setdefault("checkboxes", {"done": 0, "todo": 0, "total": 0})
         old_done, old_total = cb.get("done"), cb.get("total")
         if (old_done, old_total) != (done, total):
             changes.append((sid, "checkboxes", f"{old_done}/{old_total}", f"{done}/{total}"))
-        cb["done"], cb["total"] = done, total
+        # ``todo`` was never refreshed here, so it drifted out of step with
+        # done/total (8 done + 11 todo != 14 total). Derive it.
+        cb["done"], cb["todo"], cb["total"] = done, total - done, total
 
         new_pct = pct(done, total)
         if sprint.get("completion_pct") != new_pct:
@@ -147,8 +265,18 @@ def main() -> int:
         changes.append(("summary", "completed_100pct", old_c100, new_c100))
     data.setdefault("summary", {})["completed_100pct"] = new_c100
 
+    new_nhr = sum(1 for s in data["sprints"] if s.get("needs_human_review"))
+    if data["summary"].get("needs_human_review") != new_nhr:
+        changes.append(("summary", "needs_human_review", data["summary"].get("needs_human_review"), new_nhr))
+    data["summary"]["needs_human_review"] = new_nhr
+
+    new_count = len(data["sprints"])
+    if data.get("sprint_count") != new_count:
+        changes.append(("summary", "sprint_count", data.get("sprint_count"), new_count))
+    data["sprint_count"] = new_count
+
     drift = bool(changes)
-    sprint_keys = {"checkboxes", "completion_pct", "done", "NO_JSON_ENTRY"}
+    sprint_keys = {"checkboxes", "completion_pct", "done", "CREATED_JSON_ENTRY"}
     for row in changes:
         if row[0] == "summary":
             label = "summary"
@@ -169,6 +297,7 @@ def main() -> int:
             json.dump(data, fh, indent=2, ensure_ascii=False)
             fh.write("\n")
         os.replace(tmp, STATE)
+        prettier_format(STATE)
         print(f"\nupdated {os.path.relpath(STATE, REPO)}")
     return 0
 

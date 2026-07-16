@@ -23,12 +23,21 @@ Upgrade the stack one major across the board (Next 15→16, React 18.2→19.2, T
 > CVE-2025-55184) land on the current line. Docs-ground every step (nextjs.org/docs upgrade
 > guides) — do NOT rely on training memory.
 
-- [ ] Next 15 → 16 via the official codemod (`npx @next/codemod@latest upgrade`); Node ≥ 20 already satisfied
-- [ ] React 18.2 → 19.2 (+ `@types/react` 19); fix breaking changes; evaluate enabling the React Compiler
+- [x] Next 15 → 16 via the official codemod (`npx @next/codemod@latest upgrade`); Node ≥ 20 already satisfied
+- [x] React 18.2 → 19.2 (+ `@types/react` 19); fix breaking changes; evaluate enabling the React Compiler
 - [ ] Tailwind 3.4 → 4 (CSS-first config migration; `prettier-plugin-tailwindcss` compat check)
 - [ ] `date-fns` ^2 → v4 (first-class timezones)
 - [ ] Full Jest + Cypress suites green; `next build` clean; no new TS errors (`tsc --noEmit`)
 - [ ] One PR per major (Next+React may share); pin doc URLs under "Sources"
+
+> **Progress note (2026-07-16, W.1a — PR #24 merged):** `next@16.2.10`, `react`/`react-dom@19.2.0`,
+> `@types/react@19`, ESLint 9 flat config are in `package.json`. Verified on `main` at re-sync time:
+> `tsc --noEmit` clean, Jest **476 passed / 47 suites**.
+> **Outstanding in W.1:** Tailwind is still `^3.4.0` and `date-fns` still `^2.30.0` — both majors
+> unstarted. The React Compiler was **not** evaluated (no `reactCompiler` flag in `next.config.js`,
+> no decision recorded) — that clause of the React box is unmet; reopen it if the evaluation is
+> wanted as an artifact. Box 5 stays unticked: Cypress and `next build` were **not** run at re-sync,
+> and it gates on all four majors. Box 6 stays unticked: 2 of 4 majors shipped.
 
 ### Story W.2 — Supabase server-first refactor + generated types
 
@@ -41,6 +50,13 @@ Upgrade the stack one major across the board (Next 15→16, React 18.2→19.2, T
 - [ ] Convert the highest-value pages to server-side data fetching (profile, trips) — the enabler for Phase A-web's SEO pages
 - [ ] Type-generation step documented in the cross-repo workflow: regenerate on every mobile-repo migration (FOUNDATIONS §10 seam)
 
+> **Progress note (2026-07-16, re-sync):** unstarted — no `src/types/database.types.ts` exists; the
+> `Record<string, unknown>` casts in `src/lib/api.ts` are still in place. **Urgency raised:** prod was
+> repaved on 2026-07-15 (`supabase db reset --linked`, 27 migrations reapplied) and mobile's Story 0.5
+> RLS/PII work — including column-level REVOKEs on `profiles` email/phone/DOB — is now **live**. Web
+> currently has nothing type-checking it against the schema it actually queries, which is precisely the
+> `get_reputation`/`reputation_score` class of drift this story exists to prevent. Highest-value W story.
+
 ### Story W.3 — Retire the broadcast feed; reframe the landing [needs_human: true]
 
 > Audit + FOUNDATIONS §7: `(main)/feed/page.tsx` + `PostComposer` still ship (de-linked from nav
@@ -48,10 +64,21 @@ Upgrade the stack one major across the board (Next 15→16, React 18.2→19.2, T
 > framing FOUNDATIONS §1 rejects — with CTAs that stop at web signup.
 
 - [ ] Remove the `/feed` route + `PostComposer` surface (backend `feed_items` stays — it is repurposed as the city-cohort substrate per §5; only the broadcast SURFACE dies)
-- [ ] Redirect `/feed` → `/discover`; delete dead feed components/tests
+- [x] Redirect `/feed` → `/discover`; delete dead feed components/tests
 - [ ] Rewrite landing copy to the trust-platform framing (PRODUCT §1: verified people, real meetups, reputation that travels — NOT "matching"/"companion" language) — human sign-off on copy
 - [ ] Remove stale-doc contradictions: README "Facebook-inspired three-column layout", AWS/AppSync ADRs marked superseded (FOUNDATIONS §5 disposal list)
 - [ ] Add `generateMetadata` + OG defaults to the root layout (title/description in trust framing)
+
+> **Progress note (2026-07-16, re-sync):** the redirect box is ticked for the **redirect half only** —
+> `next.config.js` sends `/feed` → `/discover` (non-permanent). The **delete half is NOT done**, and
+> neither is box 1: `src/app/(main)/feed/page.tsx` and `src/components/features/feed/PostComposer.tsx`
+> both still ship (the route lives in a `(main)` route group, which is why a naive `ls src/app/feed`
+> misses it). `/feed` is also still listed in `middleware.ts` `protectedRoutes`, and
+> `LoginForm`/`SignupForm`/`sign-in` still `router.push('/feed')` — the redirect masks that. Treat the
+> surface as **URL-unreachable but still in the bundle**; box 1 is the real removal.
+> Landing copy is **not** reframed — "companion"/"matching" remain in `src/app/page.tsx` (lines 14, 42, 66).
+> Root layout has `export const metadata` but **no `openGraph`** block. README still carries the
+> "Facebook-inspired three-column layout" framing (needs the §5 disposal call + sign-off).
 
 ### Story W.4 — Web test-depth audit + gap fill
 
