@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { getProfileByUsername, TripsApiError, type PublicProfile } from '@/lib/api'
 import { requestConnection } from '@/lib/api/matching'
+import { BlockDialog } from '@/components/moderation/BlockDialog'
 import { ProfileLayout } from '@/components/layout/ProfileLayout'
 import { ProfileHeader } from '@/components/features/profile/ProfileHeader'
 import { TravelStatus } from '@/components/features/profile/TravelStatus'
@@ -29,6 +30,7 @@ export function OtherUserProfile({ username }: OtherUserProfileProps) {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [blockDialogOpen, setBlockDialogOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -137,6 +139,35 @@ export function OtherUserProfile({ username }: OtherUserProfileProps) {
           onConnect={handleConnect}
           onMessage={handleMessage}
         />
+
+        {/* Story 0.6: BlockDialog existed but was imported by nothing — the
+            block safety control was unreachable. This is its surface. */}
+        <div className="mx-auto flex max-w-4xl justify-end px-4 sm:px-6">
+          <button
+            type="button"
+            onClick={() => setBlockDialogOpen(true)}
+            className="text-sm text-muted-foreground underline-offset-2 hover:text-destructive hover:underline"
+          >
+            Block @{profile.username}
+          </button>
+        </div>
+        {blockDialogOpen && (
+          <BlockDialog
+            isOpen={blockDialogOpen}
+            onClose={() => setBlockDialogOpen(false)}
+            user={{
+              id: profile.id,
+              username: profile.username,
+              name: profile.name,
+              avatar: profile.avatar,
+            }}
+            onUserBlocked={() => {
+              setBlockDialogOpen(false)
+              toast.success('User blocked')
+              router.push('/discover')
+            }}
+          />
+        )}
 
         <TravelStatus />
 
