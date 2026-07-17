@@ -1,10 +1,10 @@
 {
   "repo": "web",
-  "generated_note": "Derived from checkbox state in docs/sprints/PHASE_*.md by scripts/regen-sprint-progress.py. Restructured 2026-06-30 to FOUNDATIONS \u00a79 phases (0,A,B,C,D,E). Judgment fields (needs_human_review/flagged) hand-set per phase; loop.md on web is triage-based and does NOT read this file \u2014 it exists for the regenerator + CI --check gate.",
-  "sprint_count": 6,
+  "generated_note": "Derived from checkbox state in docs/sprints/PHASE_*.md by scripts/regen-sprint-progress.py. Restructured 2026-06-30 to FOUNDATIONS §9 phases (0,A,B,C,D,E). Judgment fields (needs_human_review/flagged) hand-set per phase; loop.md on web is triage-based and does NOT read this file — it exists for the regenerator + CI --check gate.",
+  "sprint_count": 8,
   "summary": {
     "completed_100pct": 0,
-    "needs_human_review": 3,
+    "needs_human_review": 5,
     "flagged": [],
     "not_derivable_no_checkboxes": []
   },
@@ -15,11 +15,11 @@
       "repo": "web",
       "file": "/Users/anthonyforan/Desktop/SoloAdventurerWeb/docs/sprints/PHASE_0_BLOCKERS.md",
       "checkboxes": {
-        "done": 0,
-        "todo": 11,
-        "total": 11
+        "done": 8,
+        "todo": 6,
+        "total": 14
       },
-      "completion_pct": 0.0,
+      "completion_pct": 57.1,
       "done": false,
       "verified": {
         "section": "Definition of Done / Acceptance Criteria",
@@ -32,11 +32,11 @@
       "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
       "flagged": false,
       "flag_reason": null,
-      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS \u00a79 (blockers)",
+      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (blockers)",
       "story_count": 3,
       "stories": [
         {
-          "name": "Story 0.1 \u2014 Web analytics + acquisition funnel  [needs_human: true]",
+          "name": "Story 0.1 — Web analytics + acquisition funnel  [needs_human: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 3,
@@ -44,7 +44,7 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story 0.2 \u2014 Public-page privacy / RLS audit  [safety: true]",
+          "name": "Story 0.2 — Public-page privacy / RLS audit  [safety: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 3,
@@ -52,7 +52,7 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story 0.3 \u2014 Secrets coordination  [needs_human: true] [safety: true]",
+          "name": "Story 0.3 — Secrets coordination  [needs_human: true] [safety: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 5,
@@ -84,11 +84,11 @@
       "review_reasons": [],
       "flagged": false,
       "flag_reason": null,
-      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS \u00a79 (lay the spine)",
+      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (lay the spine)",
       "story_count": 2,
       "stories": [
         {
-          "name": "Story A.1 \u2014 Read reputation/outcomes on public profiles  [safety: true]",
+          "name": "Story A.1 — Read reputation/outcomes on public profiles  [safety: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 2,
@@ -96,7 +96,7 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story A.2 \u2014 Public share-page scaffolding",
+          "name": "Story A.2 — Public share-page scaffolding",
           "done": false,
           "done_count": 0,
           "todo_count": 5,
@@ -128,11 +128,11 @@
       "review_reasons": [],
       "flagged": false,
       "flag_reason": null,
-      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS \u00a79 (close the loop)",
+      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (close the loop)",
       "story_count": 2,
       "stories": [
         {
-          "name": "Story B.1 \u2014 Social proof on public surfaces",
+          "name": "Story B.1 — Social proof on public surfaces",
           "done": false,
           "done_count": 0,
           "todo_count": 2,
@@ -140,7 +140,7 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story B.2 \u2014 Thin matcher consume (discover)",
+          "name": "Story B.2 — Thin matcher consume (discover)",
           "done": false,
           "done_count": 0,
           "todo_count": 5,
@@ -172,11 +172,11 @@
       "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
       "flagged": false,
       "flag_reason": null,
-      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS \u00a79 (agent layer)",
+      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (agent layer)",
       "story_count": 1,
       "stories": [
         {
-          "name": "Story C.1 \u2014 Concierge lead-capture  [needs_human: true]",
+          "name": "Story C.1 — Concierge lead-capture  [needs_human: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 6,
@@ -192,8 +192,8 @@
       "file": "/Users/anthonyforan/Desktop/SoloAdventurerWeb/docs/sprints/PHASE_D_TRUST_LAYER.md",
       "checkboxes": {
         "done": 0,
-        "todo": 7,
-        "total": 7
+        "todo": 10,
+        "total": 10
       },
       "completion_pct": 0.0,
       "done": false,
@@ -208,11 +208,11 @@
       "review_reasons": [],
       "flagged": false,
       "flag_reason": null,
-      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS \u00a79 (trust layer)",
+      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (trust layer)",
       "story_count": 2,
       "stories": [
         {
-          "name": "Story D.1 \u2014 Reputation + verified-human on public profiles  [safety: true]",
+          "name": "Story D.1 — Reputation + verified-human on public profiles  [safety: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 2,
@@ -220,7 +220,7 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story D.2 \u2014 OG share previews",
+          "name": "Story D.2 — OG share previews",
           "done": false,
           "done_count": 0,
           "todo_count": 5,
@@ -252,11 +252,11 @@
       "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
       "flagged": false,
       "flag_reason": null,
-      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS \u00a79 (scale)",
+      "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (scale)",
       "story_count": 3,
       "stories": [
         {
-          "name": "Story E.1 \u2014 SEO content engine  [needs_human: true]",
+          "name": "Story E.1 — SEO content engine  [needs_human: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 3,
@@ -264,7 +264,7 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story E.2 \u2014 Referral landing  [needs_human: true]",
+          "name": "Story E.2 — Referral landing  [needs_human: true]",
           "done": false,
           "done_count": 0,
           "todo_count": 2,
@@ -272,11 +272,131 @@
           "completion_pct": 0.0
         },
         {
-          "name": "Story E.3 \u2014 Indexable public trip share pages",
+          "name": "Story E.3 — Indexable public trip share pages",
           "done": false,
           "done_count": 0,
           "todo_count": 6,
           "total": 6,
+          "completion_pct": 0.0
+        }
+      ]
+    },
+    {
+      "id": "PHASE_A_PUBLIC_SURFACE",
+      "sprint_number": "A",
+      "repo": "web",
+      "file": "/Users/anthonyforan/Desktop/SoloAdventurerWeb/docs/sprints/PHASE_A_PUBLIC_SURFACE.md",
+      "checkboxes": {
+        "done": 0,
+        "todo": 23,
+        "total": 23
+      },
+      "completion_pct": 0.0,
+      "done": false,
+      "verified": {
+        "section": "Definition of Done / Acceptance Criteria",
+        "done": 0,
+        "todo": 0,
+        "total": 0,
+        "all_checked": false
+      },
+      "needs_human_review": true,
+      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "flagged": false,
+      "flag_reason": null,
+      "git_reconciliation": "Entry materialized from PHASE_A_PUBLIC_SURFACE.md by regen-sprint-progress.py",
+      "story_count": 4,
+      "stories": [
+        {
+          "name": "Story A-web.1 — Public SSR profile page + reputation (execution-order step 10) [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 6,
+          "total": 6,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story A-web.2 — Public trip share pages + SEO plumbing [safety: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 5,
+          "total": 5,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story A-web.3 — Install funnel goes live [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 4,
+          "total": 4,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story A-web.4 — Viral loop 1 groundwork (pull-forward from Stage D) [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 2,
+          "total": 2,
+          "completion_pct": 0.0
+        }
+      ]
+    },
+    {
+      "id": "PHASE_W_FOUNDATION_UPGRADE",
+      "sprint_number": "W",
+      "repo": "web",
+      "file": "/Users/anthonyforan/Desktop/SoloAdventurerWeb/docs/sprints/PHASE_W_FOUNDATION_UPGRADE.md",
+      "checkboxes": {
+        "done": 3,
+        "todo": 21,
+        "total": 24
+      },
+      "completion_pct": 12.5,
+      "done": false,
+      "verified": {
+        "section": "Definition of Done / Acceptance Criteria",
+        "done": 0,
+        "todo": 0,
+        "total": 0,
+        "all_checked": false
+      },
+      "needs_human_review": true,
+      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "flagged": false,
+      "flag_reason": null,
+      "git_reconciliation": "Entry materialized from PHASE_W_FOUNDATION_UPGRADE.md by regen-sprint-progress.py",
+      "story_count": 4,
+      "stories": [
+        {
+          "name": "Story W.1 — Stack upgrade: Next 16 / React 19.2 / Tailwind 4",
+          "done": false,
+          "done_count": 2,
+          "todo_count": 4,
+          "total": 6,
+          "completion_pct": 33.3
+        },
+        {
+          "name": "Story W.2 — Supabase server-first refactor + generated types",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 4,
+          "total": 4,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story W.3 — Retire the broadcast feed; reframe the landing [needs_human: true]",
+          "done": false,
+          "done_count": 1,
+          "todo_count": 4,
+          "total": 5,
+          "completion_pct": 20.0
+        },
+        {
+          "name": "Story W.4 — Web test-depth audit + gap fill",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 4,
+          "total": 4,
           "completion_pct": 0.0
         }
       ]

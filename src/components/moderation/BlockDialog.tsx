@@ -7,6 +7,7 @@ import React, { useState, useCallback, useActionState, useId, useRef, useEffect 
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Shield, AlertTriangle, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { blockUserInDb } from '@/lib/moderation'
 import { useToast } from '@/contexts/ToastContext'
 import { clsx } from 'clsx'
 
@@ -93,17 +94,15 @@ async function blockUserAction(
       return { error: 'You must be logged in to block a user.' }
     }
 
-    const { error: insertError } = await supabase.from('blocked_users').insert({
-      blocker_id: session.user.id,
-      blocked_id: targetUserId,
-      reason: finalReason,
-    })
-
-    if (insertError) {
-      if (insertError.code === '23505') {
-        return { success: true, userId: targetUserId }
+    // Single write path (src/lib/moderation.ts): blocks row + reason routed to
+    // reports. Story 0.6: this used to insert into `blocked_users`, a table
+    // that does not exist — every block from this dialog silently failed.
+    try {
+      await blockUserInDb(supabase, session.user.id, targetUserId, finalReason ?? undefined)
+    } catch (blockError) {
+      return {
+        error: blockError instanceof Error ? blockError.message : 'Failed to block user.',
       }
-      return { error: insertError.message || 'Failed to block user.' }
     }
 
     return { success: true, userId: targetUserId }

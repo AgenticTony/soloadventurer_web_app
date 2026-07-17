@@ -1,6 +1,6 @@
 # SoloAdventurer Web App
 
-A modern social platform for solo travelers built with Next.js 15, React 18, TypeScript, and Tailwind CSS. Featuring a Facebook-inspired three-column layout with travel-focused design patterns, comprehensive dark mode support, and robust accessibility features.
+A modern social platform for solo travelers built with Next.js 16, React 19, TypeScript, and Tailwind CSS. Featuring a Facebook-inspired three-column layout with travel-focused design patterns, comprehensive dark mode support, and robust accessibility features.
 
 ## 🎯 Key Features
 

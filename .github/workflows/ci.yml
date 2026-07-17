@@ -40,6 +40,21 @@ jobs:
       - name: Run tests
         run: npm run test
 
+  # Sprint state must stay derived from the sprint docs' checkboxes. The state
+  # file's generated_note has always claimed this gate existed; it did not, which
+  # is how PHASE_W / PHASE_A_PUBLIC_SURFACE stayed invisible to the loop for eight
+  # days. Fix a failure by running: python3 scripts/regen-sprint-progress.py
+  sprint-state:
+    name: Sprint State In Sync
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check sprint-progress.json matches docs/sprints/*.md
+        run: python3 scripts/regen-sprint-progress.py --check
+
   # Build
   build:
     name: Build

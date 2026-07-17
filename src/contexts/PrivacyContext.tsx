@@ -9,6 +9,7 @@ import React, {
   ReactNode,
 } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { blockUserInDb, unblockUserInDb, listBlockedUserIds } from '@/lib/moderation'
 import { useToast } from '@/contexts/ToastContext'
 
 export type LocationSharingLevel = 'off' | 'friends' | 'everyone'
@@ -162,12 +163,10 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
           data: { session },
         } = await supabase.auth.getSession()
         if (session?.user) {
-          const { error } = await supabase.from('blocked_users').insert({
-            blocker_id: session.user.id,
-            blocked_id: userId,
-            reason: reason ?? null,
-          })
-          if (error && error.code !== '23505') throw error // ignore duplicate
+          // Single write path (src/lib/moderation.ts): blocks row + optional
+          // reason routed to reports. Story 0.6: this used to target
+          // `blocked_users`, a table that does not exist.
+          await blockUserInDb(supabase, session.user.id, userId, reason)
         }
 
         showSuccess('User Blocked', 'The user has been blocked successfully.')
@@ -210,12 +209,7 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
           data: { session },
         } = await supabase.auth.getSession()
         if (session?.user) {
-          const { error } = await supabase
-            .from('blocked_users')
-            .delete()
-            .eq('blocker_id', session.user.id)
-            .eq('blocked_id', userId)
-          if (error) throw error
+          await unblockUserInDb(supabase, session.user.id, userId)
         }
 
         showSuccess('User Unblocked', 'The user has been unblocked successfully.')
@@ -290,15 +284,7 @@ export function PrivacyProvider({ children }: PrivacyProviderProps) {
       } = await supabase.auth.getSession()
       if (!session?.user) return
 
-      const { data, error } = await supabase
-        .from('blocked_users')
-        .select('blocked_id')
-        .eq('blocker_id', session.user.id)
-
-      if (error) throw error
-
-      // Update local state with server data
-      const serverBlockedUserIds = (data || []).map(row => row.blocked_id)
+      const serverBlockedUserIds = await listBlockedUserIds(supabase, session.user.id)
       setSettings(prev => ({
         ...prev,
         blockedUsers: serverBlockedUserIds,
