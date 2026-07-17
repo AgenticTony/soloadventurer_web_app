@@ -206,20 +206,27 @@ function mapTrip(row: Record<string, unknown>): Trip {
 
 export async function createTrip(tripData: CreateTripInput): Promise<CreateTripResponse> {
   try {
-    const { supabase } = await getAuthContext()
+    const { supabase, userId } = await getAuthContext()
 
-    const { data, error } = await supabase.rpc('create_trip', {
-      p_name: tripData.title,
-      p_destination: tripData.title,
-      p_start_date: tripData.startDate,
-      p_end_date: tripData.endDate,
-      p_is_public: !tripData.isPrivate,
-      p_description: null,
-    })
+    // Story 0.7: this called a `create_trip` RPC that never existed — no
+    // migration defines it and prod does not have it. Direct insert under the
+    // owner RLS policy ("Users can insert own trips") is the real path.
+    const { data, error } = await supabase
+      .from('trips')
+      .insert({
+        user_id: userId,
+        name: tripData.title,
+        destination_name: tripData.title,
+        start_date: tripData.startDate,
+        end_date: tripData.endDate,
+        is_public: !tripData.isPrivate,
+      })
+      .select('id')
+      .single()
 
     if (error) throw error
 
-    return { id: data as string }
+    return { id: data.id as string }
   } catch (error) {
     if (error instanceof TripsApiError) throw error
     console.error('Error creating trip:', error)
@@ -231,14 +238,14 @@ export async function getTrip(tripId: string): Promise<Trip> {
   try {
     const { supabase } = await getAuthContext()
 
-    const { data, error } = await supabase.rpc('get_trip_by_id', { p_id: tripId })
+    // Story 0.7: `get_trip_by_id` RPC never existed. RLS decides visibility
+    // (own trips + public trips), same as the RPC was imagined to.
+    const { data, error } = await supabase.from('trips').select('*').eq('id', tripId).maybeSingle()
 
     if (error) throw error
-    if (!data || (Array.isArray(data) && data.length === 0))
-      throw new TripsApiError('Trip not found')
+    if (!data) throw new TripsApiError('Trip not found')
 
-    const row = Array.isArray(data) ? data[0] : data
-    return mapTrip(row as Record<string, unknown>)
+    return mapTrip(data as Record<string, unknown>)
   } catch (error) {
     if (error instanceof TripsApiError) throw error
     throw new TripsApiError('Failed to fetch trip')
@@ -260,15 +267,20 @@ export async function listTrips(
   options?: ListTripsOptions
 ): Promise<ListTripsResponse> {
   try {
-    const { supabase } = await getAuthContext()
+    const { supabase, userId } = await getAuthContext()
 
     const limit = Math.min(options?.limit ?? 50, 100)
     const offset = parseNextOffset(options?.nextToken)
 
-    const { data, error } = await supabase.rpc('list_my_trips', {
-      p_limit: limit + 1,
-      p_offset: offset,
-    })
+    // Story 0.7: `list_my_trips` RPC never existed. Same contract: the
+    // caller's own trips, newest first, offset-paged with a peek row
+    // (range is inclusive, so offset..offset+limit fetches limit+1 rows).
+    const { data, error } = await supabase
+      .from('trips')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit)
 
     if (error) throw error
 
