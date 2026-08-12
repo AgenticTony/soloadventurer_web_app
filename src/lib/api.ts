@@ -1,5 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { AppError } from '@/lib/errors'
+import type { Database } from '@/types/database.types'
+
+// Typed table row types from the generated schema (Story W.2)
+type TripRow = Database['public']['Tables']['trips']['Row']
+type ActivityRow = Database['public']['Tables']['activities']['Row']
 
 // Backward-compatible alias
 export type TripsApiError = AppError
@@ -80,15 +85,15 @@ export async function getFeed(): Promise<FeedItem[]> {
 
     if (error) throw error
 
-    return (data ?? []).map((item: Record<string, unknown>) => ({
+    return (data ?? []).map(item => ({
       id: item.id as string,
       title: formatFeedTitle(
-        item.verb as string,
-        item.object_type as string,
-        item.actor as Record<string, string>
+        item.verb,
+        item.object_type,
+        item.actor as unknown as Record<string, string> | null
       ),
-      excerpt: `${item.verb as string} ${item.object_type as string}`,
-      createdAt: item.created_at as string,
+      excerpt: `${item.verb} ${item.object_type}`,
+      createdAt: item.created_at,
     }))
   } catch (error) {
     if (error instanceof TripsApiError) throw error
@@ -183,24 +188,21 @@ export async function getProfileByUsername(username: string): Promise<PublicProf
 }
 
 // ── Trips ─────────────────────────────────────────────────────
-function mapTrip(row: Record<string, unknown>): Trip {
+function mapTrip(row: TripRow): Trip {
   return {
-    id: row.id as string,
-    title: row.name as string,
+    id: row.id,
+    title: row.name ?? '',
     description: (row.description as string) ?? '',
-    location: (row.destination_name as string) ?? (row.destination as string) ?? '',
-    coordinates:
-      row.latitude && row.longitude
-        ? { latitude: Number(row.latitude), longitude: Number(row.longitude) }
-        : undefined,
-    startDate: row.start_date as string,
-    endDate: (row.end_date as string) ?? '',
+    location: row.destination_name ?? '',
+    coordinates: undefined, // trips has no lat/lng columns — location is PostGIS
+    startDate: row.start_date ?? '',
+    endDate: row.end_date ?? '',
     status: 'PLANNING' as const,
-    isPrivate: !(row.is_public as boolean),
-    ownerId: row.user_id as string,
+    isPrivate: !(row.is_public ?? false),
+    ownerId: row.user_id,
     owner: '',
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
+    createdAt: row.created_at ?? '',
+    updatedAt: row.updated_at ?? '',
   }
 }
 
@@ -245,7 +247,7 @@ export async function getTrip(tripId: string): Promise<Trip> {
     if (error) throw error
     if (!data) throw new TripsApiError('Trip not found')
 
-    return mapTrip(data as Record<string, unknown>)
+    return mapTrip(data as TripRow)
   } catch (error) {
     if (error instanceof TripsApiError) throw error
     throw new TripsApiError('Failed to fetch trip')
@@ -284,7 +286,7 @@ export async function listTrips(
 
     if (error) throw error
 
-    const rows = (data ?? []) as Record<string, unknown>[]
+    const rows = (data ?? []) as TripRow[]
     const hasMore = rows.length > limit
     const items = hasMore ? rows.slice(0, limit) : rows
 
@@ -310,7 +312,7 @@ export async function getMapTrips(): Promise<Trip[]> {
 
     if (error) throw error
 
-    return ((data ?? []) as Record<string, unknown>[])
+    return ((data ?? []) as TripRow[])
       .map(mapTrip)
       .filter(trip => trip.coordinates?.latitude && trip.coordinates?.longitude)
   } catch (error) {
