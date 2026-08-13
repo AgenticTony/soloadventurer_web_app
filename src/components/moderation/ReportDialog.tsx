@@ -9,6 +9,7 @@ import { X, Flag, AlertTriangle, User, Upload, FileImage } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/contexts/ToastContext'
 import { clsx } from 'clsx'
+import type { Database } from '@/types/database.types'
 
 /**
  * User interface for reporting operations
@@ -72,6 +73,52 @@ const REPORT_CATEGORY_INFO: Record<ReportCategory, { name: string; description: 
   },
 }
 
+/** Longest `reason` the DB accepts — see the CHECK on public.reports. */
+const MAX_REASON_LENGTH = 1000
+
+/** Shortest `reason` the DB accepts. A bare category label can fall under it. */
+const MIN_REASON_LENGTH = 10
+
+/**
+ * Pick the polymorphic report target.
+ *
+ * `reports` stores one `target_id` + `target_type`. Message and post context are
+ * more specific than the profile, so they win when present.
+ */
+function resolveReportTarget({
+  targetUserId,
+  messageId,
+  postId,
+}: {
+  targetUserId: string
+  messageId?: string
+  postId?: string
+}): { targetId: string; targetType: Database['public']['Enums']['report_target_type'] } {
+  if (messageId) return { targetId: messageId, targetType: 'message' }
+  if (postId) return { targetId: postId, targetType: 'post' }
+  return { targetId: targetUserId, targetType: 'profile' }
+}
+
+/**
+ * Compose a `reason` that always satisfies the DB length CHECK (10–1000 chars).
+ *
+ * A short category label like "Spam" is under the minimum on its own, so it is
+ * prefixed and padded with the user's description. Mirrors the mobile app's
+ * `MessageReportService._buildReason` so both clients write the same shape.
+ */
+function buildReportReason(category: ReportCategory, description: string): string {
+  const label = REPORT_CATEGORY_INFO[category]?.name ?? 'Other'
+  const note = description.trim()
+  const base = `Reported for ${label}`
+  const full = note ? `${base} — ${note}` : base
+
+  // `base` alone clears the minimum for every current label, but pad defensively
+  // rather than let a future short label surface as an opaque constraint error.
+  const padded = full.length >= MIN_REASON_LENGTH ? full : `${full} (no further detail provided)`
+
+  return padded.slice(0, MAX_REASON_LENGTH)
+}
+
 /**
  * Submit report action following React 19 useActionState pattern
  */
@@ -108,15 +155,23 @@ async function submitReportAction(
       return { error: 'You must be logged in to submit a report.' }
     }
 
+    // The reports table is polymorphic: one target_id + target_type, not a
+    // column per target kind. Message/post context narrows what is being
+    // reported; with neither, the report is against the profile itself.
+    const { targetId, targetType } = resolveReportTarget({
+      targetUserId,
+      messageId,
+      postId,
+    })
+
     const { data, error: insertError } = await supabase
       .from('reports')
       .insert({
         reporter_id: session.user.id,
-        reported_user_id: targetUserId,
-        category,
-        description: description.trim(),
-        message_id: messageId || null,
-        post_id: postId || null,
+        target_id: targetId,
+        target_type: targetType,
+        reason: buildReportReason(category as ReportCategory, description),
+        details: description.trim() || null,
       })
       .select('id')
       .single()

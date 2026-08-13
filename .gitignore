@@ -71,3 +71,6 @@ amplifyconfiguration*
 /SoloAdventurer_ML_Matching_Plan.md
 /SoloAdventurer_SPRINT_PLAN.md
 /SoloAdventurer-handoff.zip
+
+# Supabase CLI local artifacts
+supabase/.temp/

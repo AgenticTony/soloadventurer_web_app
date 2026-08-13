@@ -94,7 +94,8 @@ export async function getChatConversations(): Promise<ChatConversation[]> {
       .select('*', { count: 'exact', head: true })
       .eq('connection_id', conn.id)
       .eq('receiver_id', userId)
-      .eq('is_read', false)
+      // Unread is the absence of a read timestamp — there is no is_read flag.
+      .is('read_at', null)
 
     conversations.push({
       connectionId: conn.id,
@@ -139,10 +140,10 @@ export async function getMessages(
   // Mark unread messages as read
   await supabase
     .from('messages')
-    .update({ is_read: true })
+    .update({ read_at: new Date().toISOString() })
     .eq('connection_id', connectionId)
     .eq('receiver_id', userId)
-    .eq('is_read', false)
+    .is('read_at', null)
 
   return (data ?? []).map(mapMessage)
 }
@@ -168,7 +169,7 @@ export async function sendMessage(connectionId: string, content: string): Promis
       sender_id: userId,
       receiver_id: receiverId,
       content,
-      is_read: false,
+      // read_at stays null until the recipient reads it.
     })
     .select('*')
     .single()

@@ -1,7 +1,16 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '@/types/database.types'
 
+/**
+ * Browser Supabase client, typed against the generated schema.
+ *
+ * The `Database` generic is what gives every `.from(...)` / `.select(...)` its
+ * row types. Without it the client returns `any`, which is how column renames
+ * and phantom-table bugs stayed invisible until runtime (Story W.2).
+ * Regenerate with: `supabase gen types typescript --linked > src/types/database.types.ts`
+ */
 export function createClient() {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
