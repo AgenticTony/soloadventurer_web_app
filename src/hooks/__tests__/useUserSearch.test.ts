@@ -22,8 +22,22 @@ const mockLocalStorage = {
 }
 Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
 
+/** Must match the debounce in useUserSearch. */
+const DEBOUNCE_MS = 300
+
+/**
+ * The hook debounces its search by 300ms of real time. Driving that with the
+ * wall clock made this suite fail roughly one run in three under full-suite
+ * parallel load: the 1000ms `waitFor` budget has to cover the debounce plus
+ * promise resolution plus polling, and a loaded machine blows it.
+ *
+ * Fake timers make the debounce deterministic — the test advances it explicitly
+ * instead of waiting for it. Raising the timeout would only have made the flake
+ * rarer, not removed the wall-clock dependence.
+ */
 describe('useUserSearch', () => {
   beforeEach(() => {
+    jest.useFakeTimers()
     jest.clearAllMocks()
     mockLocalStorage.getItem.mockReturnValue('[]')
 
@@ -47,6 +61,22 @@ describe('useUserSearch', () => {
       },
     ] as UserProfile[])
   })
+
+  afterEach(() => {
+    // Drain anything the hook still has scheduled before handing the clock
+    // back, so a pending debounce cannot leak into the next test.
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
+    jest.useRealTimers()
+  })
+
+  /** Advance past the hook's 300ms debounce and let its promises settle. */
+  const flushDebounce = async () => {
+    await act(async () => {
+      jest.advanceTimersByTime(DEBOUNCE_MS)
+    })
+  }
 
   it('should initialize with default state', () => {
     const { result } = renderHook(() => useUserSearch())
@@ -196,29 +226,24 @@ describe('useUserSearch', () => {
 
     const { result } = renderHook(() => useUserSearch())
 
-    // Wait for initial mount search to complete
-    await waitFor(
-      () => {
-        expect(result.current.loading).toBe(false)
-        expect(result.current.users.length).toBe(12)
-      },
-      { timeout: 1000 }
-    )
+    // Mount schedules the debounced search — advance it rather than wait it out.
+    await flushDebounce()
 
-    // Then load more
-    act(() => {
-      result.current.loadMore()
+    expect(result.current.loading).toBe(false)
+    expect(result.current.users).toHaveLength(12)
+    expect(result.current.hasMore).toBe(true)
+
+    // loadMore is not debounced; it awaits the service directly.
+    await act(async () => {
+      await result.current.loadMore()
     })
 
-    await waitFor(
-      () => {
-        expect(result.current.loading).toBe(false)
-        expect(result.current.users.length).toBe(13)
-      },
-      { timeout: 1000 }
-    )
-
+    expect(result.current.loading).toBe(false)
+    expect(result.current.users).toHaveLength(13)
     expect(result.current.page).toBe(1)
+    // Exactly two calls: the mount search and the page-2 fetch. A third would
+    // mean a stray debounce fired and clobbered the paged results.
+    expect(mockSearchUsers).toHaveBeenCalledTimes(2)
   })
 
   it('should refresh search results', async () => {
@@ -365,22 +390,21 @@ describe('useUserSearch', () => {
 
     const { result } = renderHook(() => useUserSearch())
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-      expect(result.current.users.length).toBe(1)
-    })
+    await flushDebounce()
 
+    expect(result.current.loading).toBe(false)
+    expect(result.current.users).toHaveLength(1)
+    // Fewer than a full page came back, so there is nothing more to fetch.
     expect(result.current.hasMore).toBe(false)
 
     const callCountBefore = mockSearchUsers.mock.calls.length
 
-    act(() => {
-      result.current.loadMore()
+    await act(async () => {
+      await result.current.loadMore()
     })
 
-    // Wait a bit to ensure no additional calls were made
-    await new Promise(r => setTimeout(r, 100))
-
-    expect(mockSearchUsers.mock.calls.length).toBe(callCountBefore)
+    // loadMore returns early when hasMore is false, so the guard is observable
+    // immediately — the previous version slept 100ms and hoped.
+    expect(mockSearchUsers).toHaveBeenCalledTimes(callCountBefore)
   })
 })
