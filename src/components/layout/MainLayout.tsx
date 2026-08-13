@@ -38,8 +38,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   // Get active tab from pathname
   const getActiveTab = () => {
-    if (pathname === '/' || pathname.startsWith('/discover') || pathname === '/feed')
-      return 'discover'
+    if (pathname === '/' || pathname.startsWith('/discover')) return 'discover'
     if (pathname.startsWith('/trips')) return 'trips'
     if (pathname.startsWith('/cities')) return 'cities'
     if (pathname.startsWith('/messages') || pathname.startsWith('/chat')) return 'messages'

@@ -6,7 +6,6 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   const protectedRoutes = [
-    '/feed',
     '/profile',
     '/messages',
     '/trips',
