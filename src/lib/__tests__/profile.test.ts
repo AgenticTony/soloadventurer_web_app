@@ -1,36 +1,35 @@
+/**
+ * Story W.4: migrated to the schema-aware double.
+ *
+ * The previous mock built a fixed `from().select().eq().maybeSingle()` chain
+ * that answered for any table name, and shared one `maybeSingle` across every
+ * call. It also had to reach through `from('profiles').select('id').eq('id','y')`
+ * at module scope just to get a handle on the resolver — a query made purely to
+ * extract a mock, which the strict double replaces with `mockTable`.
+ */
+
 import { getProfileByUsername } from '../api'
+import { createSupabaseMock } from '@/test-utils/supabase-mock'
 
-// Focused mock for the profiles-table chain: from().select().eq().maybeSingle()
-jest.mock('@/lib/supabase/client', () => {
-  const maybeSingle = jest.fn()
-  const eq = jest.fn(() => ({ maybeSingle }))
-  const select = jest.fn(() => ({ eq }))
-  const from = jest.fn(() => ({ select }))
-  const auth = { getSession: jest.fn() }
-  return { createClient: () => ({ auth, from }) }
-})
+const supabase = createSupabaseMock()
 
-import { createClient } from '@/lib/supabase/client'
-
-const supabase = createClient()
-const auth = supabase.auth as unknown as { getSession: jest.Mock }
-// every .eq().maybeSingle() resolves to the same shared mock
-const maybeSingle = (
-  supabase.from('profiles').select('id').eq('id', 'y') as unknown as {
-    maybeSingle: jest.Mock
-  }
-).maybeSingle
+jest.mock('@/lib/supabase/client', () => ({
+  createClient: () => supabase.client,
+}))
 
 const authedSession = {
   data: { session: { access_token: 'mock-token', user: { id: 'me' } } },
 }
 
 describe('getProfileByUsername', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    supabase.reset()
+  })
 
   it('maps a profile row to the public profile shape', async () => {
-    auth.getSession.mockResolvedValue(authedSession)
-    maybeSingle.mockResolvedValue({
+    supabase.client.auth.getSession.mockResolvedValue(authedSession)
+    supabase.mockTable('profiles', {
       data: {
         id: 'u1',
         username: 'wanderer',
@@ -53,33 +52,41 @@ describe('getProfileByUsername', () => {
   })
 
   it('queries the profiles table by username', async () => {
-    auth.getSession.mockResolvedValue(authedSession)
-    maybeSingle.mockResolvedValue({ data: { id: 'u1', username: 'w' }, error: null })
+    supabase.client.auth.getSession.mockResolvedValue(authedSession)
+    supabase.mockTable('profiles', { data: { id: 'u1', username: 'w' }, error: null })
+
     await getProfileByUsername('wanderer')
-    expect(supabase.from).toHaveBeenCalledWith('profiles')
+
+    expect(supabase.tablesTouched()).toEqual(['profiles'])
+    expect(supabase.queriesFor('profiles')[0].operations).toContain('maybeSingle')
   })
 
   it('throws "Profile not found" when no row matches', async () => {
-    auth.getSession.mockResolvedValue(authedSession)
-    maybeSingle.mockResolvedValue({ data: null, error: null })
+    supabase.client.auth.getSession.mockResolvedValue(authedSession)
+    supabase.mockTable('profiles', { data: null, error: null })
+
     await expect(getProfileByUsername('ghost')).rejects.toThrow('Profile not found')
   })
 
   it('throws on auth error', async () => {
-    auth.getSession.mockResolvedValue({ data: { session: null } })
+    supabase.client.auth.getSession.mockResolvedValue({ data: { session: null } })
+
     await expect(getProfileByUsername('anyone')).rejects.toThrow('User not authenticated')
   })
 
   it('wraps a Supabase error', async () => {
-    auth.getSession.mockResolvedValue(authedSession)
-    maybeSingle.mockResolvedValue({ data: null, error: { message: 'RLS denied' } })
+    supabase.client.auth.getSession.mockResolvedValue(authedSession)
+    supabase.mockTable('profiles', { data: null, error: { message: 'RLS denied' } })
+
     await expect(getProfileByUsername('x')).rejects.toThrow('Failed to fetch profile')
   })
 
   it('falls back to username when display_name is absent', async () => {
-    auth.getSession.mockResolvedValue(authedSession)
-    maybeSingle.mockResolvedValue({ data: { id: 'u2', username: 'nomad' }, error: null })
+    supabase.client.auth.getSession.mockResolvedValue(authedSession)
+    supabase.mockTable('profiles', { data: { id: 'u2', username: 'nomad' }, error: null })
+
     const result = await getProfileByUsername('nomad')
+
     expect(result.name).toBe('nomad')
   })
 })
