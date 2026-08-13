@@ -2,7 +2,6 @@ import React from 'react'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { NearbyTravelersSection } from '@/components/features/matching/NearbyTravelersSection'
 import DiscoverPage from '@/app/(main)/discover/page'
-import FeedPage from '@/app/(main)/feed/page'
 import TripsPage from '@/app/(main)/trips/page'
 import * as matchingApi from '@/lib/api/matching'
 import * as activitiesApi from '@/lib/api/activities'
@@ -65,10 +64,6 @@ jest.mock('@/hooks/useUserSearch', () => ({
 
 jest.mock('@/hooks/useTrips', () => ({
   useTrips: () => ({ trips: [], filter: 'all', setFilter: jest.fn() }),
-}))
-
-jest.mock('@/components/features/feed/PostComposer', () => ({
-  PostComposer: () => <div data-testid="post-composer" />,
 }))
 
 jest.mock('@/components/users', () => ({
@@ -255,28 +250,9 @@ describe('Wanderlust Voice — Copy Tests', () => {
     })
   })
 
-  describe('Feed page copy', () => {
-    it('uses "Traveler Stories" heading', async () => {
-      render(<FeedPage />)
-      await waitFor(() => {
-        expect(screen.getByText('Traveler Stories')).toBeInTheDocument()
-      })
-    })
-
-    it('uses "See what fellow adventurers are up to" subtitle', async () => {
-      render(<FeedPage />)
-      await waitFor(() => {
-        expect(screen.getByText('See what fellow adventurers are up to')).toBeInTheDocument()
-      })
-    })
-
-    it('uses "No stories yet" for empty feed', async () => {
-      render(<FeedPage />)
-      await waitFor(() => {
-        expect(screen.getByText('No stories yet')).toBeInTheDocument()
-      })
-    })
-  })
+  // The standalone /feed page is retired (Story W.3). FOUNDATIONS §6.1 bans a
+  // global broadcast feed; the route already redirected to /discover, so the
+  // page these tests rendered was unreachable in production.
 
   describe('Trips page copy', () => {
     it('uses "Where are you headed next?" subtitle', () => {

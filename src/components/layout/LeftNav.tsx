@@ -93,8 +93,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
   ]
 
   const isActive = (href: string) => {
-    if (href === '/discover')
-      return pathname === '/' || pathname === '/discover' || pathname === '/feed'
+    if (href === '/discover') return pathname === '/' || pathname === '/discover'
     if (href === '/meetups')
       return pathname === '/meetups' || pathname === '/groups' || pathname === '/events'
     return pathname.startsWith(href)
@@ -118,7 +117,7 @@ export function LeftNav({ user, unreadChatCount = 0 }: LeftNavProps) {
     : 'Plan your first solo adventure'
 
   // Contextual CTA based on current page
-  const isDiscover = pathname === '/' || pathname === '/discover' || pathname === '/feed'
+  const isDiscover = pathname === '/' || pathname === '/discover'
   const isMeetups = pathname === '/meetups'
   const ctaTitle = isMeetups ? 'Join a meetup' : isDiscover ? 'Find travelers near you' : tripCTA
   const ctaDescription = isMeetups

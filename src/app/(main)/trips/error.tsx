@@ -46,7 +46,7 @@ export default function TripsError({
             Try Again
           </Button>
 
-          <Link href="/feed">
+          <Link href="/discover">
             <Button variant="outline" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Feed

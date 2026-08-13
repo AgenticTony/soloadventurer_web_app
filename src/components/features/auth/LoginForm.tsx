@@ -19,8 +19,8 @@ export function LoginForm() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('User already authenticated, redirecting to /feed')
-      router.push('/feed')
+      console.log('User already authenticated, redirecting to /discover')
+      router.push('/discover')
     }
   }, [isAuthenticated, user, router])
 
@@ -35,10 +35,10 @@ export function LoginForm() {
       setError('')
       console.log('Login successful, redirecting...')
       // Try router.push first
-      router.push('/feed')
+      router.push('/discover')
       // Fallback to window.location if router doesn't work
       setTimeout(() => {
-        window.location.href = '/feed'
+        window.location.href = '/discover'
       }, 1000)
     } catch (err: unknown) {
       const error = err as Error & { code?: string }
@@ -103,7 +103,7 @@ export function LoginForm() {
               Login successful! Redirecting to your feed...
               <button
                 type="button"
-                onClick={() => (window.location.href = '/feed')}
+                onClick={() => (window.location.href = '/discover')}
                 className="mt-2 block text-blue-600 hover:underline"
               >
                 Click here if not redirected automatically

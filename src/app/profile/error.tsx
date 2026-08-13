@@ -45,7 +45,7 @@ export default function ProfileError({
             Reload Profile
           </Button>
 
-          <Link href="/feed">
+          <Link href="/discover">
             <Button variant="outline" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Back to Feed

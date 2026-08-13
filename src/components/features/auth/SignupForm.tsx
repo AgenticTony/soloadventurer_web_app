@@ -48,7 +48,7 @@ export function SignupForm() {
       const result = await signup(formData.email, formData.password, formData.name)
       if (result.userConfirmed) {
         // Force a page reload to ensure middleware picks up the new auth state
-        window.location.href = '/feed'
+        window.location.href = '/discover'
       } else {
         // User needs to confirm email
         router.push(`/confirm-email?email=${encodeURIComponent(formData.email)}`)

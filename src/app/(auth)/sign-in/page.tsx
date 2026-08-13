@@ -39,7 +39,7 @@ function SignInContent() {
       // Check if this is a new user (email just confirmed)
       const confirmed = searchParams.get('confirmed')
       // Redirect new users to profile, existing users to feed
-      router.push(confirmed === 'true' ? '/profile' : '/feed')
+      router.push(confirmed === 'true' ? '/profile' : '/discover')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     }
