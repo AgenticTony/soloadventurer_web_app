@@ -3,6 +3,12 @@
 ## The product charter and single source of truth
 
 > **Status:** Authoritative. Every PR, sprint, and feature decision is auditable against this document.
+>
+> **⭐ This copy is the canonical source.** A mirror lives at
+> `SoloAdventurer_app/docs/FOUNDATIONS.md` for the mobile team; **if the two differ, this one wins.**
+> Only the mirror said so before, so a reader who opened this file had no way to know they were
+> holding the authority. Change both copies in the same PR, or neither.
+>
 > **Created:** 2026-06-30
 > **Grounded in:** `docs/research/platform-playbook.md` (the AI-Native Platform Playbook)
 > **Supersedes:** `docs/project/PROJECT.md`, `docs/project/WEB_APP_SPRINTS.md`, `docs/project/WEB_APP_SPRINTS_INDEX.md`, and the MVP-era sprint backlogs as the strategic source of truth. Those documents encode a thesis this charter deliberately rejects (see §1). They are retained only as history.
@@ -36,7 +42,7 @@ From the playbook (Part 11.21), made specific to SoloAdventurer:
 
 | Property                                | What it means here                                                                                                                                             |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vetted + vertical**                   | Onfido ID verification + behavioral reputation. Solo travelers, one tribe, served deeply — not everyone.                                                       |
+| **Vetted + vertical**                   | Shufti Pro ID verification (document + face match) + behavioral reputation. Solo travelers, one tribe, served deeply — not everyone.                           |
 | **AI-moderated at creation**            | Messages and meetup proposals screened _before_ delivery, not after. Safety is a product feature, not a report queue.                                          |
 | **Real-world action as the north star** | `meetups_completed` (and repeat meetups). Never time-in-app, sessions, or scrolls.                                                                             |
 | **Subscription, not ads**               | Sprint 6.6 paywall retained. AI value (guardian, concierge, flywheel matches) is the Pro tier.                                                                 |
@@ -120,12 +126,12 @@ A durable decision log. Verdicts are grounded in the thesis; confidence in paren
 - **Riverpod 3 + Clean Architecture + Drift** (mobile) — solid foundation. _(high)_
 - **`generate-profile-embedding` (MiniLM 384-dim, on-edge)** — the spine limb. Extend, don't replace. _(high)_
 - **Safety pillar** (SOS, check-ins, `meetup_checkins`, `shared_meetups`, trusted contacts) — the differentiator and the trust scaffold for offline meeting. Elevate into the AI guardian. _(high)_
-- **Onfido verification** — core to "vetted." _(high)_
+- **ID verification** — core to "vetted." Provider is **Shufti Pro** (migrated from Onfido 2026-08-12, mobile `docs/sprints/SHUFTI_MIGRATION_PLAN.md`); the schema is vendor-neutral (`verification_records.provider`), so the _capability_ is what this KEEP entry protects, not the vendor. _(high)_
 - **Subscription paywall** (Sprint 6.6) — matches the thesis. _(high)_
 - **`graphql_flutter`** — used by the Viator destination client; scoped external-API use only. _(high, verified)_
 - **Viator affiliate** — transaction-monetization seed. _(med)_
 - **Drift offline/sync** — neutral-to-positive. _(med)_
-- **~4,950 tests (mobile 4487 / web 464)** — an asset. Refactor _around_ them; do not throw them away.
+- **~5,060 tests (mobile 4542 green / web 516)** — an asset. Refactor _around_ them; do not throw them away. Counts as of 2026-08-13; mobile also carries 63 known failures tracked by signature in its `.claude/state/sprint-progress.json`.
 
 ### ⚠️ REFACTOR — exists but wrong shape for the thesis
 

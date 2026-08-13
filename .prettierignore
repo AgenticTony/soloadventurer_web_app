@@ -68,3 +68,10 @@ jspm_packages/
 
 # TernJS port file
 .tern-port
+# Cross-repo mirrored docs — must stay byte-identical to the copies in
+# SoloAdventurer_app/docs/. EXECUTION_ORDER's own header requires both copies
+# change in the same edit, and prettier reformatting one side silently breaks
+# that: the two FOUNDATIONS copies had already drifted ~130 lines, almost all of
+# it reformatting, which is exactly the noise a real divergence would hide in.
+docs/EXECUTION_ORDER.md
+docs/FOUNDATIONS.md
