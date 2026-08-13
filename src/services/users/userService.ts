@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { ApiError } from '../base/ApiClient'
 import type { UserProfile, UpdateUserProfileInput, FeedItem } from './types'
+import type { Database } from '@/types/database.types'
+
+/** Column-accurate shape for a `profiles` update (Story W.2). */
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
 
 /**
  * Non-PII profile columns safe to read for OTHER users / search.
@@ -79,7 +83,7 @@ export class UserService {
     try {
       const { supabase, userId } = await getAuthContext()
 
-      const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
+      const updateData: ProfileUpdate = { updated_at: new Date().toISOString() }
       if (updates.name !== undefined) {
         updateData.display_name = updates.name
         updateData.full_name = updates.name

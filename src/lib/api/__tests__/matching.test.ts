@@ -219,27 +219,52 @@ describe('findPotentialMatches', () => {
     })
   })
 
-  // ── Tier 2: Geographic RPC fallback ────────────────────────
+  // ── Tier 2: Geographic edge-function fallback ──────────────
 
-  describe('Tier 2 — geographic RPC fallback', () => {
-    it('falls back to RPC when edge function returns error', async () => {
-      mockInvokeEdgeFunction.mockResolvedValue({ data: null, error: { message: 'Failed' } })
-
-      const rpcData = [
-        {
-          id: 'trip-1',
-          user_id: 'user-2',
-          destination: 'Paris',
-          start_date: '2026-04-01',
-          end_date: '2026-04-10',
-          overlap_days: 3,
-          distance_meters: 5000,
-          display_name: 'Carol',
-          avatar_url: null,
-        },
-      ]
-
-      mockRpc.mockResolvedValue({ data: rpcData, error: null })
+  describe('Tier 2 — geographic edge-function fallback', () => {
+    it('falls back to find-overlapping-trips when the semantic tier errors', async () => {
+      // Both tiers go through invokeEdgeFunction, so route by function name.
+      // Story W.2: this tier previously called supabase.rpc('find-overlapping-trips'),
+      // which can never resolve — hyphens are not a legal Postgres identifier, so
+      // the tier was dead and every request fell through to client-side matching.
+      mockInvokeEdgeFunction.mockImplementation(async (fn: string) => {
+        if (fn === 'find-potential-matches-semantic') {
+          return { data: null, error: { message: 'Failed' } }
+        }
+        if (fn === 'find-overlapping-trips') {
+          return {
+            data: {
+              matches: [
+                {
+                  user: {
+                    id: 'user-2',
+                    display_name: 'Carol',
+                    age_range: '25-34',
+                    home_country: 'FR',
+                    gender: 'female',
+                    gender_verified: true,
+                  },
+                  trip: {
+                    id: 'trip-1',
+                    destination_name: 'Paris',
+                    start_date: '2026-04-01',
+                    end_date: '2026-04-10',
+                  },
+                  overlap: {
+                    start_date: '2026-04-02',
+                    end_date: '2026-04-05',
+                    days: 3,
+                  },
+                  distance_meters: 5000,
+                  matching_activities: ['hiking'],
+                },
+              ],
+            },
+            error: null,
+          }
+        }
+        return { data: null, error: { message: 'unexpected function' } }
+      })
 
       const matches = await findPotentialMatches()
 
@@ -247,7 +272,27 @@ describe('findPotentialMatches', () => {
       expect(matches[0].userId).toBe('user-2')
       expect(matches[0].destinationName).toBe('Paris')
       expect(matches[0].overlapDays).toBe(3)
+      expect(matches[0].distanceMeters).toBe(5000)
+      expect(matches[0].sharedActivities).toEqual(['hiking'])
       expect(matches[0].matchType).toBe('geographic_overlap')
+    })
+
+    it('invokes the edge function, never supabase.rpc', async () => {
+      mockInvokeEdgeFunction.mockResolvedValue({ data: null, error: { message: 'Failed' } })
+
+      const mockSelect = jest.fn().mockReturnThis()
+      const mockEq = jest.fn().mockReturnThis()
+      const mockGte = jest.fn().mockReturnValue({ data: [], error: null })
+      mockFrom.mockReturnValue({ select: mockSelect })
+      mockSelect.mockReturnValue({ eq: mockEq })
+      mockEq.mockReturnValue({ gte: mockGte })
+
+      await findPotentialMatches()
+
+      expect(mockInvokeEdgeFunction).toHaveBeenCalledWith('find-overlapping-trips', {
+        limit: 30,
+      })
+      expect(mockRpc).not.toHaveBeenCalledWith('find-overlapping-trips', expect.anything())
     })
 
     it('falls back further when RPC returns empty data', async () => {

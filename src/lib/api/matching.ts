@@ -43,8 +43,8 @@ export async function findPotentialMatches(): Promise<CompositeMatch[]> {
     if (semantic) return semantic
   }
 
-  // Tier 2: Geographic RPC fallback
-  const geographic = await tryGeographicRpc(userId)
+  // Tier 2: Geographic edge-function fallback (derives the caller from the JWT)
+  const geographic = await tryGeographicRpc()
   if (geographic) return geographic
 
   // Tier 3: Client-side computation (existing Sprint 7 logic)
@@ -110,69 +110,101 @@ function deriveMatchType(raw: SemanticMatchResult): MatchType {
   return 'geographic_overlap'
 }
 
-// ── Tier 2: Geographic RPC Fallback ────────────────────────────
+// ── Tier 2: Geographic Edge Function Fallback ──────────────────
 
-interface OverlappingTripResult {
-  id: string
-  user_id: string
-  destination: string
-  start_date: string
-  end_date: string
-  overlap_days: number
-  distance_meters: number | null
-  display_name: string | null
-  avatar_url: string | null
+/**
+ * Response shape of the `find-overlapping-trips` Edge Function.
+ *
+ * Mirrors the nested `user` / `trip` / `overlap` grouping the function returns
+ * (see `supabase/functions/find-overlapping-trips/index.ts` in the mobile repo,
+ * which owns the shared backend). The previous flat interface here matched
+ * nothing the function ever emitted.
+ */
+interface OverlappingTripsResponse {
+  matches: Array<{
+    user: {
+      id: string
+      display_name: string | null
+      age_range: string | null
+      home_country: string | null
+      gender: string | null
+      gender_verified: boolean | null
+    }
+    trip: {
+      id: string
+      destination_name: string
+      start_date: string
+      end_date: string
+    }
+    overlap: {
+      start_date: string | null
+      end_date: string | null
+      days: number
+    }
+    distance_meters: number | null
+    matching_activities: string[]
+  }>
 }
 
-async function tryGeographicRpc(userId: string): Promise<CompositeMatch[] | null> {
-  const supabase = createClient()
-
+/**
+ * Geographic overlap via the `find-overlapping-trips` Edge Function.
+ *
+ * This is an Edge Function, not a database function: it was previously invoked
+ * through `supabase.rpc('find-overlapping-trips')`, which can never resolve —
+ * PostgREST looks up a Postgres routine and hyphens are not a legal identifier.
+ * The call always errored into the catch and returned null, so this tier was
+ * dead and every request fell through to the client-side tier.
+ *
+ * The function derives the caller from the JWT, so no user id is sent. Distance
+ * is computed server-side against the PostGIS `trips.location` column, which is
+ * why the client cannot do this itself.
+ */
+async function tryGeographicRpc(): Promise<CompositeMatch[] | null> {
   try {
-    const { data, error } = await supabase.rpc('find-overlapping-trips', {
-      p_user_id: userId,
-      p_limit: 30,
-    })
+    const { data, error } = await invokeEdgeFunction<OverlappingTripsResponse>(
+      'find-overlapping-trips',
+      { limit: 30 }
+    )
 
-    if (error || !data || !Array.isArray(data) || data.length === 0) {
-      return null
-    }
+    if (error || !data?.matches?.length) return null
 
-    return (data as OverlappingTripResult[]).map(
-      (row): CompositeMatch => ({
-        id: row.id,
-        userId: row.user_id,
-        displayName: row.display_name ?? 'Traveler',
-        avatarUrl: row.avatar_url ?? null,
-        homeCountry: null,
-        destinationName: row.destination,
-        startDate: row.start_date,
-        endDate: row.end_date,
-        overlapDays: row.overlap_days,
-        distanceMeters: row.distance_meters,
+    return data.matches.map((row): CompositeMatch => {
+      const overlapDays = row.overlap?.days ?? 0
+      const score = overlapDays > 0 ? Math.min(overlapDays / 7, 1) : 0
+      const percentage = Math.round(score * 100)
+
+      return {
+        id: row.trip.id,
+        userId: row.user.id,
+        displayName: row.user.display_name ?? 'Traveler',
+        avatarUrl: null,
+        homeCountry: row.user.home_country ?? null,
+        destinationName: row.trip.destination_name,
+        startDate: row.trip.start_date,
+        endDate: row.trip.end_date,
+        overlapDays,
+        distanceMeters: row.distance_meters ?? null,
         matchType: 'geographic_overlap' as const,
-        matchScore: row.overlap_days > 0 ? Math.min(row.overlap_days / 7, 1) : null,
-        sharedActivities: [],
+        matchScore: overlapDays > 0 ? score : null,
+        sharedActivities: row.matching_activities ?? [],
         // Composite defaults (no semantic data available)
         semanticScore: 0,
-        compositeScore: row.overlap_days > 0 ? Math.min(row.overlap_days / 7, 1) : 0,
-        matchPercentage:
-          row.overlap_days > 0 ? Math.round(Math.min(row.overlap_days / 7, 1) * 100) : 0,
-        sharedActivityCount: 0,
-        confidence: getMatchConfidence(
-          row.overlap_days > 0 ? Math.round(Math.min(row.overlap_days / 7, 1) * 100) : 0
-        ),
+        compositeScore: score,
+        matchPercentage: percentage,
+        sharedActivityCount: row.matching_activities?.length ?? 0,
+        confidence: getMatchConfidence(percentage),
         factors: {
           semantic: 0,
-          dateOverlap: row.overlap_days > 0 ? Math.min(row.overlap_days / 7, 1) : 0,
+          dateOverlap: score,
           activities: 0,
           destination: 0,
           age: 0,
         },
-      })
-    )
+      }
+    })
   } catch (err) {
     console.warn(
-      '[matching] Geographic RPC unavailable, falling back to client-side:',
+      '[matching] Geographic edge function unavailable, falling back to client-side:',
       err instanceof Error ? err.message : String(err)
     )
     return null
@@ -185,9 +217,13 @@ async function findMatchesClientSide(): Promise<CompositeMatch[]> {
   const { supabase, userId } = await getAuthContext()
 
   // Get current user's active trips for overlap comparison
+  // No latitude/longitude here: `trips` stores position in a PostGIS
+  // `location geography(Point,4326)` column, which PostgREST cannot hand back as
+  // usable coordinates. Distance is therefore a server-side concern (tier 2);
+  // this tier matches on date overlap and shared activities only.
   const { data: myTrips, error: myTripsError } = await supabase
     .from('trips')
-    .select('destination, start_date, end_date, latitude, longitude')
+    .select('destination, start_date, end_date')
     .eq('user_id', userId)
     .gte('end_date', new Date().toISOString())
 
@@ -203,7 +239,6 @@ async function findMatchesClientSide(): Promise<CompositeMatch[]> {
     .select(
       `
       id, user_id, name, destination, start_date, end_date,
-      latitude, longitude,
       profile:profiles!user_id(id, username, display_name, avatar_url, bio)
     `
     )
@@ -231,6 +266,10 @@ async function findMatchesClientSide(): Promise<CompositeMatch[]> {
     let matchType: PotentialMatch['matchType'] = 'geographic_overlap'
 
     for (const myTrip of myTrips) {
+      // end_date is nullable in the schema; an open-ended trip has no
+      // computable overlap window, so skip rather than build an Invalid Date.
+      if (!myTrip.end_date || !trip.end_date) continue
+
       const overlapStart = new Date(
         Math.max(new Date(myTrip.start_date).getTime(), new Date(trip.start_date).getTime())
       )
@@ -246,15 +285,8 @@ async function findMatchesClientSide(): Promise<CompositeMatch[]> {
       }
     }
 
-    let distanceMeters: number | null = null
-    if (myTrips[0]?.latitude && myTrips[0]?.longitude && trip.latitude && trip.longitude) {
-      distanceMeters = haversineDistance(
-        myTrips[0].latitude,
-        myTrips[0].longitude,
-        trip.latitude,
-        trip.longitude
-      )
-    }
+    // Unavailable in this tier — see the trips select above.
+    const distanceMeters: number | null = null
 
     // Compute shared activities for this match
     const theirIds = otherUserActivities[trip.user_id as string] ?? new Set<string>()
@@ -455,12 +487,21 @@ function mapConnectionError(error: { message: string; status?: number; code?: st
   return new AppError(error.message || 'Failed to send connection request', error.status)
 }
 
-/** Fallback: direct table insert (Sprint 7 baseline) */
+/**
+ * Fallback: direct table insert (Sprint 7 baseline).
+ *
+ * `message` is accepted for signature parity with the edge-function path but is
+ * not persisted here — `connections` has no message column. The insert
+ * previously included one, which PostgREST rejected, so this fallback failed
+ * outright. Dropping it makes the fallback work; carrying the note to the
+ * recipient still requires the edge-function path.
+ */
 async function requestConnectionFallback(
   recipientId: string,
   message?: string
 ): Promise<Connection> {
   const { supabase, userId } = await getAuthContext()
+  void message
 
   const { data, error } = await supabase
     .from('connections')
@@ -468,7 +509,6 @@ async function requestConnectionFallback(
       requester_id: userId,
       recipient_id: recipientId,
       status: 'pending',
-      message: message ?? null,
     })
     .select(
       `
@@ -563,16 +603,6 @@ function mapProfile(data: Record<string, unknown> | null): ConnectionProfile | u
 
 // ── Helpers ────────────────────────────────────────────────────
 
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLon = ((lon2 - lon1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
-}
+// haversineDistance was removed with the client-side distance calculation: it
+// only ever ran on trips.latitude/longitude, columns that do not exist. Distance
+// is computed server-side by find-overlapping-trips against PostGIS.

@@ -16,7 +16,7 @@ const supabase = createClient()
 const auth = supabase.auth as unknown as { getSession: jest.Mock }
 // every .eq().maybeSingle() resolves to the same shared mock
 const maybeSingle = (
-  supabase.from('profiles').select('x').eq('u', 'y') as unknown as {
+  supabase.from('profiles').select('id').eq('id', 'y') as unknown as {
     maybeSingle: jest.Mock
   }
 ).maybeSingle
