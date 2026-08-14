@@ -38,7 +38,7 @@ describe('table-name validation', () => {
   it('covers every table in the generated schema', () => {
     // The compile-time assertion in supabase-mock.ts is the real guard; this
     // just makes the count visible when someone adds a migration.
-    expect(TABLE_NAMES).toHaveLength(40)
+    expect(TABLE_NAMES).toHaveLength(41)
     expect(new Set(TABLE_NAMES).size).toBe(TABLE_NAMES.length)
   })
 })

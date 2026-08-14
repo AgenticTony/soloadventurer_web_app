@@ -92,6 +92,7 @@ export const TABLE_NAMES = [
   'user_activities',
   'user_verification',
   'verification_records',
+  'waitlist_entries',
   'women_only_space_members',
   'women_only_spaces',
 ] as const satisfies readonly TableName[]

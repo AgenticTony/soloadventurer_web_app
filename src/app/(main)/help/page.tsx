@@ -19,7 +19,7 @@ export default function HelpPage() {
             note and we&apos;ll get back to you.
           </p>
           <a
-            href="mailto:support@soloadventurer.com"
+            href="mailto:support@soloadventurer.travel"
             className="inline-flex items-center gap-2 rounded-2xl bg-brand px-6 py-2.5 font-medium text-brand-foreground transition-all duration-200 hover:bg-brand/90"
           >
             <Mail className="h-4 w-4" />

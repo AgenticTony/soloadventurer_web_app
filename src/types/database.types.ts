@@ -8,6 +8,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      waitlist_entries: {
+        Row: {
+          id: string
+          email: string
+          first_name: string | null
+          city: string | null
+          referral_code: string
+          referred_by_code: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          first_name?: string | null
+          city?: string | null
+          referral_code?: string
+          referred_by_code?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          first_name?: string | null
+          city?: string | null
+          referral_code?: string
+          referred_by_code?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       activities: {
         Row: {
           category: string

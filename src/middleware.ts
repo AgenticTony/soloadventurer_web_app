@@ -31,9 +31,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
-  // Root route: authenticated → discover, unauthenticated → landing
-  if (pathname === '/' && user) {
-    return NextResponse.redirect(new URL('/discover', request.url))
+  // Root route: authenticated → discover, unauthenticated → waitlist
+  // (Waitlist phase: the public front door is the signup page.)
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(user ? '/discover' : '/waitlist', request.url))
   }
 
   return response
