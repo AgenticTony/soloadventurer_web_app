@@ -18,7 +18,7 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: '/waitlist' },
+  alternates: { canonical: `${SITE_URL}/waitlist` },
   openGraph: {
     title,
     description,
