@@ -18,14 +18,14 @@ in PostHog (EU, consent-gated). Events: `$pageview`, `waitlist_signup`, `share_c
 
 ## Phase order
 
-| Phase | Channel                      | Cost          | When                                             |
-| ----- | ---------------------------- | ------------- | ------------------------------------------------ |
-| 0     | Page readiness               | done (PR #35) | shipped 2026-08-14                               |
-| 1     | Analytics live               | $0            | as soon as PostHog key is set in Vercel          |
-| 2     | Directories (BetaList first) | $0            | day 1–3 — lowest effort, evergreen               |
-| 3     | Facebook groups              | $0            | week 1 join + participate; week 3+ founder posts |
-| 4     | PR outreach                  | $0            | week 2+, rolling (long lead times)               |
-| 5     | Product Hunt                 | $0            | gated: ≥100 signups + real testimonials          |
+| Phase | Channel                      | Cost          | When                                                                                      |
+| ----- | ---------------------------- | ------------- | ----------------------------------------------------------------------------------------- |
+| 0     | Page readiness               | done (PR #35) | shipped 2026-08-14                                                                        |
+| 1     | Analytics live               | $0            | as soon as PostHog key is set in Vercel                                                   |
+| 2     | Directories (BetaList first) | $0            | day 1–3 — lowest effort, evergreen                                                        |
+| 3     | Facebook groups              | $0            | week 1 reactivate (already a member of 39); week 2+ staggered founder posts in tier order |
+| 4     | PR outreach                  | $0            | week 2+, rolling (long lead times)                                                        |
+| 5     | Product Hunt                 | $0            | gated: ≥100 signups + real testimonials                                                   |
 
 Phases 2–4 run concurrently once started. Never let one channel's bad day stop the others.
 
@@ -42,13 +42,24 @@ distribution. If views are fine but signups aren't → page problem, stop postin
 
 ## Facebook groups — the rules that keep the channel alive
 
-1. Join → participate (answer questions, comment) for **2 weeks before any post**.
-2. One founder post per group per week, max. Comments 3–5× more than posts.
-3. Never link-drop; links live in DMs and only where rules clearly allow.
-4. Every post anchored on something real from that group this week (`/fb-group-post` enforces).
-5. Removal/warning = 30-day cooldown for that group; reassess the rules after.
-6. Priority order: solo-female-safety groups (charter wedge) → digital-nomad → city-expat in
-   launch cities → general travel.
+Status: already a member of **39 travel groups** (triaged in `LAUNCH_TRACKER.md`). Most were
+last visited a year+ ago — an account that goes silent-for-a-year then founder-posts across
+dozens of groups is the exact pattern Facebook spam detection and admins nuke. Hence:
+
+1. **Reactivation week first.** Before any founder post in an existing group: visit it, react,
+   and leave 2–3 real comments across ~7 days. Newly joined groups (the JOIN NOW list) still
+   need the full 2-week participation window from join date.
+2. **Stagger hard: max 1–2 founder posts per day across ALL groups**, always different text and
+   angle. Never more than ~8 groups per week. Slow is the strategy — the account survives.
+3. One founder post per group per week, max. Comments 3–5× more than posts.
+4. Never link-drop; links live in DMs and only where rules clearly allow.
+5. Every post anchored on something real from that group this week (`/fb-group-post` enforces).
+6. Removal/warning = 30-day cooldown for that group; reassess the rules after. Two cooldowns in
+   one week = pause all FB posting for 7 days (account-level signal).
+7. Post order = tracker tier order: Tier 1 intent groups → Tier 2 women's wedge → Tier 3 →
+   Tier 4 launch-city country groups. Skip the engagement-bait tier entirely.
+8. Join the JOIN-NOW wedge groups (Girls LOVE Travel first) **today** — their 2-week clocks
+   only start when you join.
 
 ## PR — the rules that get replies
 
