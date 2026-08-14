@@ -1071,6 +1071,11 @@
   .wl .form-row {
     flex-direction: column;
   }
+  /* Column layout: flex:1 would set flex-basis 0% on the HEIGHT axis,
+     collapsing the field to ~23px. Restore the explicit 56px. */
+  .wl .field {
+    flex: none;
+  }
   .wl .cta-btn {
     width: 100%;
     justify-content: center;
