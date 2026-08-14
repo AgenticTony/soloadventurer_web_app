@@ -511,7 +511,7 @@ export default function WaitlistPage() {
             don&apos;t have to rely on luck to find your people.&rdquo;
           </blockquote>
           <div className="founder-attr">
-            <span className="name">Anthony Foran</span>
+            <span className="name">Anthony</span>
             <span className="divider" />
             <span className="role">Founder, SoloAdventurer</span>
           </div>
