@@ -48,11 +48,11 @@ Triage below: post in priority order, skip the engagement-bait tier.
 
 ### Tier 2 — the wedge (solo female / women)
 
-| Group                           | Last active | Archetype          | Reactivated | Posted | Status | Notes          |
-| ------------------------------- | ----------- | ------------------ | ----------- | ------ | ------ | -------------- |
-| Solo Female Traveler Trips      | 17w         | solo-female-safety | —           | —      | todo   | Charter wedge. |
-| Girls Trips on a Budget (GTOAB) | 1y          | solo-female-safety | —           | —      | todo   |                |
-| She Travels                     | 1y          | solo-female-safety | —           | —      | todo   |                |
+| Group                           | Last active | Archetype          | Reactivated | Posted | Status        | Notes                                                                                                                                                                                                      |
+| ------------------------------- | ----------- | ------------------ | ----------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Solo Female Traveler Trips      | 17w         | solo-female-safety | —           | —      | todo          | Charter wedge.                                                                                                                                                                                             |
+| Girls Trips on a Budget (GTOAB) | 1y          | solo-female-safety | —           | —      | todo          |                                                                                                                                                                                                            |
+| She Travels                     | 1y          | solo-female-safety | —           | —      | admin-pending | 1.2M members. Monetized: rules ban links in captions AND comments, all promo admin-approved, paid promo in featured section. Admin-DM drafted (rule-5 safety angle). Timebox 7 days; pay-to-post → passed. |
 
 ### Tier 3 — general solo / nomad
 
