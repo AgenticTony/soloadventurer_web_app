@@ -34,9 +34,9 @@ const geist = Geist({
 })
 
 export const metadata = {
-  title: 'SoloAdventurer - Connect with Solo Travelers',
+  title: 'SoloAdventurer — Travel solo. Never alone.',
   description:
-    'A social platform designed specifically for solo travelers to connect, share experiences, and find travel companions.',
+    'Meet verified solo travelers in your city. Mutual opt-in messaging, ID-verified badges, and safety built in. Join the private beta waitlist.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
