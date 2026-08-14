@@ -2,11 +2,23 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
-import { Check, Globe, Sparkles, Gift, Shield, IdCard, Bell, Handshake } from 'lucide-react'
+import { Check, Globe, Sparkles, Award, Shield, IdCard, Bell, Handshake } from 'lucide-react'
+import { useAnalytics } from '@/contexts/AnalyticsContext'
+import { AnalyticsEvents } from '@/lib/analytics/events'
 import './waitlist.css'
 
 const WAITLIST_CAP = 1000
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.soloadventurer.travel'
+
+const TIERS = ['Bronze', 'Silver', 'Gold', 'Platinum'] as const
+
+/** Founding-member tiers: earlier rank = higher tier. */
+function tierForRank(rank: number): (typeof TIERS)[number] {
+  if (rank > 0 && rank <= 100) return 'Platinum'
+  if (rank <= 250) return 'Gold'
+  if (rank <= 500) return 'Silver'
+  return 'Bronze'
+}
 
 interface WaitlistResult {
   ok: boolean
@@ -18,6 +30,7 @@ interface WaitlistResult {
 }
 
 export default function WaitlistPage() {
+  const { track } = useAnalytics()
   const [formState, setFormState] = useState<'default' | 'success' | 'referral'>('default')
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -33,8 +46,11 @@ export default function WaitlistPage() {
 
   const referralSource = useRef<string | null>(null)
   useEffect(() => {
-    referralSource.current = new URLSearchParams(window.location.search).get('ref')
-  }, [])
+    const ref = new URLSearchParams(window.location.search).get('ref')
+    referralSource.current = ref
+    // Funnel event: landed via someone's referral link (no PII — no code value).
+    if (ref) track(AnalyticsEvents.referralLanding, { has_ref: true })
+  }, [track])
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -116,10 +132,14 @@ export default function WaitlistPage() {
       setErrorMsg('')
       const result = await joinWaitlist(email)
       setSubmitting(false)
-      if (result.ok) setFormState('success')
-      else setErrorMsg(result.error || 'Something went wrong.')
+      if (result.ok) {
+        setFormState('success')
+        track(AnalyticsEvents.waitlistSignup, { has_ref: Boolean(referralSource.current) })
+      } else {
+        setErrorMsg(result.error || 'Something went wrong.')
+      }
     },
-    [email, joinWaitlist]
+    [email, joinWaitlist, track]
   )
 
   const handleEnrichment = useCallback(
@@ -138,9 +158,10 @@ export default function WaitlistPage() {
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(`${SITE_URL}/r/${referralCode}`).then(() => {
       setCopied(true)
+      track(AnalyticsEvents.shareClick, { channel: 'copy' })
       setTimeout(() => setCopied(false), 2000)
     })
-  }, [referralCode])
+  }, [referralCode, track])
 
   const referralLink = `${SITE_URL}/r/${referralCode}`
 
@@ -156,6 +177,7 @@ export default function WaitlistPage() {
           <a href="#perks">Perks</a>
           <a href="#flow">How it works</a>
           <a href="#safety">Safety</a>
+          <a href="#next">What&rsquo;s next</a>
           <a href="#founder">Founder</a>
         </nav>
         <button className="top-cta" onClick={() => document.getElementById('hero-form')?.focus()}>
@@ -206,7 +228,9 @@ export default function WaitlistPage() {
                 <span className="live-count">
                   <b className={bump ? 'bump' : ''}>{totalCount}</b> joined
                 </span>
-                <span>No spam, ever</span>
+                <span>
+                  No spam, ever · By joining you agree to our <a href="/privacy">Privacy Policy</a>
+                </span>
               </div>
               {errorMsg && (
                 <div
@@ -265,10 +289,11 @@ export default function WaitlistPage() {
                 <span style={{ width: `${Math.min((rank / WAITLIST_CAP) * 100, 100)}%` }} />
               </div>
               <div className="tier">
-                <span>Bronze</span>
-                <span className="on">Silver</span>
-                <span>Gold</span>
-                <span>Platinum</span>
+                {TIERS.map(t => (
+                  <span key={t} className={tierForRank(rank) === t ? 'on' : ''}>
+                    {t}
+                  </span>
+                ))}
               </div>
               <div className="share-label">Share your referral link</div>
               <div className="share-link">
@@ -277,34 +302,37 @@ export default function WaitlistPage() {
               </div>
               <div className="share-socials">
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    track(AnalyticsEvents.shareClick, { channel: 'twitter' })
                     window.open(
                       'https://twitter.com/intent/tweet?url=' + encodeURIComponent(referralLink),
                       '_blank'
                     )
-                  }
+                  }}
                 >
                   Twitter
                 </button>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    track(AnalyticsEvents.shareClick, { channel: 'whatsapp' })
                     window.open(
                       'https://wa.me/?text=' +
                         encodeURIComponent('Join me on SoloAdventurer! ' + referralLink),
                       '_blank'
                     )
-                  }
+                  }}
                 >
                   WhatsApp
                 </button>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    track(AnalyticsEvents.shareClick, { channel: 'email' })
                     window.open(
                       'mailto:?subject=SoloAdventurer&body=' +
                         encodeURIComponent('Join me! ' + referralLink),
                       '_blank'
                     )
-                  }
+                  }}
                 >
                   Email
                 </button>
@@ -335,8 +363,8 @@ export default function WaitlistPage() {
             sizes="50vw"
           />
           <div className="hero-quote">
-            <p>&ldquo;I met three amazing people in my first week in Lisbon.&rdquo;</p>
-            <cite>Sarah, 28. Barcelona to Lisbon.</cite>
+            <p>Join the first 1,000.</p>
+            <cite>Founding members get priority access at launch.</cite>
           </div>
         </div>
       </section>
@@ -364,10 +392,13 @@ export default function WaitlistPage() {
             </div>
             <div className="perk">
               <div className="perk-icon">
-                <Gift size={22} strokeWidth={1.5} />
+                <Award size={22} strokeWidth={1.5} />
               </div>
-              <h3>Travel perks</h3>
-              <p>Partner discounts on flights, hostels, experiences, and travel insurance.</p>
+              <h3>Founding member status</h3>
+              <p>
+                Priority access at launch, a direct line to the founder, and invite-only early
+                events in our first cities.
+              </p>
             </div>
           </div>
         </div>
@@ -392,8 +423,8 @@ export default function WaitlistPage() {
               <div className="flow-step-num">ii</div>
               <h4>Browse your matches</h4>
               <p>
-                See verified travelers heading to the same city. Every profile is identity-checked
-                with a real selfie verification.
+                See travelers heading to the same city. Badges show who completed a real selfie + ID
+                verification.
               </p>
             </div>
             <div className="flow-step" data-reveal>
@@ -462,7 +493,10 @@ export default function WaitlistPage() {
             <div className="safety-item">
               <Shield size={28} strokeWidth={1.5} />
               <h4>Report and block</h4>
-              <p>Instant blocking and reporting. Our trust team monitors around the clock.</p>
+              <p>
+                Block instantly, report in two taps. Women-only spaces and ID verification built in
+                from day one.
+              </p>
             </div>
           </div>
         </div>
@@ -484,6 +518,43 @@ export default function WaitlistPage() {
         </div>
       </section>
 
+      {/* ── What happens next ── */}
+      <section className="next" id="next">
+        <div className="next-inner">
+          <div className="next-head" data-reveal>
+            <h2>
+              You&rsquo;re joining an app, <em>not a mailing list.</em>
+            </h2>
+          </div>
+          <div className="next-steps">
+            <div className="next-step" data-reveal>
+              <div className="next-step-num">01</div>
+              <h4>A mobile app, built for solo travel</h4>
+              <p>
+                SoloAdventurer is a free mobile app for iOS and Android, now in private beta. The
+                waitlist secures your place in line.
+              </p>
+            </div>
+            <div className="next-step" data-reveal>
+              <div className="next-step-num">02</div>
+              <h4>Invites go out in waves</h4>
+              <p>
+                Founding members get access first, starting with travelers in New York, London,
+                Tokyo, Barcelona, Bangkok, and Lisbon.
+              </p>
+            </div>
+            <div className="next-step" data-reveal>
+              <div className="next-step-num">03</div>
+              <h4>Your rank moves you up</h4>
+              <p>
+                Every friend who joins through your referral link bumps you up the list. Top of the
+                list, first through the door.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Final CTA ── */}
       <section className="final-cta">
         <h2>
@@ -499,7 +570,10 @@ export default function WaitlistPage() {
               setSubmitting(true)
               const result = await joinWaitlist(input.value)
               setSubmitting(false)
-              if (result.ok) setFormState('success')
+              if (result.ok) {
+                setFormState('success')
+                track(AnalyticsEvents.waitlistSignup, { has_ref: Boolean(referralSource.current) })
+              }
             }
           }}
         >
