@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
-import { Check, Globe, Sparkles, Gift, Shield, IdCard, Eye, Bell, Ban } from 'lucide-react'
+import { Check, Globe, Sparkles, Gift, Shield, IdCard, Bell, Handshake } from 'lucide-react'
 import './waitlist.css'
 
 const WAITLIST_CAP = 1000
@@ -171,12 +171,12 @@ export default function WaitlistPage() {
           </div>
 
           <h1 className="display">
-            Meet verified travelers <em>tonight.</em>
+            Travel solo. Never <em>alone.</em>
           </h1>
 
           <p className="hero-sub">
-            SoloAdventurer matches you with identity-verified travelers in your city right now. No
-            swiping, no creeps, no endless scrolling. Just real people who want to explore together.
+            Meet solo travelers in your city right now. No message lands until you both accept the
+            connection. ID-verified badges show who&apos;s been checked.
           </p>
 
           <div
@@ -320,7 +320,7 @@ export default function WaitlistPage() {
               <Check size={16} /> No credit card
             </span>
             <span>
-              <Check size={16} /> Cancel anytime
+              <Check size={16} /> Mutual opt-in messaging
             </span>
           </div>
         </div>
@@ -353,9 +353,7 @@ export default function WaitlistPage() {
                 <Globe size={22} strokeWidth={1.5} />
               </div>
               <h3>Global community</h3>
-              <p>
-                Connect with verified solo travelers in 120+ cities worldwide before you even land.
-              </p>
+              <p>Connect with solo travelers in cities worldwide before you even land.</p>
             </div>
             <div className="perk">
               <div className="perk-icon">
@@ -442,15 +440,18 @@ export default function WaitlistPage() {
           </div>
           <div className="safety-grid" data-reveal>
             <div className="safety-item">
-              <IdCard size={28} strokeWidth={1.5} />
-              <h4>ID verification</h4>
-              <p>Government ID check for all members before they can message or meet anyone.</p>
+              <Handshake size={28} strokeWidth={1.5} />
+              <h4>Mutual opt-in</h4>
+              <p>
+                Connection requests need both sides to accept. No message lands unless you say yes.
+              </p>
             </div>
             <div className="safety-item">
-              <Eye size={28} strokeWidth={1.5} />
-              <h4>Photo verification</h4>
+              <IdCard size={28} strokeWidth={1.5} />
+              <h4>ID verification (Pro)</h4>
               <p>
-                Real-time selfie verification ensures every profile matches the person you meet.
+                Government ID check with a verified badge on your profile, so others know
+                you&apos;ve been checked.
               </p>
             </div>
             <div className="safety-item">
@@ -507,7 +508,7 @@ export default function WaitlistPage() {
             {submitting ? 'Joining...' : 'Join now'} <span>&rarr;</span>
           </button>
         </form>
-        <div className="final-note">It&apos;s free. It always will be.</div>
+        <div className="final-note">Free to join. ID verification available in Pro.</div>
       </section>
 
       {/* ── Footer ── */}
