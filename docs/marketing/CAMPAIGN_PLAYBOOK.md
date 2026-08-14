@@ -69,6 +69,22 @@ dozens of groups is the exact pattern Facebook spam detection and admins nuke. H
 4. Follow up day 3 and day 7, one line each, then stop.
 5. Replies are answered by hand, always (relationship moments are never automated).
 
+## Competitive positioning (one-liners for pitches)
+
+**SoFe Travel (thesolofemaletravelernetwork.com)** — the reference point in our wedge. Not an
+app: a ~600k-women Facebook community + paid small-group tour operator ($550 deposits, ≤14
+women, scheduled dates, vetted guides, psychologist-designed roommate matching). Complement,
+not competitor:
+
+- Their job: "a planned trip with a ready-made group, paid." Ours: "meet verified people in
+  the city you're in right now, free."
+- Their trust: vetted guides + group setting. Ours: verified travelers (ID badges, mutual
+  opt-in, women-only spaces, meetup reputation).
+- Pitch line: "Group tours are one answer — SoFe charges $550+ for a scheduled trip.
+  SoloAdventurer is the free, everyday version, with ID verification instead of a chaperone."
+- Never position AGAINST them (600k fans, press relationships) — position alongside. Later:
+  their travelers-between-tours are our ideal users (partnership door, not battleground).
+
 ## UTM conventions (attribution without any new tooling)
 
 ```
