@@ -84,3 +84,32 @@ or SDK versions. Keep the exact URLs — they go in the PR under "Sources".
 
 Auth (Supabase SSR sessions, RLS policies, middleware), payments (Stripe),
 and anything in safety/moderation features. Surface the risk before changing.
+
+## Deploy Configuration (configured by /setup-deploy)
+
+- Platform: Vercel (git integration — auto-deploy on push to main, previews on PRs)
+- Project: soloadventurer-web-app (team: Anthony's projects, Hobby tier)
+- Production URL: https://www.soloadventurer.travel (apex 308-redirects to www)
+- Vercel URL: https://soloadventurer-web-app.vercel.app
+- Deploy workflow: automatic on push to main
+- Deploy status command: `vercel ls --prod` or poll production URL
+- Merge method: squash
+- Project type: Next.js web app (App Router)
+- Post-deploy health check: `curl -s https://www.soloadventurer.travel/api/waitlist` → `{"total":N}`
+
+### Custom deploy hooks
+
+- Pre-merge: `npx tsc --noEmit && npx jest --silent && npm run build`
+- Deploy trigger: automatic on push to main (Vercel GitHub integration)
+- Deploy status: poll https://www.soloadventurer.travel/api/waitlist
+- Health check: GET /api/waitlist returns 200 + JSON; GET / returns 307 → /waitlist
+
+### Production env vars (Vercel)
+
+- NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY (anon only — NEVER the service key), NEXT_PUBLIC_SITE_URL=https://www.soloadventurer.travel
+
+### Waitlist launch notes (2026-08-14)
+
+- Root `/` redirects: unauthenticated → /waitlist, authenticated → /discover (src/middleware.ts)
+- Referral links: `https://www.soloadventurer.travel/r/{CODE}` → `/waitlist?ref={CODE}` (src/app/r/[code]/page.tsx)
+- Backend: `waitlist_entries` table + `join_waitlist` / `get_waitlist_count` SECURITY DEFINER RPCs (migration 20260813100000 in SoloAdventurer_app repo, applied to prod)
