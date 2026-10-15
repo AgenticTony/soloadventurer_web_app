@@ -1,0 +1,6 @@
+# Raw REA evidence JSONs (competitor decode dumps) are kept LOCAL ONLY —
+# not committed (legal review 2026-10-11: IP/ToS exposure + repo bloat if the
+# repo is ever shared/public; PR #42 review finding 8). The committed record
+# is the teardown docs' findings + evidence IDs; these files remain the
+# local evidence trail, retrievable on demand.
+rea/
