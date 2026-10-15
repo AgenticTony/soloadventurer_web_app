@@ -1,10 +1,10 @@
 {
   "repo": "web",
   "generated_note": "Derived from checkbox state in docs/sprints/PHASE_*.md by scripts/regen-sprint-progress.py. Restructured 2026-06-30 to FOUNDATIONS §9 phases (0,A,B,C,D,E). Judgment fields (needs_human_review/flagged) hand-set per phase; loop.md on web is triage-based and does NOT read this file — it exists for the regenerator + CI --check gate.",
-  "sprint_count": 8,
+  "sprint_count": 9,
   "summary": {
     "completed_100pct": 0,
-    "needs_human_review": 5,
+    "needs_human_review": 6,
     "flagged": [],
     "not_derivable_no_checkboxes": []
   },
@@ -29,7 +29,9 @@
         "all_checked": false
       },
       "needs_human_review": true,
-      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "review_reasons": [
+        "Phase has needs-human/safety stories (see .md annotations)"
+      ],
       "flagged": false,
       "flag_reason": null,
       "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (blockers)",
@@ -169,7 +171,9 @@
         "all_checked": false
       },
       "needs_human_review": true,
-      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "review_reasons": [
+        "Phase has needs-human/safety stories (see .md annotations)"
+      ],
       "flagged": false,
       "flag_reason": null,
       "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (agent layer)",
@@ -249,7 +253,9 @@
         "all_checked": false
       },
       "needs_human_review": true,
-      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "review_reasons": [
+        "Phase has needs-human/safety stories (see .md annotations)"
+      ],
       "flagged": false,
       "flag_reason": null,
       "git_reconciliation": "Phase sprint created 2026-06-30 from FOUNDATIONS §9 (scale)",
@@ -301,7 +307,9 @@
         "all_checked": false
       },
       "needs_human_review": true,
-      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "review_reasons": [
+        "Phase has needs-human/safety stories (see .md annotations)"
+      ],
       "flagged": false,
       "flag_reason": null,
       "git_reconciliation": "Entry materialized from PHASE_A_PUBLIC_SURFACE.md by regen-sprint-progress.py",
@@ -361,7 +369,9 @@
         "all_checked": false
       },
       "needs_human_review": true,
-      "review_reasons": ["Phase has needs-human/safety stories (see .md annotations)"],
+      "review_reasons": [
+        "Phase has needs-human/safety stories (see .md annotations)"
+      ],
       "flagged": false,
       "flag_reason": null,
       "git_reconciliation": "Entry materialized from PHASE_W_FOUNDATION_UPGRADE.md by regen-sprint-progress.py",
@@ -397,6 +407,132 @@
           "done_count": 0,
           "todo_count": 4,
           "total": 4,
+          "completion_pct": 0.0
+        }
+      ]
+    },
+    {
+      "id": "PHASE_R_RESEARCH_INSERTS",
+      "sprint_number": "R",
+      "repo": "web",
+      "file": "/Users/anthonyforan/Desktop/SoloAdventurerWeb/docs/sprints/PHASE_R_RESEARCH_INSERTS.md",
+      "checkboxes": {
+        "done": 0,
+        "todo": 28,
+        "total": 28
+      },
+      "completion_pct": 0.0,
+      "done": false,
+      "verified": {
+        "section": "Definition of Done / Acceptance Criteria",
+        "done": 0,
+        "todo": 0,
+        "total": 0,
+        "all_checked": false
+      },
+      "needs_human_review": true,
+      "review_reasons": [
+        "Phase has needs-human/safety stories (see .md annotations)"
+      ],
+      "flagged": false,
+      "flag_reason": null,
+      "git_reconciliation": "Entry materialized from PHASE_R_RESEARCH_INSERTS.md by regen-sprint-progress.py",
+      "story_count": 12,
+      "stories": [
+        {
+          "name": "Story R.1 — City/geo data source [MOBILE · backend]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 4,
+          "total": 4,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.2 — Real-time presence (\"free tonight\") [MOBILE] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 5,
+          "total": 5,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.3 — City hosts + recurring events substrate [BOTH] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 5,
+          "total": 5,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.4 — Public events directory pages [WEB] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 2,
+          "total": 2,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.5 — Verification ladder [MOBILE · Phase D slot] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 2,
+          "total": 2,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.6 — Pre-meetup in-app calls [MOBILE · Phase C/D slot] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 2,
+          "total": 2,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.7 — Concierge EU/GDPR compliance gate [BOTH · **immediate — do not wait for Phase C**] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 3,
+          "total": 3,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.8 — Emergency-dispatch partnership tier [MOBILE · Phase D/E] [safety: true] [needs_human: true]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 2,
+          "total": 2,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.9 — APM fill (Sentry-class) [BOTH · immediate small story]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 1,
+          "total": 1,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.10 — PostHog feature flags + experiments [BOTH · with Stage A+]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 1,
+          "total": 1,
+          "completion_pct": 0.0
+        },
+        {
+          "name": "Story R.11 — RevenueCat evaluation [MOBILE · deferred note]",
+          "done": null,
+          "done_count": 0,
+          "todo_count": 0,
+          "total": 0,
+          "completion_pct": null
+        },
+        {
+          "name": "Story R.12 — Marketing positioning updates [docs/marketing · now]",
+          "done": false,
+          "done_count": 0,
+          "todo_count": 1,
+          "total": 1,
           "completion_pct": 0.0
         }
       ]
